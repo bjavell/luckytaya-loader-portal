@@ -8,14 +8,16 @@ const config: Config = {
   theme: {
     extend: {
       backgroundImage: {
-        'yellow-green': 'linear-gradient(to right, #C1C957, #73984F)'
+        'yellow-green': 'linear-gradient(to right, #C1C957, #73984F)',
+        'darkGrey-mattBlack': 'linear-gradient(to right, #242424, #242424)'
       },
       colors: {
+        darkGrey: '#242424',
         semiBlack: '#101010',
         cursedBlack: '#131313',
         semiYellow: '#EFE65C',
         yellow: '#C1C957',
-        red: '#EFE65C',
+        red: '#ED3939',
         neutralGray: '#C3C3C3',
         lightGreen: '#73984F',
         gray13: '#212121',

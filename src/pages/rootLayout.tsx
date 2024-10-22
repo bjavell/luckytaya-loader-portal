@@ -15,9 +15,9 @@ const Layout: React.FC<{ children: ReactNode, title: string }> = ({ children, ti
             <main>
                 <div className="flex flex-row h-screen w-screen bg-gray13">
                     <div className="w-1/2 flex items-center justify-center relative bg-black">
-                        <Image src={loginBG} alt="" className="object-cover w-full h-full mix-blend-luminosity relative opacity-10" />
+                        <Image src={loginBG} alt="" className="object-cover w-full h-full mix-blend-luminosity relative opacity-10" priority={false}/>
                         <div className="absolute inset-0 flex items-center justify-center z-10">
-                            <Image src={logo} alt="" className="h-1/4 w-2/4"/>
+                            <Image src={logo} alt="" className="h-1/4 w-2/4" priority={false}/>
                         </div>
                     </div>
                     <div className="w-1/2 flex items-center justify-center">

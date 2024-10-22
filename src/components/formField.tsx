@@ -6,13 +6,13 @@ interface FormFieldProps {
     type?: 'text' | 'password', // add more types if necessary
     label?: string
     errorMessage?: string,
-    placeholder?: string
+    placeholder?: string,
+    onChange?: React.ChangeEventHandler<HTMLInputElement>
 }
 
 const FormField: NextPage<FormFieldProps> = (props) => {
 
     const { label, name, type, ...inputProps } = props
-
 
     return (
         <div className="flex flex-col flex-1 gap-4">

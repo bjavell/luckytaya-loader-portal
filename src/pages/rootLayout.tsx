@@ -1,8 +1,8 @@
 import Head from "next/head"
 import Image from "next/image"
 import { ReactNode } from "react"
-import loginBG from '@/public/images/login-bg.svg'
-import logo from '@/public/images/logo-1.svg'
+import loginBG from '@/assets/images/login-bg.svg'
+import logo from '@/assets/images/logo-1.svg'
 
 
 const Layout: React.FC<{ children: ReactNode, title: string }> = ({ children, title }) => {
@@ -20,7 +20,7 @@ const Layout: React.FC<{ children: ReactNode, title: string }> = ({ children, ti
                             <Image src={logo} alt="" className="h-1/4 w-2/4" priority={false}/>
                         </div>
                     </div>
-                    <div className="w-1/2 flex items-center justify-center">
+                    <div className="w-1/2 flex items-center justify-center p-4">
                         {children}
                     </div>
                 </div>

@@ -2,7 +2,7 @@ import DashboardLayout from "../layout"
 
 const Commisson = () => {
     return (
-        <DashboardLayout title="Dashboard" >
+        <DashboardLayout title="Dashboard" slug="TRANSFER">
             HASDASDA
         </DashboardLayout>
     )

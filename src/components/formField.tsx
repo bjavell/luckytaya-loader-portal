@@ -7,17 +7,18 @@ interface FormFieldProps {
     label?: string
     errorMessage?: string,
     placeholder?: string,
-    onChange?: React.ChangeEventHandler<HTMLInputElement>
+    onChange?: React.ChangeEventHandler<HTMLInputElement>,
+    customLabelClass?: string
 }
 
 const FormField: NextPage<FormFieldProps> = (props) => {
 
-    const { label, name, type, ...inputProps } = props
+    const { label, name, type, customLabelClass, ...inputProps } = props
 
     return (
         <div className="flex flex-col flex-1 gap-4">
-            <label htmlFor={name} className="text-white text-base font-sans font-light text-[16px]">{label}</label>
-            <input type={type} className="rounded-xlg py-4 px-4 bg-semiBlack font-sans font-light text-[13px] tacking-[5%] text-white" {...inputProps} />
+            <label htmlFor={name} className={`text-white font-sans font-light ${customLabelClass}`}>{label}</label>
+            <input type={type} className="rounded-xlg py-4 px-4 bg-semiBlack font-sans font-light text-[13px] tacking-[5%] text-white " {...inputProps} />
         </div>
 
     )

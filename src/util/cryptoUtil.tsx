@@ -7,9 +7,9 @@ const encrypt = (message: string) => {
     return CryptoJS.AES.encrypt(message, SECRET_PASSKEY).toString()
 }
 
-
 const decrypt = (encryptedMessage: string) => {
-    return CryptoJS.AES.decrypt(encryptedMessage, SECRET_PASSKEY).toString()
+    const bytes =  CryptoJS.AES.decrypt(encryptedMessage, SECRET_PASSKEY)
+    return bytes.toString(CryptoJS.enc.Utf8)
 }
 
 export {

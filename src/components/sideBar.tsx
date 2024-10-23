@@ -1,8 +1,16 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useRouter } from "next/router"
-import logo from '@/public/images/logo-1.svg'
+import logo from '@/assets/images/logo-1.svg'
 import Image from "next/image"
+import Dashboard from '@/assets/images/Dashboard.svg'
+import CashOut from '@/assets/images/CashOut.svg'
+import Commission from '@/assets/images/Commission.svg'
+import ActivePlayer from '@/assets/images/ActivePlayer.svg'
+import DeactPlayer from '@/assets/images/DeactPlayer.svg'
+import LoadStation from '@/assets/images/LoadStation.svg'
+import Transfer from '@/assets/images/Transfer.svg'
+import Logout from '@/assets/images/Logout.svg'
 
 interface SideBarRoutesProps {
     module?: string,
@@ -15,7 +23,7 @@ const sideBarRoutes = [{
     module: 'GENERAL',
     item: [{
         module: 'Dashboard',
-        ico: '',
+        ico: Dashboard,
         link: '/dashboard'
     }]
 
@@ -23,11 +31,11 @@ const sideBarRoutes = [{
     module: 'PLAYERS',
     item: [{
         module: 'Active Players',
-        ico: '',
+        ico: ActivePlayer,
         link: '/players/active'
     }, {
         module: 'Deact Players',
-        ico: '',
+        ico: DeactPlayer,
         link: '/players/deact'
     }]
 
@@ -35,23 +43,23 @@ const sideBarRoutes = [{
     module: 'LOADING STATION',
     item: [{
         module: 'Load Station',
-        ico: '',
-        link: '/loading/station'
+        ico: LoadStation,
+        link: '/loading-station/load'
     }, {
         module: 'Cash-Out',
-        ico: '',
-        link: '/loading/cashOut'
+        ico: CashOut,
+        link: '/loading-station/cash-out'
     }]
 
 }, {
     module: 'HISTORY',
     item: [{
         module: 'Transfer',
-        ico: '',
+        ico: Transfer,
         link: '/history/transfer'
     }, {
         module: 'Commission',
-        ico: '',
+        ico: Commission,
         link: '/history/commission'
     }]
 
@@ -79,7 +87,14 @@ const populateRoutes = (routes: SideBarRoutesProps, currentRoute: string) => {
 
 const populateItems = (item: SideBarRoutesProps, currentRoute: string) => {
     return (
-        <Link key={item.module} href={item.link ?? '/'} className={`${currentRoute === item.link ? 'bg-cursedBlack rounded-xlg text-[#E7DE54]' : ''} p-4 hover:bg-cursedBlack hover:rounded-xlg hover:text-[#E7DE54]`} >{item.module}</Link>
+        <Link
+            key={item.module}
+            href={item.link ?? '/'}
+            className={`${currentRoute === item.link ? 'bg-cursedBlack rounded-xlg text-[#E7DE54]' : ''} p-4 hover:bg-cursedBlack hover:rounded-xlg hover:text-[#E7DE54] flex gap-2`}
+        >
+            {item.ico ? <Image src={item.ico} alt="" className={`h-4 w-auto my-auto`} /> : ''}
+            {item.module}
+        </Link>
     )
 }
 
@@ -89,7 +104,7 @@ const SideBar = () => {
 
     return (
         <div className="flex flex-col w-[232px] grow ">
-            <div className="flex brand w-[232px] h-[181px] bg-semiBlack"> <Image src={logo} alt="" className="m-auto" priority={false} /> </div>
+            <div className="flex brand w-[232px] h-[181px] bg-black"> <Image src={logo} alt="" className="m-auto" priority={false} /> </div>
             <div className="flex grow bg-darkGrey justify-center">
                 <ul className="flex flex-col w-full">
                     <li className="flex bg-cursedBlack h-11 mb-4">
@@ -98,7 +113,10 @@ const SideBar = () => {
                         </div>
                     </li>
                     {sideBarRoutes.map(__routes => populateRoutes(__routes, currentRoute))}
-                    <li className="px-4 flex flex-col"> <Link href={'/login'} className="p-4 text-red hover:bg-cursedBlack hover:rounded-xlg hover:text-[#E7DE54]" > Logout</Link></li>
+                    <li className="px-4 flex flex-col">
+                        <Link href={'/login'} className="p-4 text-red hover:bg-cursedBlack hover:rounded-xlg hover:text-[#E7DE54] flex gap-2" >
+                            <Image src={Logout} alt="" className={`h-4 w-auto my-auto`} /> Logout</Link>
+                    </li>
                 </ul>
             </div>
 

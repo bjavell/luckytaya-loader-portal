@@ -29,6 +29,9 @@ const config: Config = {
       },
       borderRadius: {
         xlg: '15px'
+      },
+      height: {
+        '96.75' : '27.563rem'
       }
     },
   },

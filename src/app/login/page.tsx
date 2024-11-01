@@ -25,7 +25,6 @@ const Login = () => {
             })
             .catch(e => {
                 const errorMessages = e.response.data.error;
-                // console.log(errorMessages)
                 if (errorMessages) {
                     if (errorMessages['Not found']) {
                         setErrorMessage(errorMessages['Not found'][0]);

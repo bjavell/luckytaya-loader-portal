@@ -3,7 +3,6 @@ import { NextApiRequest } from "next";
 import { NextResponse } from "next/server";
 
 const POST = async (req: NextApiRequest) => {
-    console.log('here!!')
 
     await clearSession()
 

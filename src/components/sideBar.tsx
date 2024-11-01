@@ -101,12 +101,10 @@ const populateItems = (item: SideBarRoutesProps, currentRoute: string) => {
 const onHandleLogout = async (router: AppRouterInstance | string[], setIsLoading: { (value: SetStateAction<boolean>): void; (arg0: boolean): void }) => {
     await axios.post('/api/signout', {})
         .then(response => {
-            // console.log(response)
             router.push('/login')
         })
         .catch(e => {
             const errorMessages = e.response.data.error;
-            // console.log(errorMessages)
 
         })
         .finally(() => {
@@ -124,8 +122,6 @@ const SideBar = () => {
     useEffect(() => {
         const getSession = async () => {
             const session = await getCurrentSession()
-
-            console.log(session)
 
             setName(`${session.firstname} ${session.lastname}`)
 

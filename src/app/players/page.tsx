@@ -24,12 +24,10 @@ const Active = () => {
     }, [])
 
     const onStatusChange = ((e: any) => {
-        console.log(e.target.value)
         const filter = players.filter((player: any) => {
             if (e.target.value === 'ALL') {
                 return true
             }
-            console.log(player)
             return player.suspended === Number(e.target.value)
         })
         setStatus(e.target.value)

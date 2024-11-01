@@ -7,7 +7,6 @@ import { cookies } from "next/headers"
 const getCurrentSession = async () => {
     const cookieStore = await cookies()
     const currentSession = cookieStore.get(SESSION_COOKIE_NAME)
-    console.log('SESSION', currentSession?.value)
     if (currentSession?.value) {
         return JSON.parse(decrypt(currentSession.value))
     }

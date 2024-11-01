@@ -1,55 +1,46 @@
-import axios from "axios";
 import { NextRequest, NextResponse } from "next/server";
-import { getCurrentSession, setSession } from "./context/auth";
+import { getCurrentSession } from "./context/auth";
+
+const protectedRoutes = ['/dashboard', '/history', '/players', '/loading-station']
+const publicRoutes = ['/login']
 
 const middleware = async (request: NextRequest) => {
     const { pathname } = request.nextUrl
 
-    const currentSession = getCurrentSession()
-    console.log(request.cookies)
-    console.log(currentSession)
+    const currentSession = await getCurrentSession()
 
-    // const cookieStore = cookies()
+    const isProtectedRoute = protectedRoutes.some(route =>
+        pathname.startsWith(route) || pathname === route
+    )
 
-    // console.log(request.method)
-    // console.log(pathname)
+    if (isProtectedRoute && !currentSession) {
+        return NextResponse.redirect(new URL('/login', request.nextUrl))
+    }
 
-    // if (request.method === 'POST' && pathname === '/api/signin') {
-    //     const httpsAgent = new Agent({
-    //         rejectUnauthorized: false,
-    //         host: '161.49.111.17',
-    //         port: 1443,
-    //         path: '/'
-    //     })
+    const validRoutes = protectedRoutes.concat(publicRoutes)
 
-    //     await axios.post(`${process.env.BASE_URL}/api/v1/User/Login`, request, { httpsAgent })
-    //         .then(response => {
-    //             setSession(response.data)
-    //             return NextResponse.json(response.data)
-    //         }).catch(e => {
-    //             return NextResponse.json({ error: e.response.data.errors }, { status: 500 })
-    //         })
-    // }
+    const isValidRoutes = validRoutes.some(route =>
+        pathname.startsWith(route) || pathname === route
+    )
 
-    // const currentSession = getCurrentSession()
-    // const isProtectedPath = request.nextUrl.pathname.startsWith('/dashboard') || request.nextUrl.pathname.startsWith('/history') || request.nextUrl.pathname.startsWith('/players');
+    if (!isValidRoutes) {
+        if (currentSession) {
+            return NextResponse.redirect(new URL('/dashboard', request.nextUrl))
+        }
 
-    // if (!currentSession && isProtectedPath) {
-    //     console.log('here')
-    //     console.log(currentSession)
-    //     return NextResponse.redirect(new URL('/login', request.url))
-    // }
-
+        return NextResponse.redirect(new URL('/login', request.nextUrl))
+    }
 
     return NextResponse.next()
 }
 
-const config = {
-    matcher: ['/dashboard/*', '/history/*', '/players/*']
-
+export const config = {
+    matcher: [
+        '/dashboard',
+        '/history/:path*',
+        '/players/:path*',
+        '/loading-station/:path*'
+    ]
 }
 
-export {
-    middleware,
-    config
-}
+export default middleware

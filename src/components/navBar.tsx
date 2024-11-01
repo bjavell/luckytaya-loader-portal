@@ -8,7 +8,7 @@ interface NavBarProps {
 const NavBar: NextPage<NavBarProps> = (props) => {
     const { slug } = props
     return (
-        <div className="h-[181px] w-full bg-cursedBlack flex px-14">
+        <div className="min-h-[181px] w-full bg-cursedBlack flex px-14">
             <div className="flex flex-col my-auto">
                 <div className="flex text-xl gap-2">
                     <span>Loader Portal</span>

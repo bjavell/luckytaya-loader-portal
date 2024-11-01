@@ -1,17 +1,19 @@
 import { useState } from "react";
 
 interface HeadersProp<T> {
-    label?: string;
-    key: string;
+    label?: string,
+    key: string,
+    customValueClass?: string
 }
 
 interface TablesProps<T> {
-    headers: Array<HeadersProp<T>>;
-    items: Array<T>;
-    primaryId: string;
+    headers: Array<HeadersProp<T>>,
+    items: Array<T>,
+    primaryId: string,
+    isCentered?: boolean
 }
 
-const Tables = <T extends any>({ headers, items, primaryId }: TablesProps<T>) => {
+const Tables = <T extends any>({ headers, items, primaryId, isCentered = false }: TablesProps<T>) => {
     const [currentPage, setCurrentPage] = useState(1);
     const pageSize = 10;
     const totalPages = Math.ceil(items.length / pageSize);
@@ -75,7 +77,7 @@ const Tables = <T extends any>({ headers, items, primaryId }: TablesProps<T>) =>
     };
 
     const pageNumbers = getPaginationRange();
-
+    
     return (
         <div className="justify-between">
             <table className="table-auto w-full">
@@ -90,35 +92,35 @@ const Tables = <T extends any>({ headers, items, primaryId }: TablesProps<T>) =>
                 </thead>
                 <tbody>
                     {paginatedItems.map((item: any, i) => (
-                        <tr key={`key-${i}-${item[primaryId]}`} className="even:bg-gray13 odd:bg-cursedBlack text-xs">
+                        <tr key={`key-${item[primaryId]}-${i}`} className="even:bg-gray13 odd:bg-cursedBlack text-xs">
                             {headers.map(h => (
-                                <td key={`row-key-${i}-${item[h.key]}`} className="p-3">{item[h.key]}</td>
+                                <td key={`row-key-${item[h.key]}-${i}`} className={`p-3 font-semibold ${h.customValueClass ? h.customValueClass : ''} ${isCentered ? 'text-center' : ''}`}>{item[h.key]}</td>
                             ))}
                         </tr>
                     ))}
                 </tbody>
             </table>
             <div className="flex justify-end gap-2 mt-4">
-                <button onClick={handlePrevious} disabled={currentPage === 1} className="bg-[#080808] border-[#3A3A3A] text-[#C4CDD5] py-2 px-4 rounded">
+                <button onClick={handlePrevious} disabled={currentPage === 1} className="hover:bg-[#3A3A3A] hover:text-white bg-[#080808] border border-[#3A3A3A] text-[#C4CDD5] py-2 px-4 rounded">
                     &lt;
                 </button>
 
                 {pageNumbers.map((number, index) => (
                     <button
-                        key={index}
+                        key={`pg-num-${number}-${index}`}
                         onClick={() => {
                             if (typeof number === 'number') {
                                 handlePageClick(number);
                             }
                         }}
-                        className={`py-2 px-4 rounded ${currentPage === number ? 'bg-[#3A3A3A] text-white' : 'bg-[#080808] text-[#C4CDD5]'}`}
+                        className={`py-2 px-4 rounded border border-[#3A3A3A] hover:bg-[#3A3A3A] hover:text-white ${currentPage === number ? 'bg-[#3A3A3A] text-white' : 'bg-[#080808] text-[#C4CDD5]'}`}
                         disabled={typeof number === 'string'} // Disable button for ellipses
                     >
                         {number}
                     </button>
                 ))}
 
-                <button onClick={handleNext} disabled={currentPage === totalPages} className="bg-[#080808] border-[#3A3A3A] text-[#C4CDD5] py-2 px-4 rounded">
+                <button onClick={handleNext} disabled={currentPage === totalPages} className="hover:bg-[#3A3A3A] hover:text-white bg-[#080808] border border-[#3A3A3A] text-[#C4CDD5] py-2 px-4 rounded">
                     &gt;
                 </button>
             </div>

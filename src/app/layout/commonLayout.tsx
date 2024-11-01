@@ -1,24 +1,19 @@
+'use client';
+
 import NavBar from "@/components/navBar"
 import SideBar from "@/components/sideBar"
-import Head from "next/head"
-import { useRouter } from "next/router"
-import { ReactNode, useState } from "react"
+import { ReactNode } from "react"
 import Image from "next/image"
 import loginBG from '@/assets/images/login-bg.svg'
 
-const DashboardLayout: React.FC<{ children: ReactNode, title: string, slug: string }> = ({ children, title, slug }) => {
-    const router = useRouter()
-
+const CommonLayout: React.FC<{ children: ReactNode, slug: string }> = ({ children, slug }) => {
     return (
         <div className="text-neutralGray">
-            <Head>
-                <title>{title}</title>
-            </Head>
-            <div className="flex flex-row grow">
+            <div className="flex">
                 <SideBar />
-                <main className="w-full flex flex-col">
+                <main className="w-full flex flex-col max-h-screen">
                     <NavBar slug={slug} />
-                    <div className="flex relative bg-black w-full h-screen">
+                    <div className="flex relative bg-black w-full h-screen overflow-scroll">
                         <Image src={loginBG} alt="" className="object-cover w-full h-full mix-blend-luminosity relative opacity-10" priority={false} />
                         <div className="absolute inset-0 flex z-10 py-10 px-14">
                             {children}
@@ -29,7 +24,4 @@ const DashboardLayout: React.FC<{ children: ReactNode, title: string, slug: stri
         </div>
     )
 }
-
-
-
-export default DashboardLayout
+export default CommonLayout

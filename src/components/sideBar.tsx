@@ -1,6 +1,5 @@
 import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { useRouter } from "next/router"
+import { usePathname, useRouter } from "next/navigation"
 import logo from '@/assets/images/logo-1.svg'
 import Image from "next/image"
 import Dashboard from '@/assets/images/Dashboard.svg'
@@ -11,6 +10,11 @@ import DeactPlayer from '@/assets/images/DeactPlayer.svg'
 import LoadStation from '@/assets/images/LoadStation.svg'
 import Transfer from '@/assets/images/Transfer.svg'
 import Logout from '@/assets/images/Logout.svg'
+import { SetStateAction, useEffect, useState } from "react"
+import axios from "axios"
+import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime"
+import { getCurrentSession } from "@/context/auth"
+import UserAvatar from '@/assets/images/UserAvatar.png'
 
 interface SideBarRoutesProps {
     module?: string,
@@ -30,13 +34,9 @@ const sideBarRoutes = [{
 }, {
     module: 'PLAYERS',
     item: [{
-        module: 'Active Players',
+        module: 'Players',
         ico: ActivePlayer,
-        link: '/players/active'
-    }, {
-        module: 'Deact Players',
-        ico: DeactPlayer,
-        link: '/players/deact'
+        link: '/players'
     }]
 
 }, {
@@ -98,14 +98,46 @@ const populateItems = (item: SideBarRoutesProps, currentRoute: string) => {
     )
 }
 
+const onHandleLogout = async (router: AppRouterInstance | string[], setIsLoading: { (value: SetStateAction<boolean>): void; (arg0: boolean): void }) => {
+    await axios.post('/api/signout', {})
+        .then(response => {
+            // console.log(response)
+            router.push('/login')
+        })
+        .catch(e => {
+            const errorMessages = e.response.data.error;
+            // console.log(errorMessages)
+
+        })
+        .finally(() => {
+            setIsLoading(false)
+        })
+}
+
 const SideBar = () => {
     const router = useRouter()
-    const currentRoute = usePathname()
+    const currentRoute = usePathname() ?? ''
+    const [isLoading, setIsLoading] = useState(false)
+    const [name, setName] = useState('')
+
+
+    useEffect(() => {
+        const getSession = async () => {
+            const session = await getCurrentSession()
+
+            console.log(session)
+
+            setName(`${session.firstname} ${session.lastname}`)
+
+        }
+        getSession()
+    }, [])
+
 
     return (
-        <div className="flex flex-col w-[232px] grow ">
-            <div className="flex brand w-[232px] h-[181px] bg-black"> <Image src={logo} alt="" className="m-auto" priority={false} /> </div>
-            <div className="flex grow bg-darkGrey justify-center">
+        <aside className="flex flex-col w-[232px] h-screen top-0">
+            <div className="flex brand w-[232px] min-h-[181px] bg-black"> <Image src={logo} alt="" className="m-auto" priority={false} /> </div>
+            <div className="flex h-screen bg-darkGrey justify-center">
                 <ul className="flex flex-col w-full">
                     <li className="flex bg-cursedBlack h-11 mb-4">
                         <div className="font-sans m-auto">
@@ -113,14 +145,22 @@ const SideBar = () => {
                         </div>
                     </li>
                     {sideBarRoutes.map(__routes => populateRoutes(__routes, currentRoute))}
-                    <li className="px-4 flex flex-col">
-                        <Link href={'/login'} className="p-4 text-red hover:bg-cursedBlack hover:rounded-xlg hover:text-[#E7DE54] flex gap-2" >
-                            <Image src={Logout} alt="" className={`h-4 w-auto my-auto`} /> Logout</Link>
+                    <li className="px-4 flex flex-col" >
+                        <button onClick={() => onHandleLogout(router, setIsLoading)} className="p-4 text-red hover:bg-cursedBlack hover:rounded-xlg hover:text-[#E7DE54] flex gap-2" >
+                            <Image src={Logout} alt="" className={`h-4 w-auto my-auto`} /> Logout</button>
+                    </li>
+                    <li className="mt-auto mb-[5.563rem]">
+                        <div className="bg-gray13 w-full h-32">
+                            <div className="flex justify-center items-center m-auto w-full h-full flex-col gap-2">
+                                <Image src={UserAvatar} alt="avatar" className="h-14 w-14"/>
+                                {name}
+                            </div>
+                        </div>
                     </li>
                 </ul>
             </div>
 
-        </div>
+        </aside>
     )
 }
 

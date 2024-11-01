@@ -6,13 +6,15 @@ interface ButtonProps {
     onClick: Function,
     disabled?: boolean,
     isLoading?: boolean,
-    loadingText?: string
+    loadingText?: string,
+    customCss?: string,
+    type: 'button' | 'submit'
 }
 
 const Button: NextPage<ButtonProps> = (props) => {
-    const { children } = props
+    const { children, customCss, type } = props
     return (
-        <button type="button" className="justify-center flex py-3 px-6 rounded-xlg bg-yellow-green text-[20px]" onClick={() => { props.onClick() }} disabled={props.disabled || props.isLoading}>{props.isLoading ? props.loadingText : children}</button>
+        <button type={type} className={`justify-center inline-block py-3 px-6 rounded-xlg bg-yellow-green text-[20px] ${customCss}`} onClick={() => { props.onClick() }} disabled={props.disabled || props.isLoading}>{props.isLoading ? props.loadingText : children}</button>
     )
 }
 

@@ -12,7 +12,7 @@ const Form: NextPage<FormProps> = (props) => {
     const { className, children, ...formProps } = props
 
     return (
-        <form className={`${className}`} {...formProps} noValidate>{children}</form>
+        <form className={`${className} group`} {...formProps} noValidate>{children}</form>
     )
 }
 

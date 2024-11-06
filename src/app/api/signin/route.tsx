@@ -1,10 +1,10 @@
 'use server'
 import { decrypt } from "@/util/cryptoUtil"
-import axios from "axios"
-import { Agent } from "https"
 import CustomError from "@/classes/customError"
 import { setSession } from "@/context/auth"
 import { NextResponse } from "next/server"
+import { luckTayaAxios } from "@/helper/config"
+import { formatGenericErrorResponse } from "@/helper/commonResponse"
 
 const POST = async (req: Request) => {
     try {
@@ -15,13 +15,7 @@ const POST = async (req: Request) => {
             password: decrypt(password),
         }
 
-        const httpsAgent = new Agent({
-            rejectUnauthorized: false, // Be cautious with this in production
-            host: '161.49.111.17',
-            port: 1443,
-        })
-
-        const response = await axios.post(`${process.env.BASE_URL}/api/v1/User/Login`, request, { httpsAgent })
+        const response = await luckTayaAxios.post(`/api/v1/User/Login`, request)
         const responseData = response.data
 
         if (!responseData.roles.includes('acctmgr')) {
@@ -34,9 +28,9 @@ const POST = async (req: Request) => {
         return NextResponse.json(responseData)
 
     } catch (e: any) {
-        const errors = e.response?.data?.errors || ['An unexpected error occurred']
+        console.error(e)
         return NextResponse.json({
-            error: errors
+            error: formatGenericErrorResponse(e)
         }, {
             status: 500
         })

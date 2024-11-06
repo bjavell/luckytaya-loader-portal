@@ -77,7 +77,7 @@ const Tables = <T extends any>({ headers, items, primaryId, isCentered = false }
     };
 
     const pageNumbers = getPaginationRange();
-    
+
     return (
         <div className="justify-between">
             <table className="table-auto w-full">
@@ -94,7 +94,7 @@ const Tables = <T extends any>({ headers, items, primaryId, isCentered = false }
                     {paginatedItems.map((item: any, i) => (
                         <tr key={`key-${item[primaryId]}-${i}`} className="even:bg-gray13 odd:bg-cursedBlack text-xs">
                             {headers.map(h => (
-                                <td key={`row-key-${item[h.key]}-${i}`} className={`p-3 font-semibold ${h.customValueClass ? h.customValueClass : ''} ${isCentered ? 'text-center' : ''}`}>{item[h.key]}</td>
+                                <td key={`row-key-${h.key}-${i}`} className={`p-3 font-semibold ${h.customValueClass ? h.customValueClass : ''} ${isCentered ? 'text-center' : ''}`}>{item[h.key]}</td>
                             ))}
                         </tr>
                     ))}

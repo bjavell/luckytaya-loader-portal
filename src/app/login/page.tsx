@@ -19,9 +19,9 @@ const Login = () => {
         setIsLoading(true)
         setErrorMessage('')
 
-        await axios.post('api/signin', { username: userId, password: encrypt(password) })
-            .then(response => {
-                router.push('dashboard')
+        await axios.post('/api/signin', { username: userId, password: encrypt(password) })
+            .then(() => {
+                router.push('/dashboard')
             })
             .catch(e => {
                 const errorMessages = e.response.data.error;
@@ -30,6 +30,10 @@ const Login = () => {
                         setErrorMessage(errorMessages['Not found'][0]);
                     } else if (errorMessages['Bad request']) {
                         setErrorMessage(errorMessages['Bad request'][0]);
+                    } else if (errorMessages['Unexpexted Error']) {
+                        setErrorMessage(errorMessages['Unexpexted Error'][0]);
+                    } else {
+                        setErrorMessage('Oops! something went wrong');
                     }
                 }
                 else {
@@ -43,8 +47,8 @@ const Login = () => {
 
     return (
         <Form className="w-96 flex flex-col gap-5 justify-center" onSubmit={onHandleSubmit}>
-            <FormField name="userId" label="User ID" placeholder="Enter User ID" value={userId} onChange={(e) => { setUserId(e.target.value) }} />
-            <FormField name="password" label="Password" placeholder="******" type="password" value={password} onChange={(e) => { setPassword(e.target.value) }} />
+            <FormField name="userId" label="User ID" placeholder="Enter User ID" value={userId} onChange={(e) => { setUserId(e.target.value) }} required />
+            <FormField name="password" label="Password" placeholder="******" type="password" value={password} onChange={(e) => { setPassword(e.target.value) }} required />
             <Button onClick={onHandleSubmit} isLoading={isLoading} loadingText="Loading..." type={'submit'}>Login</Button>
             {
                 errorMessage !== '' ?

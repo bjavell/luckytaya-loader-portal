@@ -5,22 +5,29 @@ import Tables from "@/components/tables"
 
 const Active = () => {
     const [players, setPlayers] = useState([])
-    const [filterPlayers, setFilteredPlayer] = useState([])
+    const [filterPlayers, setFilterPlayers] = useState([])
     const [status, setStatus] = useState('ALL')
 
 
     useEffect(() => {
-        axios.get('/api/get-all-players')
-            .then(response => {
-                setPlayers(response.data)
-                setFilteredPlayer(response.data)
-            })
-            .catch(e => {
-                console.error(e)
-            })
-            .finally(() => {
-                // setIsLoading(false)
-            })
+        const getPlayerLists = async () => {
+
+            await axios.get('/api/get-all-players')
+                .then(response => {
+                    setPlayers(response.data)
+                    setFilterPlayers(response.data)
+                })
+                .catch(e => {
+                    const errorMessages = e.response.data.error;
+                    setPlayers([])
+                    setFilterPlayers([])
+                })
+                .finally(() => {
+                    // setIsLoading(false)
+                })
+        }
+
+        getPlayerLists()
     }, [])
 
     const onStatusChange = ((e: any) => {
@@ -31,7 +38,7 @@ const Active = () => {
             return player.suspended === Number(e.target.value)
         })
         setStatus(e.target.value)
-        setFilteredPlayer(filter)
+        setFilterPlayers(filter)
     })
 
 
@@ -56,10 +63,10 @@ const Active = () => {
                             key: 'date',
                             label: 'DATE'
                         },
-                         {
+                        {
                             key: 'completeName',
                             label: 'COMPLETE NAME'
-                        }, 
+                        },
                         {
                             key: 'aspnetuserId',
                             label: 'USER ID'
@@ -70,7 +77,7 @@ const Active = () => {
                         {
                             key: 'dob',
                             label: 'DOB'
-                        }, 
+                        },
                         {
                             key: 'occupation',
                             label: 'OCCUPATION'

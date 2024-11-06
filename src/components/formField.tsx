@@ -31,14 +31,14 @@ const FormField: NextPage<FormFieldProps> = (props) => {
         return (
             <div className="flex flex-col flex-1 gap-4">
                 <label htmlFor={name} className={`text-white font-sans font-light ${customLabelClass}`}>{label}</label>
-                <textarea cols={50} rows={4} value={value} id={name} name={name} onChange={onChangeTextArea} className="rounded-xlg py-4 px-4 bg-semiBlack font-sans font-light text-[13px] tacking-[5%] text-white invalid:border-red-500" />
+                <textarea cols={45} rows={4} value={value} id={name} name={name} onChange={onChangeTextArea} className="rounded-xlg py-4 px-4 bg-semiBlack font-sans font-light text-[13px] tacking-[5%] text-white invalid:border-red-500" style={{ resize: 'none' }} />
             </div>
         )
     }
     return (
         <div className="flex flex-col flex-1 gap-4">
             <label htmlFor={name} className={`text-white font-sans font-light ${customLabelClass}`}>{label}</label>
-            <input {...inputProps} type={type} id={name} name={name} className={`peer rounded-xlg py-4 px-4 bg-semiBlack shadow-sm font-sans font-light text-[13px] tacking-[5%] text-white invalid:border-red-500 invalid:[&.visited]:border invalid:[&.visited]:border-[#E74C3C] ${isVisited ? 'visited' : ''} `} onBlur={handleOnBlur}/>
+            <input {...inputProps} type={type} id={name} name={name} className={`peer rounded-xlg py-4 px-4 bg-semiBlack shadow-sm font-sans font-light text-[13px] tacking-[5%] text-white invalid:border-red-500 invalid:[&.visited]:border invalid:[&.visited]:border-[#E74C3C] ${isVisited ? 'visited' : ''} `} onBlur={handleOnBlur} />
             <span className={`text-sm max-w-[300px] text-[#E74C3C] hidden peer-[.visited:invalid]:block transition-all`}>{props.required && !value ? "Field is required" : errorMessage}</span>
 
         </div>

@@ -13,7 +13,7 @@ const CommonLayout: React.FC<{ children: ReactNode, slug: string }> = ({ childre
                 <SideBar />
                 <main className="w-full flex flex-col max-h-screen">
                     <NavBar slug={slug} />
-                    <div className="flex relative bg-black w-full h-screen overflow-scroll">
+                    <div className="flex relative bg-black w-full h-screen">
                         <Image src={loginBG} alt="" className="object-cover w-full h-full mix-blend-luminosity relative opacity-10" priority={false} />
                         <div className="absolute inset-0 flex z-10 py-10 px-14">
                             {children}

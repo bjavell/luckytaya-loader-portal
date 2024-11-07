@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getCurrentSession } from "./context/auth";
+import { NextRequest, NextResponse } from "next/server"
+import { getCurrentSession } from "./context/auth"
 
 const protectedRoutes = ['/dashboard', '/history', '/players', '/loading-station']
 const publicRoutes = ['/login']

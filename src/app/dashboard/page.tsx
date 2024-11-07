@@ -19,10 +19,10 @@ const Home = () => {
 
     const onCopyReferralLink = () => {
         navigator.clipboard.writeText(referralLink).then(() => {
-            alert('Text copied to clipboard!');
+            alert('Text copied to clipboard!')
         }).catch(err => {
-            console.error('Error copying text: ', err);
-        });
+            console.error('Error copying text: ', err)
+        })
     }
 
     return (

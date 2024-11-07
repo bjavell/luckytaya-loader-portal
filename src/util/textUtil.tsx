@@ -10,14 +10,21 @@ const formatMoney = (value: string) => {
 }
 
 
+const formatDate = (date: string) => {
+    date = date.replaceAll('-', '').replace('T', '').replaceAll(':', '').split('.')[0]
+    return date
+}
+
+
 const formatter = new Intl.NumberFormat('en-PH', {
     style: 'currency',
     currency: 'PHP',
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
-});
+})
 
 
 export {
-    formatMoney
+    formatMoney,
+    formatDate
 }

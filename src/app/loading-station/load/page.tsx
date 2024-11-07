@@ -5,10 +5,12 @@ import Button from "@/components/button"
 import gcashLoad from '@/assets/images/GcashLoad.png'
 import Image from "next/image"
 import { getCurrentSession } from "@/context/auth"
-import { formatMoney } from "@/util/textUtil"
+import { formatDate, formatMoney } from "@/util/textUtil"
 import BalanceBar from "@/components/balanceBar"
 import Form from "@/components/form"
 import { PATTERNS } from "@/classes/constants"
+import QrCode from "@/components/qrCode"
+import axios from "axios"
 
 const Active = () => {
     const [userId, setUserId] = useState('')
@@ -21,6 +23,7 @@ const Active = () => {
     const [comment, setComment] = useState('')
     const [isLoading, setIsLoading] = useState(false)
     const [qrData, setQrData] = useState('')
+    const [showQr, setShowQr] = useState(false)
 
     useEffect(() => {
         const getSession = async () => {
@@ -35,11 +38,22 @@ const Active = () => {
 
     const onHandleSubmit = async () => {
         setIsLoading(true)
-        setTimeout(() => {
-            console.log('test')
-        }, 100);
+        const date = new Date()
+        const expireDate = new Date()
+        expireDate.setHours(expireDate.getHours() + 2)
 
-        setIsLoading(false)
+        const data = {
+            trxAmount: `${(Number.parseFloat(amount)).toFixed(2)}`.replaceAll(",", "").replace(".", ""),
+            timeStart: formatDate(date.toISOString()),
+            timeExpire: formatDate(expireDate.toISOString())
+
+        }
+
+        await axios.post('/api/create-qr', data).finally(() => {
+
+            setIsLoading(false)
+        })
+
     }
 
 
@@ -48,7 +62,7 @@ const Active = () => {
             <BalanceBar title="Load Station" balance={balance} />
             <div className="flex flex-row gap-4">
                 <div className="flex w-1/2 bg-[#005BAA] rounded-xl p-4">
-                    <Image src={gcashLoad} alt="gcash load background" />
+                    {showQr ? <QrCode data={qrData} className='m-auto' /> : <Image src={gcashLoad} alt="gcash load background" className="m-auto" />}
                 </div>
                 <div className="flex w-1/2 bg-gray13 rounded-xl">
                     <Form className="flex flex-row gap-2 w-full" onSubmit={onHandleSubmit}>

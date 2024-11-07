@@ -104,7 +104,7 @@ const onHandleLogout = async (router: AppRouterInstance | string[], setIsLoading
             router.push('/login')
         })
         .catch(e => {
-            const errorMessages = e.response.data.error;
+            const errorMessages = e.response.data.error
 
         })
         .finally(() => {

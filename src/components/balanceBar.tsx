@@ -1,4 +1,4 @@
-import { NextPage } from "next";
+import { NextPage } from "next"
 import balanceSvg from '@/assets/images/Balance.svg'
 import Image from "next/image"
 

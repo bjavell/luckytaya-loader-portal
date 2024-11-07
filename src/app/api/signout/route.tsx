@@ -1,6 +1,6 @@
-import { clearSession } from "@/context/auth";
-import { NextApiRequest } from "next";
-import { NextResponse } from "next/server";
+import { clearSession } from "@/context/auth"
+import { NextApiRequest } from "next"
+import { NextResponse } from "next/server"
 
 const POST = async (req: NextApiRequest) => {
 

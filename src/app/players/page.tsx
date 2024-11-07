@@ -18,7 +18,7 @@ const Active = () => {
                     setFilterPlayers(response.data)
                 })
                 .catch(e => {
-                    const errorMessages = e.response.data.error;
+                    const errorMessages = e.response.data.error
                     setPlayers([])
                     setFilterPlayers([])
                 })

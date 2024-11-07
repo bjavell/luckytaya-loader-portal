@@ -1,5 +1,5 @@
-import { NextPage } from "next";
-import { useState } from "react";
+import { NextPage } from "next"
+import { useState } from "react"
 
 interface FormFieldProps {
     name: string,

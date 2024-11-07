@@ -7,8 +7,9 @@ import { formatMoney } from "@/util/textUtil"
 import BalanceBar from "@/components/balanceBar"
 
 const Active = () => {
-    const [userInput, setUserInput] = useState('')
+    const [amount, setAmount] = useState('')
     const [balance, setBalance] = useState('')
+    const [comment, setComment] = useState('')
     const [isLoading, setIsLoading] = useState(false)
 
     useEffect(() => {
@@ -25,11 +26,11 @@ const Active = () => {
         <div className="flex flex-col w-full gap-4">
             <BalanceBar title="Cash-Out" balance={balance} />
             <div className="flex flex-row gap-4">
-                <div className="flex w-1/2 bg-white rounded-xl"></div>
-                <div className="flex w-1/2 bg-gray13 rounded-xl">
+                <div className="flex w-2/3 bg-white rounded-xl"></div>
+                <div className="flex w-1/3 bg-gray13 rounded-xl">
                     <div className="flex flex-col gap-4 p-4 w-full">
-                        <FormField name="userId" label="User ID" placeholder="Enter User ID" value={userInput} onChange={(e) => { setUserInput(e.target.value) }} customLabelClass="text-xs" />
-                        <FormField name="userId" label="User ID" placeholder="Enter User ID" value={userInput} onChange={(e) => { setUserInput(e.target.value) }} customLabelClass="text-xs" />
+                        <FormField name="amount" label="Amount" value={amount} onChange={(e) => { setAmount(e.target.value) }} customLabelClass="text-xs" />
+                        <FormField name="comment" label="Comment" value={comment} onChangeTextArea={(e) => { setComment(e.target.value) }} customLabelClass="text-xs" type="textarea" />
                         <Button onClick={() => alert('123123123')} isLoading={isLoading} loadingText="Loading..." type="submit">Submit</Button>
                     </div>
                 </div>

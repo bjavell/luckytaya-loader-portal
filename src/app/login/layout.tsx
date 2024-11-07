@@ -3,7 +3,7 @@ import Image from "next/image"
 import { ReactNode } from "react"
 import loginBG from '@/assets/images/login-bg.svg'
 import logo from '@/assets/images/logo-1.svg'
-import { Metadata } from "next";
+import { Metadata } from "next"
 
 
 const Layout: React.FC<{ children: ReactNode }> = ({ children }) => {

@@ -1,6 +1,6 @@
 'use client'
-import { NextPage } from "next";
-import { FormEventHandler, ReactNode } from "react";
+import { NextPage } from "next"
+import { FormEventHandler, ReactNode } from "react"
 
 interface FormProps {
     className?: string,

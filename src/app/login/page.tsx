@@ -24,20 +24,20 @@ const Login = () => {
                 router.push('/dashboard')
             })
             .catch(e => {
-                const errorMessages = e.response.data.error;
+                const errorMessages = e.response.data.error
                 if (errorMessages) {
                     if (errorMessages['Not found']) {
-                        setErrorMessage(errorMessages['Not found'][0]);
+                        setErrorMessage(errorMessages['Not found'][0])
                     } else if (errorMessages['Bad request']) {
-                        setErrorMessage(errorMessages['Bad request'][0]);
+                        setErrorMessage(errorMessages['Bad request'][0])
                     } else if (errorMessages['Unexpexted Error']) {
-                        setErrorMessage(errorMessages['Unexpexted Error'][0]);
+                        setErrorMessage(errorMessages['Unexpexted Error'][0])
                     } else {
-                        setErrorMessage('Oops! something went wrong');
+                        setErrorMessage('Oops! something went wrong')
                     }
                 }
                 else {
-                    setErrorMessage('Oops! something went wrong');
+                    setErrorMessage('Oops! something went wrong')
                 }
             })
             .finally(() => {

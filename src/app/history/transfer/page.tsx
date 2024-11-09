@@ -38,7 +38,7 @@ const Commisson = () => {
 
     useEffect(() => {
         getTransaction()
-    }, [getTransaction])
+    }, [])
 
     const onHandleSubmit = async () => {
         setIsLoading(true)

@@ -4,7 +4,7 @@ interface HeadersProp<T> {
     label?: string,
     key: string,
     customValueClass?: string,
-    format?: Function,
+    format?: (item: any) => string,
     concatKey?: Array<string>
 }
 
@@ -15,7 +15,7 @@ interface TablesProps<T> {
     isCentered?: boolean
 }
 
-const Tables = <T extends any>({ headers, items, primaryId, isCentered = false }: TablesProps<T>) => {
+const Tables = <T,>({ headers, items, primaryId, isCentered = false }: TablesProps<T>) => {
     const [currentPage, setCurrentPage] = useState(1)
     const pageSize = 10
     const totalPages = Math.ceil(items.length / pageSize)

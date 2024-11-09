@@ -14,10 +14,11 @@ const Active = () => {
 
     useEffect(() => {
         const getSession = async () => {
+            setIsLoading(true)
             const session = await getCurrentSession()
 
             setBalance(formatMoney(session.balance))
-
+            setIsLoading(false)
         }
         getSession()
     }, [])

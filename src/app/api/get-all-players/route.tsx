@@ -3,7 +3,7 @@ import { NextResponse } from "next/server"
 import { luckTayaAxios } from "@/helper/config"
 import { formatGenericErrorResponse } from "@/helper/commonResponse"
 
-const GET = async (req: Request) => {
+const GET = async () => {
     try {
         const currentSession = await getCurrentSession()
 
@@ -14,7 +14,7 @@ const GET = async (req: Request) => {
         })
 
         return NextResponse.json(response.data)
-    } catch (e: any) {
+    } catch (e) {
 
         return NextResponse.json({
             error: formatGenericErrorResponse(e)

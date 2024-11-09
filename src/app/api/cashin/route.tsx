@@ -1,9 +1,9 @@
 import { getCurrentSession } from "@/context/auth"
 import { formatGenericErrorResponse } from "@/helper/commonResponse"
 import { luckTayaAxios } from "@/helper/config"
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 
-const POST = async (req: Request) => {
+const POST = async (req: NextRequest) => {
 
     try {
         const currentSession = await getCurrentSession()

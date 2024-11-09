@@ -6,8 +6,7 @@ import { Metadata } from 'next'
 export default function RootLayout({
   children
 }: Readonly<{
-  children: React.ReactNode,
-  title: string
+  children: React.ReactNode
 }>) {
   return (
     <html lang="en">

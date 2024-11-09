@@ -1,5 +1,10 @@
-const CryptoJS = require('crypto-js')
-const crypto = require('crypto')
+// const CryptoJS = require('crypto-js')
+// const crypto = require('crypto')
+
+
+
+import * as CryptoJS from 'crypto-js'
+import * as crypto from 'crypto'
 
 const SECRET_PASSKEY = 'B3t@pploader123'
 

@@ -1,6 +1,6 @@
 import { formatGenericErrorResponse } from "@/helper/commonResponse"
 import { starpayAxios } from "@/helper/config"
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import * as fs from 'fs'
 import { sha256withRSAsign } from "@/util/cryptoUtil"
 import { getToken } from "@/util/generator"
@@ -10,7 +10,7 @@ const mchId = process.env.NEXT_PUBLIC_STARPAY_MERCHANT_ID
 const name = process.env.NEXT_PUBLIC_PAYMENT_NAME
 
 
-const createRequest = (req: any, privateKey: Buffer) => {
+const createRequest = (req: NextRequest, privateKey: Buffer) => {
     const request = {
         "msgId": getToken(15),
         "mchId": mchId,

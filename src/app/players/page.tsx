@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState } from "react"
+import { SetStateAction, useEffect, useState } from "react"
 import axios from "axios"
 import Tables from "@/components/tables"
 
@@ -17,7 +17,7 @@ const Active = () => {
                     setPlayers(response.data)
                     setFilterPlayers(response.data)
                 })
-                .catch(e => {
+                .catch(() => {
                     // const errorMessages = e.response.data.error
                     setPlayers([])
                     setFilterPlayers([])
@@ -30,7 +30,7 @@ const Active = () => {
         getPlayerLists()
     }, [])
 
-    const onStatusChange = ((e: any) => {
+    const onStatusChange = ((e: { target: { value: SetStateAction<string> } }) => {
         const filter = players.filter((player: any) => {
             if (e.target.value === 'ALL') {
                 return true

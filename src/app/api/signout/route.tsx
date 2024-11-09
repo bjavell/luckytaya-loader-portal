@@ -1,7 +1,7 @@
 import { clearSession } from "@/context/auth"
-import { NextRequest, NextResponse } from "next/server"
+import { NextResponse } from "next/server"
 
-const POST = async (req: NextRequest) => {
+const POST = async () => {
 
     await clearSession()
 

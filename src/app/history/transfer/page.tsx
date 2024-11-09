@@ -21,9 +21,6 @@ const Commisson = () => {
     const [isLoading, setIsLoading] = useState(false)
 
 
-    useEffect(() => {
-        getTransaction()
-    }, [])
 
     const getTransaction = async () => {
 
@@ -38,6 +35,10 @@ const Commisson = () => {
             setTransactions([])
         })
     }
+
+    useEffect(() => {
+        getTransaction()
+    }, [getTransaction])
 
     const onHandleSubmit = async () => {
         setIsLoading(true)
@@ -74,7 +75,7 @@ const Commisson = () => {
                         {
                             key: 'transactionDateTime',
                             label: 'DATE',
-                            format: (val: any) => {
+                            format: (val: string) => {
                                 const formatDate = new Date(val)
                                 return format(formatDate, 'yyyy-MM-dd hh:mm:ss a')
                             }

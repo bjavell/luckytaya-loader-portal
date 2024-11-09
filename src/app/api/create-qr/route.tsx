@@ -46,12 +46,11 @@ const POST = async (req: Request) => {
 
         console.log(responseData)
 
-        if (responseData.response.code !== 200) {
+        if (responseData.response.code !== '200') {
             throw new CustomError('Not Success', { 'Err': [responseData.response.message] })
         }
-        return NextResponse.json({ 'Success': 'Success' })
-    } catch (e: any) {
-        console.log(e)
+        return NextResponse.json(responseData.response)
+    } catch (e) {
         return NextResponse.json({
             error: formatGenericErrorResponse(e)
         },

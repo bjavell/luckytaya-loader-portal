@@ -1,6 +1,6 @@
 {
-  "name": "betapp-loader-portal",
-  "version": "0.1.0",
+  "name": "luckytaya-loader-portal",
+  "version": "1.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -11,6 +11,7 @@
   "dependencies": {
     "axios": "^1.7.7",
     "crypto-js": "^4.2.0",
+    "date-fns": "^4.1.0",
     "fs": "^0.0.1-security",
     "https": "^1.0.0",
     "js-cookie": "^3.0.5",

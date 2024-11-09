@@ -4,8 +4,7 @@ import { Metadata } from 'next'
 
 
 export default function RootLayout({
-  children,
-  title
+  children
 }: Readonly<{
   children: React.ReactNode,
   title: string

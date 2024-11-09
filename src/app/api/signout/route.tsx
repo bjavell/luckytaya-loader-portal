@@ -1,8 +1,7 @@
 import { clearSession } from "@/context/auth"
-import { NextApiRequest } from "next"
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 
-const POST = async (req: NextApiRequest) => {
+const POST = async (req: NextRequest) => {
 
     await clearSession()
 

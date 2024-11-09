@@ -20,7 +20,7 @@ const POST = async (req: Request) => {
             },
         })
         return NextResponse.json(response.data)
-    } catch (e: any) {
+    } catch (e) {
         return NextResponse.json({
             error: formatGenericErrorResponse(e)
         },

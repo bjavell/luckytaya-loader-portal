@@ -49,10 +49,18 @@ const Active = () => {
 
         }
 
-        await axios.post('/api/create-qr', data).finally(() => {
-
-            setIsLoading(false)
-        })
+        await axios.post('/api/create-qr', data)
+            .then((response) => {
+                setQrData(response.data.codeUrl)
+                setShowQr(true)
+            })
+            .catch(() => {
+                setShowQr(false)
+                setQrData('')
+            })
+            .finally(() => {
+                setIsLoading(false)
+            })
 
     }
 

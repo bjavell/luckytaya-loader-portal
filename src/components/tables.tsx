@@ -3,7 +3,9 @@ import { useState } from "react"
 interface HeadersProp<T> {
     label?: string,
     key: string,
-    customValueClass?: string
+    customValueClass?: string,
+    format?: Function,
+    concatKey?: Array<string>
 }
 
 interface TablesProps<T> {
@@ -78,6 +80,20 @@ const Tables = <T extends any>({ headers, items, primaryId, isCentered = false }
 
     const pageNumbers = getPaginationRange()
 
+    const populateItem = ((i: number, h: any, item: any) => {
+
+        const className = `p-3 font-semibold ${h.customValueClass ? h.customValueClass : ''} ${isCentered ? 'text-center' : ''}`
+        let value = item[h.key]
+
+        if (h.concatKey) {
+            h.concatKey.forEach((concateKeyIndex: any) => {
+                value = `${value} ${item[concateKeyIndex]}`
+            })
+        }
+
+        return <td key={`row-key-${h.key}-${i}`} className={className}>{h.format ? h.format(value) : value}</td>
+    })
+
     return (
         <div className="justify-between">
             <table className="table-auto w-full">
@@ -93,16 +109,14 @@ const Tables = <T extends any>({ headers, items, primaryId, isCentered = false }
                 <tbody>
                     {paginatedItems.map((item: any, i) => (
                         <tr key={`key-${item[primaryId]}-${i}`} className="even:bg-gray13 odd:bg-cursedBlack text-xs">
-                            {headers.map(h => (
-                                <td key={`row-key-${h.key}-${i}`} className={`p-3 font-semibold ${h.customValueClass ? h.customValueClass : ''} ${isCentered ? 'text-center' : ''}`}>{item[h.key]}</td>
-                            ))}
+                            {headers.map(h => populateItem(i, h, item))}
                         </tr>
                     ))}
                 </tbody>
             </table>
             <div className="flex justify-end gap-2 mt-4">
                 <button onClick={handlePrevious} disabled={currentPage === 1} className="hover:bg-[#3A3A3A] hover:text-white bg-[#080808] border border-[#3A3A3A] text-[#C4CDD5] py-2 px-4 rounded">
-                    &lt
+                    &lt;
                 </button>
 
                 {pageNumbers.map((number, index) => (
@@ -121,7 +135,7 @@ const Tables = <T extends any>({ headers, items, primaryId, isCentered = false }
                 ))}
 
                 <button onClick={handleNext} disabled={currentPage === totalPages} className="hover:bg-[#3A3A3A] hover:text-white bg-[#080808] border border-[#3A3A3A] text-[#C4CDD5] py-2 px-4 rounded">
-                    &gt
+                    &gt;
                 </button>
             </div>
         </div>

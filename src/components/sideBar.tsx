@@ -118,14 +118,14 @@ const SideBar = () => {
     const [isLoading, setIsLoading] = useState(false)
     const [name, setName] = useState('')
 
+    const getSession = async () => {
+        const session = await getCurrentSession()
+
+        setName(`${session.firstname} ${session.lastname}`)
+
+    }
 
     useEffect(() => {
-        const getSession = async () => {
-            const session = await getCurrentSession()
-
-            setName(`${session.firstname} ${session.lastname}`)
-
-        }
         getSession()
     }, [])
 
@@ -148,7 +148,7 @@ const SideBar = () => {
                     <li className="mt-auto mb-[5.563rem]">
                         <div className="bg-gray13 w-full h-32">
                             <div className="flex justify-center items-center m-auto w-full h-full flex-col gap-2">
-                                <Image src={UserAvatar} alt="avatar" className="h-14 w-14"/>
+                                <Image src={UserAvatar} alt="avatar" className="h-14 w-14" />
                                 {name}
                             </div>
                         </div>

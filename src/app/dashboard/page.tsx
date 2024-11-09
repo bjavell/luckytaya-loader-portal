@@ -6,23 +6,48 @@ import { getCurrentSession } from "@/context/auth"
 const Home = () => {
     const [referralLink, setReferralLink] = useState<string>('')
 
+    const getSession = async () => {
+        const session = await getCurrentSession()
+
+        setReferralLink(`http://test.test.com?referralCode=${session?.referralCode}`)
+
+    }
+
     useEffect(() => {
-        const getSession = async () => {
-            const session = await getCurrentSession()
-
-            setReferralLink(`http://test.test.com?referralCode=${session?.referralCode}`)
-
-        }
         getSession()
     }, [])
 
 
-    const onCopyReferralLink = () => {
-        navigator.clipboard.writeText(referralLink).then(() => {
-            alert('Text copied to clipboard!')
-        }).catch(err => {
-            console.error('Error copying text: ', err)
-        })
+    const onCopyReferralLink = async () => {
+        if (navigator.clipboard && window.isSecureContext) {
+            try {
+                await navigator.clipboard.writeText(referralLink);
+                alert('Text copied to clipboard!');
+            } catch (err) {
+                console.error('Error copying text: ', err);
+                alert('Failed to copy text');
+            }
+        } else {
+            // Use the 'out of viewport hidden text area' trick
+            const textArea = document.createElement("textarea");
+            textArea.value = referralLink;
+
+            // Move textarea out of the viewport so it's not visible
+            textArea.style.position = "absolute";
+            textArea.style.left = "-999999px";
+
+            document.body.prepend(textArea);
+            textArea.select();
+
+            try {
+                document.execCommand('copy');
+            } catch (error) {
+                console.error('Error copying text using fallback: ', error);
+                alert('Failed to copy text');
+            } finally {
+                textArea.remove();
+            }
+        }
     }
 
     return (

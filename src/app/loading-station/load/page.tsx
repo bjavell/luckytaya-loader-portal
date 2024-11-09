@@ -25,13 +25,14 @@ const Active = () => {
     const [qrData, setQrData] = useState('')
     const [showQr, setShowQr] = useState(false)
 
+    const getSession = async () => {
+        const session = await getCurrentSession()
+
+        setBalance(formatMoney(session.balance))
+
+    }
+
     useEffect(() => {
-        const getSession = async () => {
-            const session = await getCurrentSession()
-
-            setBalance(formatMoney(session.balance))
-
-        }
         getSession()
     }, [])
 

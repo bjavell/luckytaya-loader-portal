@@ -12,14 +12,16 @@ const Active = () => {
     const [comment, setComment] = useState('')
     const [isLoading, setIsLoading] = useState(false)
 
-    useEffect(() => {
-        const getSession = async () => {
-            setIsLoading(true)
-            const session = await getCurrentSession()
 
-            setBalance(formatMoney(session.balance))
-            setIsLoading(false)
-        }
+    const getSession = async () => {
+        setIsLoading(true)
+        const session = await getCurrentSession()
+
+        setBalance(formatMoney(session.balance))
+        setIsLoading(false)
+    }
+
+    useEffect(() => {
         getSession()
     }, [])
 

@@ -9,23 +9,24 @@ const Active = () => {
     const [status, setStatus] = useState('ALL')
 
 
-    useEffect(() => {
-        const getPlayerLists = async () => {
+    const getPlayerLists = async () => {
 
-            await axios.get('/api/get-all-players')
-                .then(response => {
-                    setPlayers(response.data)
-                    setFilterPlayers(response.data)
-                })
-                .catch(() => {
-                    // const errorMessages = e.response.data.error
-                    setPlayers([])
-                    setFilterPlayers([])
-                })
-                .finally(() => {
-                    // setIsLoading(false)
-                })
-        }
+        await axios.get('/api/get-all-players')
+            .then(response => {
+                setPlayers(response.data)
+                setFilterPlayers(response.data)
+            })
+            .catch(() => {
+                // const errorMessages = e.response.data.error
+                setPlayers([])
+                setFilterPlayers([])
+            })
+            .finally(() => {
+                // setIsLoading(false)
+            })
+    }
+
+    useEffect(() => {
 
         getPlayerLists()
     }, [])

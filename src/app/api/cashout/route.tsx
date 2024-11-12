@@ -1,6 +1,6 @@
 import { getCurrentSession } from "@/context/auth"
-import { formatGenericErrorResponse } from "@/helper/commonResponse"
-import { luckTayaAxios } from "@/helper/config"
+import { formatGenericErrorResponse } from "@/util/commonResponse"
+import { luckTayaAxios } from "@/util/axiosUtil"
 import { NextRequest, NextResponse } from "next/server"
 
 const POST = async (req: NextRequest) => {

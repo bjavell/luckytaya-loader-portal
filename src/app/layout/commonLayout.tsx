@@ -7,6 +7,8 @@ import Image from "next/image"
 import loginBG from '@/assets/images/login-bg.svg'
 
 const CommonLayout: React.FC<{ children: ReactNode, slug: string }> = ({ children, slug }) => {
+
+    
     return (
         <div className="text-neutralGray">
             <div className="flex">

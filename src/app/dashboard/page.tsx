@@ -2,21 +2,34 @@
 import Button from "@/components/button"
 import { useEffect, useState } from "react"
 import { getCurrentSession } from "@/context/auth"
+import axios from "axios"
+import { useRouter } from "next/navigation"
 
 const Home = () => {
+    const router = useRouter()
     const [referralLink, setReferralLink] = useState<string>('')
 
-    const getSession = async () => {
-        const session = await getCurrentSession()
+    const getUserDetails = async () => {
+        await axios.get('/api/get-user-details')
+            .then(response => {
+                setReferralLink(`http://test.test.com?referralCode=${response.data?.referralCode}`)
+            })
+            .catch((e) => {
+                const errorMessages = e.response.data.error
+                if (errorMessages) {
+                    if (errorMessages['Unauthorized']) {
+                        router.push('/login')
+                    }
+                }
 
-        setReferralLink(`http://test.test.com?referralCode=${session?.referralCode}`)
-
+            })
+            .finally(() => {
+            })
     }
 
     useEffect(() => {
-        getSession()
+        getUserDetails()
     }, [])
-
 
     const onCopyReferralLink = async () => {
         if (navigator.clipboard && window.isSecureContext) {

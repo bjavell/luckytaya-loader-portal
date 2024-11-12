@@ -2,8 +2,10 @@
 import { SetStateAction, useEffect, useState } from "react"
 import axios from "axios"
 import Tables from "@/components/tables"
+import { useRouter } from "next/navigation"
 
-const Active = () => {
+const Players = () => {
+    const router = useRouter()
     const [players, setPlayers] = useState([])
     const [filterPlayers, setFilterPlayers] = useState([])
     const [status, setStatus] = useState('ALL')
@@ -16,7 +18,13 @@ const Active = () => {
                 setPlayers(response.data)
                 setFilterPlayers(response.data)
             })
-            .catch(() => {
+            .catch((e) => {
+                const errorMessages = e.response.data.error
+                if (errorMessages) {
+                    if (errorMessages['Unauthorized']) {
+                        router.push('/login')
+                    }
+                }
                 // const errorMessages = e.response.data.error
                 setPlayers([])
                 setFilterPlayers([])
@@ -99,4 +107,4 @@ const Active = () => {
     )
 }
 
-export default Active
+export default Players

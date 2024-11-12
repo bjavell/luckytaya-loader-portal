@@ -1,6 +1,7 @@
 import { NextPage } from "next"
 import balanceSvg from '@/assets/images/Balance.svg'
 import Image from "next/image"
+import { formatMoney } from "@/util/textUtil"
 
 const BalanceBar: NextPage<{ title: string, balance: string }> = (props) => {
 
@@ -13,7 +14,7 @@ const BalanceBar: NextPage<{ title: string, balance: string }> = (props) => {
                     CURRENT BALANCE:
                 </span>
                 <Image src={balanceSvg} alt="balance" className="h-5 w-6" />
-                <span className="flex text-semiYellow text-xl">{balance}</span></div>
+                <span className="flex text-semiYellow text-xl">{formatMoney(balance)}</span></div>
         </div>
     )
 }

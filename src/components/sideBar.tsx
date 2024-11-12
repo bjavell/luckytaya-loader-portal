@@ -118,16 +118,28 @@ const SideBar = () => {
     const [isLoading, setIsLoading] = useState(false)
     const [name, setName] = useState('')
 
-    const getSession = async () => {
-        const session = await getCurrentSession()
+    const getUserDetails = async () => {
+        await axios.get('/api/get-user-details')
+            .then(response => {
+                setName(`${response.data?.fistname} ${response.data?.lastname}`)
+            })
+            .catch((e) => {
+                const errorMessages = e.response.data.error
+                if (errorMessages) {
+                    if (errorMessages['Unauthorized']) {
+                        router.push('/login')
+                    }
+                }
 
-        setName(`${session.firstname} ${session.lastname}`)
-
+            })
+            .finally(() => {
+            })
     }
 
     useEffect(() => {
-        getSession()
+        getUserDetails()
     }, [])
+
 
 
     return (

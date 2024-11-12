@@ -3,8 +3,8 @@ import { decrypt } from "@/util/cryptoUtil"
 import CustomError from "@/classes/customError"
 import { setSession } from "@/context/auth"
 import { NextRequest, NextResponse } from "next/server"
-import { luckTayaAxios } from "@/helper/config"
-import { formatGenericErrorResponse } from "@/helper/commonResponse"
+import { luckTayaAxios } from "@/util/axiosUtil"
+import { formatGenericErrorResponse } from "@/util/commonResponse"
 
 const POST = async (req: NextRequest) => {
     try {

@@ -5,24 +5,36 @@ import { useEffect, useState } from "react"
 import { getCurrentSession } from "@/context/auth"
 import { formatMoney } from "@/util/textUtil"
 import BalanceBar from "@/components/balanceBar"
+import axios from "axios"
+import { useRouter } from "next/navigation"
 
-const Active = () => {
+const CashOut = () => {
+    const router = useRouter()
     const [amount, setAmount] = useState('')
     const [balance, setBalance] = useState('')
     const [comment, setComment] = useState('')
     const [isLoading, setIsLoading] = useState(false)
 
 
-    const getSession = async () => {
-        setIsLoading(true)
-        const session = await getCurrentSession()
-
-        setBalance(formatMoney(session.balance))
-        setIsLoading(false)
+    const getUserDetails = async () => {
+        await axios.get('/api/get-user-details')
+            .then(response => {
+                setBalance(`${response.data?.balance}`)
+            })
+            .catch((e) => {
+                const errorMessages = e.response.data.error
+                if (errorMessages) {
+                    if (errorMessages['Unauthorized']) {
+                        router.push('/login')
+                    }
+                }
+            })
+            .finally(() => {
+            })
     }
 
     useEffect(() => {
-        getSession()
+        getUserDetails()
     }, [])
 
     return (
@@ -43,4 +55,4 @@ const Active = () => {
     )
 }
 
-export default Active
+export default CashOut

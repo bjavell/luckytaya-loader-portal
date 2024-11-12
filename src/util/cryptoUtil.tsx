@@ -22,7 +22,6 @@ const decrypt = (encryptedMessage: string) => {
 const sha256withRSAsign = (stringtoencrypt: string, privateKey:Buffer) => {
     const data = Buffer.from(stringtoencrypt)
     const signature = crypto.sign('RSA-SHA256', data, privateKey).toString("base64")
-    console.log("Signing done", signature)
 
     return signature
 }

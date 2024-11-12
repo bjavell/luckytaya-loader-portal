@@ -46,7 +46,6 @@ const Commisson = () => {
             setStartDate(format(getStartOfWeek(new Date(currDate.getTime() - 14 * 24 * 60 * 60 * 1000)), 'yyyy-MM-dd'))
         }
         if (!endDate) {
-            console.log('HERE!')
             setEndDate(format(defaultEndDate, 'yyyy-MM-dd'))
         }
         await getTransaction()

@@ -11,9 +11,11 @@ import Form from "@/components/form"
 import { PATTERNS } from "@/classes/constants"
 import QrCode from "@/components/qrCode"
 import axios from "axios"
+import { useRouter } from "next/navigation"
 
-const Active = () => {
-    const [userId, setUserId] = useState('')
+const Load = () => {
+    const router = useRouter()
+    const [amountToBeCredited, setAmountToBeCredited] = useState('')
     const [loadTo, setLoadTo] = useState('')
     const [completeName, setCompleteName] = useState('')
     const [amount, setAmount] = useState('')
@@ -24,17 +26,48 @@ const Active = () => {
     const [isLoading, setIsLoading] = useState(false)
     const [qrData, setQrData] = useState('')
     const [showQr, setShowQr] = useState(false)
+    const [config, setConfig] = useState<{
+        cashInConFeeFixPlayer?: string,
+        cashInConFeePercentage?: string,
+        cashInConFeeType?: string,
+        cashOutConFeeType?: string,
+        cashInCommissionFee?: string
+    }>({})
 
-    const getSession = async () => {
-        const session = await getCurrentSession()
+    const getUserDetails = async () => {
+        await axios.get('/api/get-user-details')
+            .then(response => {
+                setBalance(`${response.data?.balance}`)
+            })
+            .catch((e) => {
+                const errorMessages = e.response.data.error
+                if (errorMessages) {
+                    if (errorMessages['Unauthorized']) {
+                        router.push('/login')
+                    }
+                }
+            })
+            .finally(() => {
+            })
+    }
 
-        setBalance(formatMoney(session.balance))
-
+    const getLoadStationConfig = async () => {
+        await axios.get('/api/get-load-station-config')
+            .then(response => {
+                const responseData = response.data
+                setConfig(responseData)
+            })
+            .catch((e) => {
+            })
+            .finally(() => {
+            })
     }
 
     useEffect(() => {
-        getSession()
+        getUserDetails()
+        getLoadStationConfig()
     }, [])
+
 
 
     const onHandleSubmit = async () => {
@@ -55,14 +88,59 @@ const Active = () => {
                 setQrData(response.data.codeUrl)
                 setShowQr(true)
             })
-            .catch(() => {
+            .catch((e) => {
+                const errorMessages = e.response.data.error
+                if (errorMessages) {
+                    if (errorMessages['Unauthorized']) {
+                        router.push('/login')
+                    }
+                }
                 setShowQr(false)
                 setQrData('')
             })
             .finally(() => {
                 setIsLoading(false)
             })
+    }
 
+    const searchPlayer = async (accountNumber: string) => {
+        setIsLoading(true)
+        await axios.get('/api/get-player', {
+            params: {
+                accountNumber
+            }
+        })
+            .then((response) => {
+
+                const responseData = response.data
+
+                if (responseData.userName) {
+                    setCompleteName(responseData.userName)
+                } else {
+                    setCompleteName('No user found!')
+                    setLoadTo('')
+                }
+            })
+            .catch((e) => {
+                const errorMessages = e.response.data.error
+                if (errorMessages) {
+                    if (errorMessages['Unauthorized']) {
+                        router.push('/login')
+                    }
+                }
+            })
+            .finally(() => {
+                setIsLoading(false)
+            })
+    }
+
+    const onAmountChange = (amount: string) => {
+        const calculateFee = Number(config.cashInConFeeFixPlayer) + Number(config.cashInCommissionFee)
+        const calculateAmountToBeCredited = Number(amount) - calculateFee
+
+        setAmount(amount)
+        setFee(formatMoney(calculateFee.toString()))
+        setAmountToBeCredited(formatMoney(calculateAmountToBeCredited.toString()))
     }
 
 
@@ -76,14 +154,16 @@ const Active = () => {
                 <div className="flex w-1/2 bg-gray13 rounded-xl">
                     <Form className="flex flex-row gap-2 w-full" onSubmit={onHandleSubmit}>
                         <div className="flex flex-col p-4 gap-4 w-full">
-                            <FormField name="loadTo" label="Load to" placeholder="Enter Load To" value={loadTo} onChange={(e) => { setLoadTo(e.target.value) }} customLabelClass="text-xs" required />
-                            <FormField name="completeName" label="Complete Name" placeholder="Enter complete name" value={completeName} onChange={(e) => { setCompleteName(e.target.value) }} customLabelClass="text-xs" required />
-                            <FormField name="amount" label="Amount" placeholder="Enter amount" value={amount} onChange={(e) => { setAmount(e.target.value) }} customLabelClass="text-xs" required />
+                            <FormField name="loadTo" label="Load to" placeholder="Enter Load To" value={loadTo} onChange={(e) => { setLoadTo(e.target.value) }} customLabelClass="text-xs" required onBlur={(e) => {
+                                searchPlayer(e.target.value)
+                            }} />
+                            <FormField name="completeName" label="Complete Name" value={completeName} customLabelClass="text-xs" readonly />
+                            <FormField name="amount" label="Amount" placeholder="Enter amount" value={amount} onBlur={(e) => { onAmountChange(e.target.value) }} customLabelClass="text-xs" required type="number" pattern={PATTERNS.NUMBER} />
                             <FormField name="email" label="Email Address" placeholder="example@gmail.com" value={email} onChange={(e) => { setEmail(e.target.value) }} customLabelClass="text-xs" type="email" pattern={PATTERNS.EMAIL} errorMessage='Input a valid email' required />
                         </div>
                         <div className="flex flex-col p-4 gap-4 w-full">
-                            <FormField name="fee" label="Fee" placeholder="Enter Fee" value={fee} onChange={(e) => { setFee(e.target.value) }} customLabelClass="text-xs" required />
-                            <FormField name="userId" label="User ID" placeholder="Enter User ID" value={userId} onChange={(e) => { setUserId(e.target.value) }} customLabelClass="text-xs" required />
+                            <FormField name="fee" label="Fee" placeholder="Enter Fee" value={fee} customLabelClass="text-xs" readonly errorMessage='Invalid Amount' />
+                            <FormField name="amountToBeCredited" label="Amount to be credited" value={amountToBeCredited} customLabelClass="text-xs" readonly errorMessage='Invalid Amount' />
                             <FormField name="comment" label="Comment" placeholder="Type your comment" value={comment} onChangeTextArea={(e) => { setComment(e.target.value) }} customLabelClass="text-xs" type="textarea" />
                             <Button onClick={onHandleSubmit} isLoading={isLoading} loadingText="Loading..." type={'submit'}>Submit</Button>
                         </div>
@@ -94,4 +174,4 @@ const Active = () => {
     )
 }
 
-export default Active
+export default Load

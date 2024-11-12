@@ -1,5 +1,5 @@
-import { formatGenericErrorResponse } from "@/helper/commonResponse"
-import { starpayAxios } from "@/helper/config"
+import { formatGenericErrorResponse } from "@/util/commonResponse"
+import { starpayAxios } from "@/util/axiosUtil"
 import { NextRequest, NextResponse } from "next/server"
 import * as fs from 'fs'
 import { sha256withRSAsign } from "@/util/cryptoUtil"
@@ -39,12 +39,10 @@ const POST = async (req: Request) => {
 
         const parsedRequest = createRequest(rawRequest, privateKey)
 
-        console.log(parsedRequest)
 
         const response = await starpayAxios.post(`${process.env.NEXT_PUBLIC_BASE_URL_STARPAY}/v1/repayment`, parsedRequest)
         const responseData = response.data
 
-        console.log(responseData)
 
         if (responseData.response.code !== '200') {
             throw new CustomError('Not Success', { 'Err': [responseData.response.message] })

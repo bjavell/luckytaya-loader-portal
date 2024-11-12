@@ -15,7 +15,6 @@ const starpayAxios: AxiosInstance = axios.create({
     baseURL: process.env.STARPAY_BASE_URL
 })
 
-
 export {
     luckTayaAxios,
     starpayAxios

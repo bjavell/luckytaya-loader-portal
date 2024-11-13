@@ -10,7 +10,7 @@ const GET = async (req: NextRequest) => {
 
         const currentSession = await getCurrentSession()
 
-        const response = await luckTayaAxios.get(`${process.env.LUCKY_TAYA_BASE_URL}/api/v1/UserAccount/AllPlayerAccount`, {
+        const response = await luckTayaAxios.get(`/api/v1/UserAccount/AllPlayerAccount`, {
             headers: {
                 'Authorization': `Bearer ${currentSession.token}`,
             },

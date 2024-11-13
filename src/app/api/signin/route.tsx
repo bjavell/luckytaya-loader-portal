@@ -25,7 +25,7 @@ const POST = async (req: NextRequest) => {
         }
 
         await setSession(responseData)
-        return NextResponse.json(responseData)
+        return NextResponse.json({'message': 'Successfully Logged In!'})
 
     } catch (e) {
         console.error(e)

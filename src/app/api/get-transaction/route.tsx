@@ -10,16 +10,25 @@ const GET = async (req: NextRequest) => {
         const params = {
             dateTimeFrom: req.nextUrl.searchParams.get('startDate'),
             dateTimeTo: req.nextUrl.searchParams.get('endDate'),
-            accountNumber: currentSession.accountNumber
         }
-        const response = await luckTayaAxios.get(`${process.env.LUCKY_TAYA_BASE_URL}/api/v1/xAccountTransaction/GetTransByAcctNumByDateV2`, {
+        const response = await luckTayaAxios.get(`/api/v1/xAccountTransaction/GetTransByUserIdByDateV2`, {
             params,
             headers: {
                 'Authorization': `Bearer ${currentSession.token}`,
             },
         })
 
-        return NextResponse.json(response.data)
+        const customResponse = response.data.map((e: any) => {
+            return {
+                ...e,
+                fromFullName: `${e.fromFirstname} ${e.fromLastname}`,
+                toFullName: `${e.toFirstname} ${e.toLastname}`
+            }
+        }).sort((a: any, b: any) => {
+            return b.transactionNumber - a.transactionNumber
+        })
+
+        return NextResponse.json(customResponse)
     } catch (e) {
 
         return NextResponse.json({

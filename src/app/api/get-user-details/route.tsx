@@ -7,7 +7,7 @@ const GET = async () => {
     try {
         const currentSession = await getCurrentSession()
 
-        const response = await luckTayaAxios.get(`${process.env.LUCKY_TAYA_BASE_URL}/api/v1/UserAccount/MyAccount`, {
+        const response = await luckTayaAxios.get(`/api/v1/UserAccount/MyAccount`, {
             headers: {
                 'Authorization': `Bearer ${currentSession.token}`,
             },

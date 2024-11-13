@@ -4,8 +4,7 @@ import { useEffect, useState } from "react"
 import Button from "@/components/button"
 import gcashLoad from '@/assets/images/GcashLoad.png'
 import Image from "next/image"
-import { getCurrentSession } from "@/context/auth"
-import { formatDate, formatMoney } from "@/util/textUtil"
+import { formatDate, formatMoney, removeDecimalPlaces } from "@/util/textUtil"
 import BalanceBar from "@/components/balanceBar"
 import Form from "@/components/form"
 import { PATTERNS } from "@/classes/constants"
@@ -77,9 +76,12 @@ const Load = () => {
         expireDate.setHours(expireDate.getHours() + 2)
 
         const data = {
-            trxAmount: `${(Number.parseFloat(amount)).toFixed(2)}`.replaceAll(",", "").replace(".", ""),
+            trxAmount: removeDecimalPlaces(amount),
             timeStart: formatDate(date.toISOString()),
-            timeExpire: formatDate(expireDate.toISOString())
+            timeExpire: formatDate(expireDate.toISOString()),
+            accountNumber: loadTo,
+            convenienceFee: config.cashInConFeeFixPlayer,
+            commissionFee: config.cashInCommissionFee,
 
         }
 
@@ -158,8 +160,8 @@ const Load = () => {
                                 searchPlayer(e.target.value)
                             }} />
                             <FormField name="completeName" label="Complete Name" value={completeName} customLabelClass="text-xs" readonly />
-                            <FormField name="amount" label="Amount" placeholder="Enter amount" value={amount} onBlur={(e) => { onAmountChange(e.target.value) }} customLabelClass="text-xs" required type="number" pattern={PATTERNS.NUMBER} />
                             <FormField name="email" label="Email Address" placeholder="example@gmail.com" value={email} onChange={(e) => { setEmail(e.target.value) }} customLabelClass="text-xs" type="email" pattern={PATTERNS.EMAIL} errorMessage='Input a valid email' required />
+                            <FormField name="amount" label="Amount" placeholder="Enter amount" value={amount} onBlur={(e) => { onAmountChange(e.target.value) }} customLabelClass="text-xs" required type="number" pattern={PATTERNS.NUMBER} />
                         </div>
                         <div className="flex flex-col p-4 gap-4 w-full">
                             <FormField name="fee" label="Fee" placeholder="Enter Fee" value={fee} customLabelClass="text-xs" readonly errorMessage='Invalid Amount' />

@@ -5,7 +5,19 @@ const PATTERNS = {
     NUMBER: '[^0-9.-]*$'
 }
 
+const QR_TRANSACTION_STATUS = {
+    CREATED: 'Created',
+    COMPLETED: 'Completed'
+}
+
+const DB_COLLECTIONS = {
+    CONFIG: 'config',
+    QR_TRANSACITON: 'qr_transactions'
+}
+
 export {
     SESSION_COOKIE_NAME,
-    PATTERNS
+    PATTERNS,
+    QR_TRANSACTION_STATUS,
+    DB_COLLECTIONS
 }

@@ -14,7 +14,7 @@ const POST = async (req: NextRequest) => {
             toAccountNumber
         }
 
-        const response = await luckTayaAxios.post(`${process.env.LUCKY_TAYA_BASE_URL}/api/v1/Account/cashInV2`, request, {
+        const response = await luckTayaAxios.post(`/api/v1/Account/cashInV2`, request, {
             headers: {
                 'Authorization': `Bearer ${currentSession.token}`,
             },

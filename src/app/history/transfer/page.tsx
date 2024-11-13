@@ -8,6 +8,7 @@ import { format } from 'date-fns'
 import FormField from "@/components/formField"
 import Form from "@/components/form"
 import Button from "@/components/button"
+import { formatMoney } from "@/util/textUtil"
 
 const Commisson = () => {
 
@@ -82,19 +83,26 @@ const Commisson = () => {
                             key: 'transactionNumber',
                             label: 'TXN ID'
                         }, {
-                            key: 'fromFirstname',
-                            concatKey: ['fromLastname'],
+                            key: 'fromFullName',
+                            concatKey: ['fromAccountNumber'],
+                            concatSeparator: ' | ',
                             label: 'SENDER'
                         }, {
-                            key: 'toFirstname',
-                            concatKey: ['toLastname'],
+                            key: 'toFullName',
+                            concatKey: ['toAccountNumber'],
+                            concatSeparator: ' | ',
                             label: 'RECEIVER'
                         }, {
                             key: 'amount',
                             label: 'AMOUNT',
-                            customValueClass: 'text-semiYellow'
+                            customValueClass: 'text-semiYellow',
+                            format: (val: string) => {
+                                return formatMoney(val)
+                            }
                         }, {
                             key: 'transactionDesc',
+                            concatKey: ['transCategoryDesc'],
+                            concatSeparator: ' ',
                             label: 'TYPE'
                         },
                     ]}

@@ -5,7 +5,8 @@ interface HeadersProp<T> {
     key: string,
     customValueClass?: string,
     format?: (item: any) => string,
-    concatKey?: Array<string>
+    concatKey?: Array<string>,
+    concatSeparator?: string
 }
 
 interface TablesProps<T> {
@@ -87,7 +88,7 @@ const Tables = <T,>({ headers, items, primaryId, isCentered = false }: TablesPro
 
         if (h.concatKey) {
             h.concatKey.forEach((concateKeyIndex: any) => {
-                value = `${value} ${item[concateKeyIndex]}`
+                value = `${value}${h.concatSeparator}${item[concateKeyIndex]}`
             })
         }
 

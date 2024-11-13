@@ -57,12 +57,12 @@ const FormField: NextPage<FormFieldProps> = (props) => {
         )
     }
 
-    let formField = <input {...inputProps} type={type} id={name} name={name} className={`peer rounded-xlg py-4 px-4 bg-semiBlack shadow-sm font-sans font-light text-[13px] tacking-[5%] text-white invalid:border-red-500 invalid:[&.visited]:border invalid:[&.visited]:border-[#E74C3C] ${isVisited ? 'visited' : ''} `} onBlur={handleOnBlur} onKeyDown={handleOnKeyDown} />
+    let formField = <input {...inputProps} type={type} id={name} name={name} className={`peer rounded-xlg py-4 px-4 bg-semiBlack shadow-sm font-sans font-light text-[13px] tacking-[5%] text-white invalid:border-red-500 invalid:[&.visited]:border invalid:[&.visited]:border-[#E74C3C] ${isVisited ? 'visited' : ''} `} onBlur={handleOnBlur} onKeyDown={handleOnKeyDown} defaultValue={value} />
 
     if (readonly) {
         formField = <>
             <span>{value ?? '-'}</span>
-            <input {...inputProps} type="hidden" value={value} className="peer visited"/>
+            <input {...inputProps} type="hidden" value={value} className="peer visited" />
         </>
     }
 

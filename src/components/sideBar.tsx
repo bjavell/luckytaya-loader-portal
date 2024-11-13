@@ -138,7 +138,7 @@ const SideBar = () => {
 
     useEffect(() => {
         getUserDetails()
-    }, [])
+    })
 
 
 

@@ -1,15 +1,12 @@
-import { getCurrentSession } from "@/context/auth"
 import { NextResponse } from "next/server"
-import { luckTayaAxios } from "@/util/axiosUtil"
 import { formatGenericErrorResponse } from "@/util/commonResponse"
-import db from "@/lib/mongodb"
 import CustomError from "@/classes/customError"
+import { findOne } from "@/util/dbUtil"
+import { DB_COLLECTIONS } from "@/classes/constants"
 
 const GET = async () => {
     try {
-        const database = await db()
-        const collection = database.collection('config')
-        const config = await collection.findOne({ code: 'CFG0001' })
+        const config = await findOne(DB_COLLECTIONS.CONFIG, { code: 'CFG0001' })
 
         if (config) {
             const data = {

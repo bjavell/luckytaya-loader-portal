@@ -157,7 +157,7 @@ const Load = () => {
             _comFee = cashInCommissionFee
         }
 
-        const calculateFee = comFee + convFee
+        const calculateFee = _comFee + _convFee
         const calculateAmountToBeCredited = Number(amount) - calculateFee
 
         setAmount(amount)

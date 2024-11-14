@@ -6,18 +6,28 @@ import { encrypt, sha256withRSAsign } from "@/util/cryptoUtil"
 import { getToken } from "@/util/generator"
 import CustomError from "@/classes/customError"
 import { insert } from "@/util/dbUtil"
-import { DB_COLLECTIONS, QR_TRANSACTION_STATUS } from "@/classes/constants"
+import { DB_COLLECTIONS, QR_TRANSACTION_STATUS, TRAN_TYPE } from "@/classes/constants"
 import { getCurrentSession } from "@/context/auth"
 
 const mchId = process.env.NEXT_PUBLIC_STARPAY_MERCHANT_ID
 const name = process.env.NEXT_PUBLIC_PAYMENT_NAME
 
-const createRequest = (req: NextRequest, privateKey: Buffer) => {
+const createRequest = (req: NextRequest, privateKey: Buffer, type: string) => {
     // "notifyUrl": `https://webhook-test.com/c76fabe695ca5fe68f6855421d2194ec`,
+
+    let notifyUrl
+    if (type === TRAN_TYPE.CASHIN) {
+        notifyUrl = 'http://136.158.92.61:6001/api/notify/cashin'
+    } else {
+        notifyUrl = 'http://136.158.92.61:6001/api/notify/cashout'
+    }
+
+
     const request = {
         "msgId": getToken(15),
         "mchId": mchId,
-        "notifyUrl": `http://136.158.92.61:6001/api/notify/cashin`,
+        "notifyUrl": notifyUrl,
+        // "notifyUrl": 'https://webhook-test.com/0bf55490345aa236c19c7d02496acb07',
         "deviceInfo": name,
         "currency": "PHP",
         "service": "pay.starpay.repayment",
@@ -46,12 +56,16 @@ const POST = async (req: Request) => {
         const accountNumber = rawRequest.accountNumber
         const commissionFee = rawRequest.commissionFee
         const convenienceFee = rawRequest.convenienceFee
+        const type = rawRequest.type
+        const comment = rawRequest.comment
 
         delete rawRequest.accountNumber
         delete rawRequest.convenienceFee
         delete rawRequest.commissionFee
+        delete rawRequest.type
+        delete rawRequest.comment
 
-        const parsedRequest = createRequest(rawRequest, privateKey)
+        const parsedRequest = createRequest(rawRequest, privateKey, type)
 
         console.log(parsedRequest)
         await insert(DB_COLLECTIONS.QR_TRANSACITON, {
@@ -62,7 +76,9 @@ const POST = async (req: Request) => {
             transactionDate: new Date().toISOString(),
             agentAuth: encrypt(currentSession.token),
             convenienceFee,
-            commissionFee
+            commissionFee,
+            comment,
+            tranType: type
 
         })
 

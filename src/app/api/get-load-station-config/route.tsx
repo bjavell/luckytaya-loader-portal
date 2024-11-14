@@ -14,7 +14,10 @@ const GET = async () => {
                 cashInConFeePercentage: config.cashInConFeePercentage,
                 cashInConFeeType: config.cashInConFeeType,
                 cashOutConFeeType: config.cashOutConFeeType,
-                cashInCommissionFee: config.cashInCommissionFee
+                cashInCommissionFee: config.cashInCommissionFee,
+                commissionFeePercentage: config.commissionFeePercentage,
+                commissionFeeType: config.commissionFeeType,
+
             }
 
             return NextResponse.json(data)

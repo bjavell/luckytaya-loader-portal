@@ -34,27 +34,16 @@ const POST = async (req: NextRequest) => {
         const auth = decrypt(transaction.agentAuth)
 
         if (config) {
+            const amountToBeCredited = parseFloat(insertDecimalAtThirdToLast(rawRequest.request.trxAmount))
 
-            const amountToBeCredited = parseFloat(insertDecimalAtThirdToLast(rawRequest.request.trxAmount)) - parseFloat(config.cashInCommissionFee) - parseFloat(config.cashInConFeeFixPlayer)
-
-            const transferRequest = {
+            console.log('Agent To Master Agent Account/Wallet')
+            const agentToMaterWallet = await fundTransferV2(auth, {
                 amount: amountToBeCredited,
-                toAccountNumber: transaction.accountNumber
-            }
-
-            console.log(transferRequest)
-
-            const response = await luckTayaAxios.get('/api/v1/Account/transferV2', {
-                params: transferRequest,
-                headers: {
-                    'Authorization': `Bearer ${auth}`,
-                },
+                toAccountNumber: config.masterAgentWallet
             })
 
-            console.log(response)
-
+            transaction.agentToMaterWallet = agentToMaterWallet
             transaction.response = rawRequest.request
-            transaction.fundTransfer = response.data
             transaction.status = QR_TRANSACTION_STATUS.COMPLETED
             const updateResult = await update(DB_COLLECTIONS.QR_TRANSACITON, query, transaction)
 
@@ -67,11 +56,42 @@ const POST = async (req: NextRequest) => {
 
 
 
-    } catch (e) {
-        console.log(e)
+    } catch (e: any) {
+        console.log(e.response.errors)
     }
 
     return NextResponse.json({ code: "200", message: "success" })
+}
+
+const fundTransferV2 = async (auth: string, transferRequest: any) => {
+    console.log('fundTransferV2', auth, transferRequest)
+
+    const response = await luckTayaAxios.get('/api/v1/Account/transferV2', {
+        params: transferRequest,
+        headers: {
+            'Authorization': `Bearer ${auth}`,
+        },
+    })
+
+    console.log(response.data)
+
+    return response.data
+}
+
+
+const loginCommissionAccount = async (username: string, password: string) => {
+
+
+    const response = await luckTayaAxios.post(`/api/v1/User/Login`, {
+        username: username,
+        password: password
+    })
+    const responseData = response.data
+
+    return {
+        accountNumber: responseData.accountNumber,
+        token: responseData.token
+    }
 }
 
 export {

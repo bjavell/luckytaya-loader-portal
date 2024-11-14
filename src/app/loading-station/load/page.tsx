@@ -7,10 +7,11 @@ import Image from "next/image"
 import { formatDate, formatMoney, removeDecimalPlaces } from "@/util/textUtil"
 import BalanceBar from "@/components/balanceBar"
 import Form from "@/components/form"
-import { PATTERNS } from "@/classes/constants"
+import { PATTERNS, TRAN_TYPE } from "@/classes/constants"
 import QrCode from "@/components/qrCode"
 import axios from "axios"
 import { useRouter } from "next/navigation"
+import { useApiData } from "@/app/context/apiContext"
 
 const Load = () => {
     const router = useRouter()
@@ -25,30 +26,27 @@ const Load = () => {
     const [isLoading, setIsLoading] = useState(false)
     const [qrData, setQrData] = useState('')
     const [showQr, setShowQr] = useState(false)
+    const [convFee, setConvFee] = useState(0)
+    const [comFee, setComFee] = useState(0)
     const [config, setConfig] = useState<{
-        cashInConFeeFixPlayer?: string,
-        cashInConFeePercentage?: string,
-        cashInConFeeType?: string,
-        cashOutConFeeType?: string,
-        cashInCommissionFee?: string
-    }>({})
+        cashInConFeeFixPlayer: number,
+        cashInConFeePercentage: number,
+        cashInConFeeType: number,
+        cashOutConFeeType: number,
+        cashInCommissionFee: number,
+        commissionFeePercentage: number,
+        commissionFeeType: number
+    }>({
+        cashInConFeeFixPlayer: 0,
+        cashInConFeePercentage: 0,
+        cashInConFeeType: 0,
+        cashOutConFeeType: 0,
+        cashInCommissionFee: 0,
+        commissionFeePercentage: 0,
+        commissionFeeType: 0
+    })
 
-    const getUserDetails = async () => {
-        await axios.get('/api/get-user-details')
-            .then(response => {
-                setBalance(`${response.data?.balance}`)
-            })
-            .catch((e) => {
-                const errorMessages = e.response.data.error
-                if (errorMessages) {
-                    if (errorMessages['Unauthorized']) {
-                        router.push('/login')
-                    }
-                }
-            })
-            .finally(() => {
-            })
-    }
+    const { data, loading, error } = useApiData();
 
     const getLoadStationConfig = async () => {
         await axios.get('/api/get-load-station-config')
@@ -63,9 +61,12 @@ const Load = () => {
     }
 
     useEffect(() => {
-        getUserDetails()
-        getLoadStationConfig()
-    }, [])
+        // getUserDetails()
+        if (data) {
+            getLoadStationConfig()
+            setBalance(data.balance)
+        }
+    }, [data])
 
 
 
@@ -80,8 +81,10 @@ const Load = () => {
             timeStart: formatDate(date.toISOString()),
             timeExpire: formatDate(expireDate.toISOString()),
             accountNumber: loadTo,
-            convenienceFee: config.cashInConFeeFixPlayer,
-            commissionFee: config.cashInCommissionFee,
+            convenienceFee: convFee,
+            commissionFee: comFee,
+            comment: comment,
+            type: TRAN_TYPE.CASHIN
 
         }
 
@@ -137,10 +140,29 @@ const Load = () => {
     }
 
     const onAmountChange = (amount: string) => {
-        const calculateFee = Number(config.cashInConFeeFixPlayer) + Number(config.cashInCommissionFee)
+
+        const { cashInCommissionFee, cashInConFeeFixPlayer, cashInConFeePercentage, cashInConFeeType, commissionFeeType, commissionFeePercentage, } = config
+
+        let _comFee, _convFee
+
+        if (cashInConFeeType === 1) {
+            _convFee = parseFloat(amount) * cashInConFeePercentage
+        } else {
+            _convFee = cashInConFeeFixPlayer
+        }
+
+        if (commissionFeeType === 1) {
+            _comFee = parseFloat(amount) * commissionFeePercentage
+        } else {
+            _comFee = cashInCommissionFee
+        }
+
+        const calculateFee = comFee + convFee
         const calculateAmountToBeCredited = Number(amount) - calculateFee
 
         setAmount(amount)
+        setConvFee(_convFee)
+        setComFee(_comFee)
         setFee(formatMoney(calculateFee.toString()))
         setAmountToBeCredited(formatMoney(calculateAmountToBeCredited.toString()))
     }

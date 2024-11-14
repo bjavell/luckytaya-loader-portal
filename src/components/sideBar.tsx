@@ -15,6 +15,7 @@ import axios from "axios"
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime"
 import { getCurrentSession } from "@/context/auth"
 import UserAvatar from '@/assets/images/UserAvatar.png'
+import { useApiData } from "@/app/context/apiContext"
 
 interface SideBarRoutesProps {
     module?: string,
@@ -57,11 +58,13 @@ const sideBarRoutes = [{
         module: 'Transfer',
         ico: Transfer,
         link: '/history/transfer'
-    }, {
-        module: 'Commission',
-        ico: Commission,
-        link: '/history/commission'
-    }]
+    }
+        // , {
+        //     module: 'Commission',
+        //     ico: Commission,
+        //     link: '/history/commission'
+        // }
+    ]
 
 }]
 
@@ -117,28 +120,35 @@ const SideBar = () => {
     const currentRoute = usePathname() ?? ''
     const [isLoading, setIsLoading] = useState(false)
     const [name, setName] = useState('')
+    const { data, loading, error } = useApiData();
 
-    const getUserDetails = async () => {
-        await axios.get('/api/get-user-details')
-            .then(response => {
-                setName(`${response.data?.fistname} ${response.data?.lastname}`)
-            })
-            .catch((e) => {
-                const errorMessages = e.response.data.error
-                if (errorMessages) {
-                    if (errorMessages['Unauthorized']) {
-                        router.push('/login')
-                    }
-                }
-
-            })
-            .finally(() => {
-            })
-    }
 
     useEffect(() => {
-        getUserDetails()
-    }, [])
+        if (data) {
+            setName(`${data?.fistname} ${data?.lastname}`)
+        }
+    }, [data])
+    // const getUserDetails = async () => {
+    //     await axios.get('/api/get-user-details')
+    //         .then(response => {
+    //             setName(`${response.data?.fistname} ${response.data?.lastname}`)
+    //         })
+    //         .catch((e) => {
+    //             const errorMessages = e.response.data.error
+    //             if (errorMessages) {
+    //                 if (errorMessages['Unauthorized']) {
+    //                     router.push('/login')
+    //                 }
+    //             }
+
+    //         })
+    //         .finally(() => {
+    //         })
+    // }
+
+    // useEffect(() => {
+    //     getUserDetails()
+    // }, [])
 
 
 

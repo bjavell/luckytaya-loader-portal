@@ -35,22 +35,22 @@ const POST = async (req: NextRequest) => {
 
         if (config) {
             const commissionFee = parseFloat(transaction.commissionFee)
-            const fees = parseFloat(transaction.convenienceFee) + commissionFee
-            const amountToBeCredited = parseFloat(insertDecimalAtThirdToLast(rawRequest.request.trxAmount)) - fees
+            const fees = parseFloat(transaction.convenienceFee) // + commissionFee
+            const amountToBeCredited = parseFloat(insertDecimalAtThirdToLast(rawRequest.request.trxAmount)) - fees - commissionFee
 
-            const commissionAccount = await loginCommissionAccount(config.commissionUsername, config.commissionPassword)
+            // const commissionAccount = await loginCommissionAccount(config.commissionUsername, config.commissionPassword)
 
             console.log('Agent To Commission/Incovenience Fee Account/Wallet')
             const agentToFee = await fundTransferV2(auth, {
                 amount: fees,
-                toAccountNumber: commissionAccount.accountNumber
+                toAccountNumber: config.commissionAccountNumber
             })
 
-            console.log('Commission Fee to Agent')
-            const commissionFeeToAgent = await fundTransferV2(commissionAccount.token, {
-                amount: commissionFee,
-                toAccountNumber: transaction.agentAccountNumber
-            })
+            // console.log('Commission Fee to Agent')
+            // const commissionFeeToAgent = await fundTransferV2(commissionAccount.token, {
+            //     amount: commissionFee,
+            //     toAccountNumber: transaction.agentAccountNumber
+            // })
 
             console.log('Agent to Agent/Player')
             const agentToAgentPlayer = await fundTransferV2(auth, {
@@ -59,7 +59,7 @@ const POST = async (req: NextRequest) => {
             })
 
             transaction.agentToFee = agentToFee
-            transaction.commissionFeeToAgent = commissionFeeToAgent
+            // transaction.commissionFeeToAgent = commissionFeeToAgent
             transaction.agentToAgentPlayer = agentToAgentPlayer
             transaction.response = rawRequest.request
             transaction.status = QR_TRANSACTION_STATUS.COMPLETED

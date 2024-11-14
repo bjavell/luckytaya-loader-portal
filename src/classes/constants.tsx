@@ -15,9 +15,15 @@ const DB_COLLECTIONS = {
     QR_TRANSACITON: 'qr_transactions'
 }
 
+const TRAN_TYPE = {
+    CASHIN: 'cashin',
+    CASHOUT: 'cashout'
+}
+
 export {
     SESSION_COOKIE_NAME,
     PATTERNS,
     QR_TRANSACTION_STATUS,
-    DB_COLLECTIONS
+    DB_COLLECTIONS,
+    TRAN_TYPE
 }

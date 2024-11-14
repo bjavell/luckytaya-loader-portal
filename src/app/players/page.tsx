@@ -3,6 +3,7 @@ import { SetStateAction, useEffect, useState } from "react"
 import axios from "axios"
 import Tables from "@/components/tables"
 import { useRouter } from "next/navigation"
+import { formatMoney } from "@/util/textUtil"
 
 const Players = () => {
     const router = useRouter()
@@ -35,8 +36,8 @@ const Players = () => {
     }
 
     useEffect(() => {
-
-        getPlayerLists()
+        if (players.length === 0)
+            getPlayerLists()
     }, [])
 
     const onStatusChange = ((e: { target: { value: SetStateAction<string> } }) => {
@@ -79,9 +80,16 @@ const Players = () => {
                         {
                             key: 'aspnetuserId',
                             label: 'USER ID'
+                        },
+                        {
+                            key: 'accountNumber',
+                            label: 'ACCOUNT NUMBER'
                         }, {
                             key: 'balance',
-                            label: 'BALANCE'
+                            label: 'BALANCE',
+                            format: (val: string) => {
+                                return formatMoney(val)
+                            }
                         },
                         {
                             key: 'dob',

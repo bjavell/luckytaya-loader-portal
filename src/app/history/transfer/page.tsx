@@ -25,10 +25,18 @@ const Commisson = () => {
 
     const getTransaction = async () => {
 
+
+        const startDateDateTime = new Date(startDate)
+        startDateDateTime.setHours(0, 0, 0, 0);
+
+
+        const endDateDateTime = new Date(endDate)
+        endDateDateTime.setHours(23, 59, 59, 999);
+
         await axios.get('/api/get-transaction', {
             params: {
-                startDate: startDate.split('T')[0],
-                endDate: endDate.split('T')[0]
+                startDate: startDateDateTime.toISOString(),
+                endDate: endDateDateTime.toISOString()
             }
         }).then(response => {
             setTransactions(response.data)
@@ -44,7 +52,7 @@ const Commisson = () => {
     const onHandleSubmit = async () => {
         setIsLoading(true)
         if (!startDate) {
-            setStartDate(format(getStartOfWeek(new Date(currDate.getTime() - 14 * 24 * 60 * 60 * 1000)), 'yyyy-MM-dd'))
+            setStartDate(format(getStartOfWeek(currDate), 'yyyy-MM-dd'))
         }
         if (!endDate) {
             setEndDate(format(defaultEndDate, 'yyyy-MM-dd'))

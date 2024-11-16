@@ -15,7 +15,7 @@ import { useApiData } from "@/app/context/apiContext"
 
 const Load = () => {
     const router = useRouter()
-    const [amountToBeCredited, setAmountToBeCredited] = useState('')
+    const [totalAmount, setTotalAmount] = useState('')
     const [loadTo, setLoadTo] = useState('')
     const [completeName, setCompleteName] = useState('')
     const [amount, setAmount] = useState('')
@@ -77,7 +77,7 @@ const Load = () => {
         expireDate.setHours(expireDate.getHours() + 2)
 
         const data = {
-            trxAmount: removeDecimalPlaces(amount),
+            trxAmount: removeDecimalPlaces(totalAmount.replace('₱', '')),
             timeStart: formatDate(date.toISOString()),
             timeExpire: formatDate(expireDate.toISOString()),
             accountNumber: loadTo,
@@ -158,13 +158,13 @@ const Load = () => {
         }
 
         const calculateFee = _comFee + _convFee
-        const calculateAmountToBeCredited = Number(amount) - calculateFee
+        const calculateTotalAmount = Number(amount) + calculateFee
 
         setAmount(amount)
         setConvFee(_convFee)
         setComFee(_comFee)
         setFee(formatMoney(calculateFee.toString()))
-        setAmountToBeCredited(formatMoney(calculateAmountToBeCredited.toString()))
+        setTotalAmount(formatMoney(calculateTotalAmount.toString()))
     }
 
 
@@ -187,7 +187,7 @@ const Load = () => {
                         </div>
                         <div className="flex flex-col p-4 gap-4 w-full">
                             <FormField name="fee" label="Fee" placeholder="Enter Fee" value={fee} customLabelClass="text-xs" readonly errorMessage='Invalid Amount' />
-                            <FormField name="amountToBeCredited" label="Amount to be credited" value={amountToBeCredited} customLabelClass="text-xs" readonly errorMessage='Invalid Amount' />
+                            <FormField name="totalAmount" label="Total Amount" value={totalAmount} customLabelClass="text-xs" readonly errorMessage='Invalid Amount' />
                             <FormField name="comment" label="Comment" placeholder="Type your comment" value={comment} onChangeTextArea={(e) => { setComment(e.target.value) }} customLabelClass="text-xs" type="textarea" />
                             <Button onClick={onHandleSubmit} isLoading={isLoading} loadingText="Loading..." type={'submit'}>Submit</Button>
                         </div>

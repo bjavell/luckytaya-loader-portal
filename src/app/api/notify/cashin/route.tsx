@@ -36,7 +36,7 @@ const POST = async (req: NextRequest) => {
         if (config) {
             const commissionFee = parseFloat(transaction.commissionFee)
             const fees = parseFloat(transaction.convenienceFee) // + commissionFee
-            const amountToBeCredited = parseFloat(insertDecimalAtThirdToLast(rawRequest.request.trxAmount)) - fees - commissionFee
+            const amountToBeCredited = parseFloat(insertDecimalAtThirdToLast(rawRequest.request.trxAmount)) - commissionFee
 
             // const commissionAccount = await loginCommissionAccount(config.commissionUsername, config.commissionPassword)
 

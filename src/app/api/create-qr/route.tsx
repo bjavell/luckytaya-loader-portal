@@ -27,7 +27,7 @@ const createRequest = (req: NextRequest, privateKey: Buffer, type: string) => {
         "msgId": getToken(15),
         "mchId": mchId,
         "notifyUrl": notifyUrl,
-        // "notifyUrl": 'https://webhook-test.com/0bf55490345aa236c19c7d02496acb07',
+        // "notifyUrl": 'https://webhook-test.com/99a6e4fe7dd34ae23a5ade67ac525f5e',
         "deviceInfo": name,
         "currency": "PHP",
         "service": "pay.starpay.repayment",

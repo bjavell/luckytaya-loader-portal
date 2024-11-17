@@ -51,9 +51,8 @@ const POST = async (req: Request) => {
         const privateKey = fs.readFileSync('./key/Private.key')
         const rawRequest = await req.json()
 
-        console.log(rawRequest)
-
         const accountNumber = rawRequest.accountNumber
+        const accountName = rawRequest.accountName
         const commissionFee = rawRequest.commissionFee
         const convenienceFee = rawRequest.convenienceFee
         const type = rawRequest.type
@@ -64,10 +63,11 @@ const POST = async (req: Request) => {
         delete rawRequest.commissionFee
         delete rawRequest.type
         delete rawRequest.comment
+        delete rawRequest.accountName
+        
 
         const parsedRequest = createRequest(rawRequest, privateKey, type)
 
-        console.log(parsedRequest)
         await insert(DB_COLLECTIONS.QR_TRANSACITON, {
             request: parsedRequest.request,
             status: QR_TRANSACTION_STATUS.CREATED,
@@ -78,7 +78,8 @@ const POST = async (req: Request) => {
             convenienceFee,
             commissionFee,
             comment,
-            tranType: type
+            tranType: type,
+            accountName
 
         })
 

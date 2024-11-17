@@ -17,10 +17,10 @@ const Load = () => {
     const router = useRouter()
     const [totalAmount, setTotalAmount] = useState('')
     const [loadTo, setLoadTo] = useState('')
-    const [completeName, setCompleteName] = useState('')
+    const [completeName, setCompleteName] = useState('-')
     const [amount, setAmount] = useState('')
     const [balance, setBalance] = useState('')
-    const [email, setEmail] = useState('')
+    const [email, setEmail] = useState('-')
     const [fee, setFee] = useState('')
     const [comment, setComment] = useState('')
     const [isLoading, setIsLoading] = useState(false)
@@ -77,7 +77,7 @@ const Load = () => {
         expireDate.setHours(expireDate.getHours() + 2)
 
         const data = {
-            trxAmount: removeDecimalPlaces(totalAmount.replace('₱', '')),
+            trxAmount: removeDecimalPlaces(totalAmount),
             timeStart: formatDate(date.toISOString()),
             timeExpire: formatDate(expireDate.toISOString()),
             accountNumber: loadTo,
@@ -110,13 +110,12 @@ const Load = () => {
 
     const searchPlayer = async (accountNumber: string) => {
         setIsLoading(true)
-        await axios.get('/api/get-player', {
+        await axios.get('/api/get-user', {
             params: {
                 accountNumber
             }
         })
             .then((response) => {
-
                 const responseData = response.data
 
                 if (responseData.userName) {
@@ -124,6 +123,12 @@ const Load = () => {
                 } else {
                     setCompleteName('No user found!')
                     setLoadTo('')
+                }
+
+                if (responseData.email) {
+                    setEmail(responseData.email)
+                } else {
+                    setEmail('-')
                 }
             })
             .catch((e) => {
@@ -145,13 +150,13 @@ const Load = () => {
 
         let _comFee, _convFee
 
-        if (cashInConFeeType === 1) {
+        if (cashInConFeeType === 2) {
             _convFee = parseFloat(amount) * cashInConFeePercentage
         } else {
             _convFee = cashInConFeeFixPlayer
         }
 
-        if (commissionFeeType === 1) {
+        if (commissionFeeType === 2) {
             _comFee = parseFloat(amount) * commissionFeePercentage
         } else {
             _comFee = cashInCommissionFee
@@ -182,12 +187,12 @@ const Load = () => {
                                 searchPlayer(e.target.value)
                             }} />
                             <FormField name="completeName" label="Complete Name" value={completeName} customLabelClass="text-xs" readonly />
-                            <FormField name="email" label="Email Address" placeholder="example@gmail.com" value={email} onChange={(e) => { setEmail(e.target.value) }} customLabelClass="text-xs" type="email" pattern={PATTERNS.EMAIL} errorMessage='Input a valid email' required />
-                            <FormField name="amount" label="Amount" placeholder="Enter amount" value={amount} onBlur={(e) => { onAmountChange(e.target.value) }} customLabelClass="text-xs" required type="number" pattern={PATTERNS.NUMBER} />
+                            <FormField name="email" label="Email Address" value={email} customLabelClass="text-xs" type="email" readonly />
+                            <FormField name="amount" label="Amount" placeholder="Enter amount" value={amount} onBlur={(e) => { onAmountChange(e.target.value) }} customLabelClass="text-xs" required type="number" pattern={PATTERNS.NUMBER} min={1} max={50000} errorMessage="Invalid Amount" />
                         </div>
                         <div className="flex flex-col p-4 gap-4 w-full">
-                            <FormField name="fee" label="Fee" placeholder="Enter Fee" value={fee} customLabelClass="text-xs" readonly errorMessage='Invalid Amount' />
-                            <FormField name="totalAmount" label="Total Amount" value={totalAmount} customLabelClass="text-xs" readonly errorMessage='Invalid Amount' />
+                            <FormField name="fee" label="Fee" placeholder="Enter Fee" value={fee} customLabelClass="text-xs" readonly />
+                            <FormField name="totalAmount" label="Total Amount" value={totalAmount} customLabelClass="text-xs" readonly />
                             <FormField name="comment" label="Comment" placeholder="Type your comment" value={comment} onChangeTextArea={(e) => { setComment(e.target.value) }} customLabelClass="text-xs" type="textarea" />
                             <Button onClick={onHandleSubmit} isLoading={isLoading} loadingText="Loading..." type={'submit'}>Submit</Button>
                         </div>

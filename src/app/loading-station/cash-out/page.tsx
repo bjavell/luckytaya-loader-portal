@@ -8,9 +8,8 @@ import axios from "axios"
 import { useRouter } from "next/navigation"
 import { useApiData } from "@/app/context/apiContext"
 import Form from "@/components/form"
-import { TRAN_TYPE } from "@/classes/constants"
+import { BANK_DETAILS, PATTERNS, TRAN_TYPE } from "@/classes/constants"
 import QrCode from "@/components/qrCode"
-import Image from "next/image"
 
 const CashOut = () => {
     const router = useRouter()
@@ -20,6 +19,9 @@ const CashOut = () => {
     const [isLoading, setIsLoading] = useState(false)
     const [qrData, setQrData] = useState('')
     const [showQr, setShowQr] = useState(false)
+    const [bank, setBank] = useState('')
+    const [accountName, setAccountName] = useState('')
+    const [accountNumber, setAccountNumber] = useState('')
 
     const { data, loading, error } = useApiData();
 
@@ -41,7 +43,9 @@ const CashOut = () => {
             timeStart: formatDate(date.toISOString()),
             timeExpire: formatDate(expireDate.toISOString()),
             type: TRAN_TYPE.CASHOUT,
-            comment
+            comment,
+            accountName,
+            accountNumber
         }
 
         await axios.post('/api/create-qr', data)
@@ -75,7 +79,16 @@ const CashOut = () => {
                 </div>
                 <div className="flex w-1/3 bg-gray13 rounded-xl">
                     <Form className="flex flex-col gap-4 p-4 w-full" onSubmit={onHandleSubmit}>
-                        <FormField name="amount" label="Amount" value={amount} onChange={(e) => { setAmount(e.target.value) }} customLabelClass="text-xs" />
+                        <FormField name="amount" label="Amount" value={amount} onChange={(e) => { setAmount(e.target.value) }} customLabelClass="text-xs" type="number" pattern={PATTERNS.NUMBER} min={1} max={50000} errorMessage="Invalid Amount" required />
+                        <label htmlFor="bankList" className="flex items-center text-xs text-white font-sans font-light text-nowrap">Banks</label>
+                        <select id="bankList" className="rounded-xlg py-4 px-4 bg-semiBlack font-sans font-light text-[13px] tacking-[5%] text-white" value={bank} onChange={(e) => setBank(e.target.value)} required>
+                            <option value=''>Select Bank</option>
+                            {BANK_DETAILS.map(bank => {
+                                return <option key={bank.bankCode} value={bank.bankCode}>{bank.bankName}</option>
+                            })}
+                        </select>
+                        <FormField name="accountName" label="Account Name" placeholder="Enter Account Name" value={accountName} onChange={(e) => { setAccountName(e.target.value) }} customLabelClass="text-xs" required />
+                        <FormField name="accountNumber" label="Account Number" placeholder="Enter Account Number" value={accountNumber} onChange={(e) => { setAccountNumber(e.target.value) }} customLabelClass="text-xs" required />
                         <FormField name="comment" label="Comment" value={comment} onChangeTextArea={(e) => { setComment(e.target.value) }} customLabelClass="text-xs" type="textarea" />
                         <Button onClick={onHandleSubmit} isLoading={isLoading} loadingText="Loading..." type="submit">Submit</Button>
                     </Form>

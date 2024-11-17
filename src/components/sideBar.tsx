@@ -32,20 +32,22 @@ const sideBarRoutes = [{
         link: '/dashboard'
     }]
 
-}, {
-    module: 'PLAYERS',
-    item: [{
-        module: 'Players',
-        ico: ActivePlayer,
-        link: '/players'
-    }]
+},
+//  {
+//     module: 'PLAYERS',
+//     item: [{
+//         module: 'Players',
+//         ico: ActivePlayer,
+//         link: '/players'
+//     }]
 
-}, {
+// },
+ {
     module: 'LOADING STATION',
     item: [{
-        module: 'Load Station',
+        module: 'Cash-In',
         ico: LoadStation,
-        link: '/loading-station/load'
+        link: '/loading-station/cash-in'
     }, {
         module: 'Cash-Out',
         ico: CashOut,

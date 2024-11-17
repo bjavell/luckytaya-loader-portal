@@ -57,8 +57,8 @@ const Login = () => {
                     </div>
                     : ''
             }
-            <Link href={''} className="flex text-white underline m-auto">FORGOT PASSWORD?</Link>
-            <span className="text-white m-auto font-sans font-light ">BY CONTINUING, YOU AGREE TO OUR<br />USER AGREEMENT AND PRIVACY POLICY</span>
+            <Link href={''} className="flex text-white underline m-auto">Forgot Password?</Link>
+            <span className="text-white m-auto font-sans font-light text-wrap">By continuing, you agree to our User Agreement and Privacy Policy</span>
         </Form>
 
     )

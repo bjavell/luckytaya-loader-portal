@@ -47,7 +47,6 @@ const POST = async (req: NextRequest) => {
             transaction.status = QR_TRANSACTION_STATUS.COMPLETED
             const updateResult = await update(DB_COLLECTIONS.QR_TRANSACITON, query, transaction)
 
-            console.log(updateResult)
         } else {
 
             return NextResponse.json({ code: "500", message: "An Error Occurred" })
@@ -64,7 +63,6 @@ const POST = async (req: NextRequest) => {
 }
 
 const fundTransferV2 = async (auth: string, transferRequest: any) => {
-    console.log('fundTransferV2', auth, transferRequest)
 
     const response = await luckTayaAxios.get('/api/v1/Account/transferV2', {
         params: transferRequest,
@@ -72,8 +70,6 @@ const fundTransferV2 = async (auth: string, transferRequest: any) => {
             'Authorization': `Bearer ${auth}`,
         },
     })
-
-    console.log(response.data)
 
     return response.data
 }

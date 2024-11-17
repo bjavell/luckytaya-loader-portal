@@ -19,9 +19,13 @@ const middleware = async (request: NextRequest) => {
 
     const validRoutes = protectedRoutes.concat(publicRoutes)
 
-    const isValidRoutes = validRoutes.some(route =>
+    let isValidRoutes = validRoutes.some(route =>
         pathname.startsWith(route) || pathname === route
     )
+
+    if (pathname.startsWith('/players')) {
+        isValidRoutes = false
+    }
 
     if (!isValidRoutes) {
         if (currentSession) {

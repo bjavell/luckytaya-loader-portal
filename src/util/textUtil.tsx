@@ -3,10 +3,10 @@ const formatMoney = (value: string) => {
     const numValue = parseFloat(value)
 
     if (isNaN(numValue)) {
-        return formatter.format(0)
+        return formatter.format(0).replace("PHP", '').trim()
     }
 
-    return formatter.format(numValue)
+    return formatter.format(numValue).replace("PHP", '').trim()
 }
 
 const formatDate = (date: string) => {
@@ -19,7 +19,8 @@ const formatter = new Intl.NumberFormat('en-PH', {
     style: 'currency',
     currency: 'PHP',
     minimumFractionDigits: 2,
-    maximumFractionDigits: 2
+    maximumFractionDigits: 2,
+    currencyDisplay: 'code'
 })
 
 const insertDecimalAtThirdToLast = (str: string | number) => {

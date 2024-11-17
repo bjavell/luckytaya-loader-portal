@@ -14,7 +14,9 @@ interface FormFieldProps {
     customLabelClass?: string,
     pattern?: string,
     required?: boolean,
-    readonly?: boolean
+    readonly?: boolean,
+    min?: number,
+    max?: number
 }
 
 const FormField: NextPage<FormFieldProps> = (props) => {

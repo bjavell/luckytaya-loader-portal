@@ -6,6 +6,7 @@ interface ApiContextType {
     data: any | null; // You can replace `any` with the specific type of the data you expect
     loading: boolean;
     error: string | null;
+    setReload: (value: boolean) => void
 }
 
 // Provide a default context value
@@ -13,6 +14,7 @@ const defaultApiContextValue: ApiContextType = {
     data: null,
     loading: true,
     error: null,
+    setReload: () => { }
 };
 
 // Create the context with a default value
@@ -23,6 +25,7 @@ const ApiProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [data, setData] = useState<any | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [reload, setReload] = useState(true)
 
 
     const getUserDetails = async () => {
@@ -44,11 +47,14 @@ const ApiProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     }
 
     useEffect(() => {
-        getUserDetails()
-    }, [])
+        if (reload) {
+            getUserDetails()
+            setReload(false)
+        }
+    }, [reload])
 
 
-    return <ApiContext.Provider value={{ data, loading, error }}>
+    return <ApiContext.Provider value={{ data, loading, error, setReload }}>
         {children}
     </ApiContext.Provider>
 }

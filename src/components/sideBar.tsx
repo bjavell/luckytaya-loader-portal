@@ -42,13 +42,18 @@ const sideBarRoutes = [{
 //     }]
 
 // },
- {
+{
     module: 'LOADING STATION',
     item: [{
-        module: 'Cash-In',
+        module: 'Self Cash-In',
         ico: LoadStation,
-        link: '/loading-station/cash-in'
+        link: '/loading-station/cash-in/self'
     }, {
+        module: 'Player Cash-In',
+        ico: LoadStation,
+        link: '/loading-station/cash-in/player'
+    },
+    {
         module: 'Cash-Out',
         ico: CashOut,
         link: '/loading-station/cash-out'

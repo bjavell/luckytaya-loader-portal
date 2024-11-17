@@ -34,11 +34,11 @@ const POST = async (req: NextRequest) => {
         const auth = decrypt(transaction.agentAuth)
 
         if (config) {
-            const commissionFee = parseFloat(transaction.commissionFee)
+            // const commissionFee = parseFloat(transaction.commissionFee)
             const fees = parseFloat(transaction.convenienceFee) // + commissionFee
-            const amountToBeCredited = parseFloat(insertDecimalAtThirdToLast(rawRequest.request.trxAmount)) - commissionFee
+            const amountToBeCredited = parseFloat(insertDecimalAtThirdToLast(rawRequest.request.trxAmount))
 
-            // const commissionAccount = await loginCommissionAccount(config.commissionUsername, config.commissionPassword)
+            const masterAgentAccount = await loginAccount(config.commissionUsername, config.commissionPassword)
 
             console.log('Agent To Commission/Incovenience Fee Account/Wallet')
             const agentToFee = await fundTransferV2(auth, {
@@ -52,8 +52,8 @@ const POST = async (req: NextRequest) => {
             //     toAccountNumber: transaction.agentAccountNumber
             // })
 
-            console.log('Agent to Agent/Player')
-            const agentToAgentPlayer = await fundTransferV2(auth, {
+            console.log('Master Agent to Agent')
+            const agentToAgentPlayer = await fundTransferV2(masterAgentAccount.token, {
                 amount: amountToBeCredited,
                 toAccountNumber: transaction.accountNumber
             })
@@ -95,7 +95,7 @@ const fundTransferV2 = async (auth: string, transferRequest: any) => {
 }
 
 
-const loginCommissionAccount = async (username: string, password: string) => {
+const loginAccount = async (username: string, password: string) => {
 
 
     const response = await luckTayaAxios.post(`/api/v1/User/Login`, {

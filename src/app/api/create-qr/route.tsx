@@ -13,7 +13,6 @@ const mchId = process.env.NEXT_PUBLIC_STARPAY_MERCHANT_ID
 const name = process.env.NEXT_PUBLIC_PAYMENT_NAME
 
 const createRequest = (req: NextRequest, privateKey: Buffer, type: string) => {
-    // "notifyUrl": `https://webhook-test.com/c76fabe695ca5fe68f6855421d2194ec`,
 
     let notifyUrl
     if (type === TRAN_TYPE.CASHIN) {
@@ -27,7 +26,6 @@ const createRequest = (req: NextRequest, privateKey: Buffer, type: string) => {
         "msgId": getToken(15),
         "mchId": mchId,
         "notifyUrl": notifyUrl,
-        // "notifyUrl": 'https://webhook-test.com/99a6e4fe7dd34ae23a5ade67ac525f5e',
         "deviceInfo": name,
         "currency": "PHP",
         "service": "pay.starpay.repayment",
@@ -64,8 +62,11 @@ const POST = async (req: Request) => {
         delete rawRequest.type
         delete rawRequest.comment
         delete rawRequest.accountName
-        
 
+        const isSelfCashIn = String(accountNumber) === String(currentSession.accountNumber)
+        console.log(isSelfCashIn)
+        console.log(accountNumber)
+        console.log(currentSession.accountNumber)
         const parsedRequest = createRequest(rawRequest, privateKey, type)
 
         await insert(DB_COLLECTIONS.QR_TRANSACITON, {
@@ -79,7 +80,8 @@ const POST = async (req: Request) => {
             commissionFee,
             comment,
             tranType: type,
-            accountName
+            accountName,
+            isSelfCashIn
 
         })
 
@@ -91,6 +93,7 @@ const POST = async (req: Request) => {
         }
         return NextResponse.json(responseData.response)
     } catch (e) {
+        console.log(e)
         return NextResponse.json({
             error: formatGenericErrorResponse(e)
         },

@@ -188,7 +188,7 @@ const Load = () => {
                             }} />
                             <FormField name="completeName" label="Complete Name" value={completeName} customLabelClass="text-xs" readonly />
                             <FormField name="email" label="Email Address" value={email} customLabelClass="text-xs" type="email" readonly />
-                            <FormField name="amount" label="Amount" placeholder="Enter amount" value={amount} onBlur={(e) => { onAmountChange(e.target.value) }} customLabelClass="text-xs" required type="number" pattern={PATTERNS.NUMBER} min={1} max={50000} errorMessage="Invalid Amount" />
+                            <FormField name="amount" label="Amount" placeholder="Enter amount" value={amount} onBlur={(e) => { onAmountChange(e.target.value) }} customLabelClass="text-xs" required type="number" pattern={PATTERNS.NUMBER} min={1} max={1000000} errorMessage="Invalid Amount" />
                         </div>
                         <div className="flex flex-col p-4 gap-4 w-full">
                             <FormField name="fee" label="Fee" placeholder="Enter Fee" value={fee} customLabelClass="text-xs" readonly />

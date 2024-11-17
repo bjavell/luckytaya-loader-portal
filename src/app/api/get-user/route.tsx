@@ -12,7 +12,7 @@ const GET = async (req: NextRequest) => {
 
         const currentSession = await getCurrentSession()
 
-        const response = await luckTayaAxios.get(`/api/v1/UserAccount/AllUserAccount`, {
+        const response = await luckTayaAxios.get(`/api/v1/UserAccount/AllPlayerAccount`, {
             headers: {
                 'Authorization': `Bearer ${currentSession.token}`,
             },
@@ -21,7 +21,7 @@ const GET = async (req: NextRequest) => {
         const playerList = response.data
 
         const filteredPlayerList = playerList.filter((e: any) => {
-            return e.accountNumber === Number(accountNumber) && (e.roleName === 'acctmgr' || e.roleName == '')
+            return e.accountNumber === Number(accountNumber)
         })
 
         const player = filteredPlayerList[0]

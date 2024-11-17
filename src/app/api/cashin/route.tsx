@@ -25,7 +25,6 @@ const POST = async (req: NextRequest) => {
                 },
             })
 
-            console.log(feeTransferResponse)
 
             const agentToPlayerResponse = await luckTayaAxios.get(`/api/v1/Account/transferV2`, {
                 params: {
@@ -36,8 +35,6 @@ const POST = async (req: NextRequest) => {
                     'Authorization': `Bearer ${currentSession.token}`,
                 },
             })
-
-            console.log(agentToPlayerResponse)
 
         } else {
             throw new Error('Oops an error occurred')

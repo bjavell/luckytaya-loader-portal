@@ -64,9 +64,6 @@ const POST = async (req: Request) => {
         delete rawRequest.accountName
 
         const isSelfCashIn = String(accountNumber) === String(currentSession.accountNumber)
-        console.log(isSelfCashIn)
-        console.log(accountNumber)
-        console.log(currentSession.accountNumber)
         const parsedRequest = createRequest(rawRequest, privateKey, type)
 
         await insert(DB_COLLECTIONS.QR_TRANSACITON, {
@@ -93,7 +90,6 @@ const POST = async (req: Request) => {
         }
         return NextResponse.json(responseData.response)
     } catch (e) {
-        console.log(e)
         return NextResponse.json({
             error: formatGenericErrorResponse(e)
         },

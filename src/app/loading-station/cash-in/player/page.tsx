@@ -4,7 +4,6 @@ import gcashLoad from '@/assets/images/GcashLoad.png'
 import Image from "next/image"
 import { formatMoney } from "@/util/textUtil"
 import BalanceBar from "@/components/balanceBar"
-import QrCode from "@/components/qrCode"
 import axios from "axios"
 import { useRouter } from "next/navigation"
 import { useApiData } from "@/app/context/apiContext"
@@ -21,8 +20,6 @@ const PlayerCashin = () => {
     const [fee, setFee] = useState('')
     const [comment, setComment] = useState('')
     const [isLoading, setIsLoading] = useState(false)
-    const [qrData, setQrData] = useState('')
-    const [showQr, setShowQr] = useState(false)
     const [convFee, setConvFee] = useState(0)
     const [comFee, setComFee] = useState(0)
     const [config, setConfig] = useState<{
@@ -159,7 +156,7 @@ const PlayerCashin = () => {
             <BalanceBar title="Player Cash-In" balance={balance} />
             <div className="flex flex-row gap-4">
                 <div className="flex w-1/2 bg-[#005BAA] rounded-xl p-4">
-                    {showQr ? <QrCode data={qrData} className='m-auto' /> : <Image src={gcashLoad} alt="gcash load background" className="m-auto" />}
+                    <Image src={gcashLoad} alt="gcash load background" className="m-auto" />
                 </div>
                 <LoadForm
                     loadTo={{

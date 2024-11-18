@@ -39,13 +39,13 @@ const POST = async (req: NextRequest) => {
             console.log('Agent To Master Agent Account/Wallet')
             const agentToMaterWallet = await fundTransferV2(auth, {
                 amount: amountToBeCredited,
-                toAccountNumber: config.masterAgentWallet
+                toAccountNumber: config.commissionAccountNumber
             })
 
             transaction.agentToMaterWallet = agentToMaterWallet
             transaction.response = rawRequest.request
             transaction.status = QR_TRANSACTION_STATUS.COMPLETED
-            const updateResult = await update(DB_COLLECTIONS.QR_TRANSACITON, query, transaction)
+            await update(DB_COLLECTIONS.QR_TRANSACITON, query, transaction)
 
         } else {
 

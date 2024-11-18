@@ -22,6 +22,7 @@ const PlayerCashin = () => {
     const [isLoading, setIsLoading] = useState(false)
     const [convFee, setConvFee] = useState(0)
     const [comFee, setComFee] = useState(0)
+    const [index, setIndex] = useState(0)
     const [config, setConfig] = useState<{
         cashInConFeeFixPlayer: number,
         cashInConFeePercentage: number,
@@ -40,7 +41,7 @@ const PlayerCashin = () => {
         commissionFeeType: 0
     })
 
-    const { data, setReload } = useApiData();
+    const { data, reload, setReload } = useApiData();
 
     const getLoadStationConfig = async () => {
         await axios.get('/api/get-load-station-config')
@@ -60,7 +61,20 @@ const PlayerCashin = () => {
             getLoadStationConfig()
             setBalance(data.balance)
         }
-    }, [data])
+        if (reload) {
+            setLoadTo('')
+            setLoadTo('')
+            setAmount('')
+            setConvFee(0)
+            setComFee(0)
+            setFee('')
+            setTotalAmount('')
+            setCompleteName('-')
+            setEmail('-')
+            setComment('')
+            setIndex(index + 1)
+        }
+    }, [data, reload])
 
 
 
@@ -77,7 +91,9 @@ const PlayerCashin = () => {
             })
 
             alert(response.data.message)
+            console.log(e)
             setReload(true)
+
 
 
         } catch (e) {
@@ -159,6 +175,7 @@ const PlayerCashin = () => {
                     <Image src={gcashLoad} alt="gcash load background" className="m-auto" />
                 </div>
                 <LoadForm
+                    key={`load-form-${index}`}
                     loadTo={{
                         value: loadTo,
                         onChange: setLoadTo,

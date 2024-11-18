@@ -1,8 +1,8 @@
-import { DB_COLLECTIONS, QR_TRANSACTION_STATUS } from "@/classes/constants";
+import { ACCOUNT_TYPE, DB_COLLECTIONS, QR_TRANSACTION_STATUS } from "@/classes/constants";
 import { findOne, update } from "@/util/dbUtil";
 import { NextRequest, NextResponse } from "next/server";
 import * as fs from 'fs'
-import { decrypt, sha256withRSAverify } from "@/util/cryptoUtil";
+import { decrypt, encrypt, sha256withRSAverify } from "@/util/cryptoUtil";
 import { insertDecimalAtThirdToLast } from "@/util/textUtil";
 import { luckTayaAxios } from "@/util/axiosUtil";
 
@@ -36,34 +36,39 @@ const POST = async (req: NextRequest) => {
         if (config) {
             // const commissionFee = parseFloat(transaction.commissionFee)
             const fees = parseFloat(transaction.convenienceFee) // + commissionFee
+            // const commissionFee = parseFloat(transaction.commissionFee)
             const amountToBeCredited = parseFloat(insertDecimalAtThirdToLast(rawRequest.request.trxAmount))
 
-            const masterAgentAccount = await loginAccount(config.commissionUsername, config.commissionPassword)
+            // const masterAgentAccount = await loginAccount(config, ACCOUNT_TYPE.MASTER)
+            console.log('Master Agent to Agent')
+            const masterAgentToAgent = await otherAccountTransfer(amountToBeCredited, transaction.accountNumber, config, ACCOUNT_TYPE.MASTER)
+            
+            // console.log('Agent to Commission Account/Wallet')
+            // const agentToCommission = await fundTransferV2(auth, {
+            //     amount: commissionFee,
+            //     toAccountNumber: config.commissionAccountNumber
+            // })
 
-            console.log('Agent To Commission/Incovenience Fee Account/Wallet')
+            console.log('Agent To Incovenience Fee Account/Wallet')
             const agentToFee = await fundTransferV2(auth, {
                 amount: fees,
                 toAccountNumber: config.commissionAccountNumber
             })
 
-            // console.log('Commission Fee to Agent')
-            // const commissionFeeToAgent = await fundTransferV2(commissionAccount.token, {
-            //     amount: commissionFee,
-            //     toAccountNumber: transaction.agentAccountNumber
-            // })
+            // console.log('Commission Account/Wallet to Agent')
+            // const commissionToAgent = await otherAccountTransfer(commissionFee, transaction.agentAccountNumber, config, ACCOUNT_TYPE.COMMISSION)
 
-            console.log('Master Agent to Agent')
-            const agentToAgentPlayer = await fundTransferV2(masterAgentAccount.token, {
-                amount: amountToBeCredited,
-                toAccountNumber: transaction.accountNumber
-            })
+
 
             transaction.agentToFee = agentToFee
+            // transaction.agentToCommission = agentToCommission
+            transaction.masterAgentToAgent = masterAgentToAgent
+            // transaction.commissionToAgent = commissionToAgent
             // transaction.commissionFeeToAgent = commissionFeeToAgent
-            transaction.agentToAgentPlayer = agentToAgentPlayer
+            // transaction.agentToAgentPlayer = agentToAgentPlayer
             transaction.response = rawRequest.request
             transaction.status = QR_TRANSACTION_STATUS.COMPLETED
-            await update(DB_COLLECTIONS.QR_TRANSACITON, query, transaction)
+            // await update(DB_COLLECTIONS.QR_TRANSACITON, query, transaction)
 
         } else {
 
@@ -95,18 +100,76 @@ const fundTransferV2 = async (auth: string, transferRequest: any) => {
 }
 
 
-const loginAccount = async (username: string, password: string) => {
+const otherAccountTransfer = async (amount: number, accountNumber: string, config: any, accountType: string) => {
+    try {
+        let auth
+        if (accountType === ACCOUNT_TYPE.MASTER) {
+            auth = config.masterWalletAuth
+        } else if (accountType === ACCOUNT_TYPE.COMMISSION) {
+            auth = config.commissionAuth
+        }
+        await fundTransferV2(decrypt(auth), {
+            amount: amount,
+            toAccountNumber: accountNumber
+        })
+    } catch (e) {
+        const tempAccount = await loginAccount(config, accountType)
+        await fundTransferV2(tempAccount.token, {
+            amount: amount,
+            toAccountNumber: accountNumber
+        })
+    }
+
+}
 
 
-    const response = await luckTayaAxios.post(`/api/v1/User/Login`, {
-        username: username,
-        password: password
-    })
-    const responseData = response.data
+const loginAccount = async (config: any, accountType: string) => {
+    try {
+
+        let username, password
+
+        if (accountType === ACCOUNT_TYPE.COMMISSION) {
+            username = config.commissionUsername
+            password = config.commissionPassword
+        } else if (accountType === ACCOUNT_TYPE.MASTER) {
+            username = config.masterUsername
+            password = config.masterPassword
+        }
+
+        const request = {
+            username,
+            password
+        }
+
+        console.log(request)
+
+        const response = await luckTayaAxios.post(`/api/v1/User/Login`, request)
+        const responseData = response.data
+
+
+        const updateConfig = {
+            ...config
+        }
+
+        if (accountType === ACCOUNT_TYPE.COMMISSION) {
+            updateConfig.commissionAuth = encrypt(responseData.token)
+        } else if (accountType === ACCOUNT_TYPE.MASTER) {
+            updateConfig.masterWalletAuth = encrypt(responseData.token)
+        }
+
+        await update(DB_COLLECTIONS.CONFIG, { code: 'CFG0001' }, updateConfig)
+
+        return {
+            accountNumber: responseData.accountNumber,
+            token: responseData.token
+        }
+    } catch (e) {
+        console.log(e)
+    }
 
     return {
-        accountNumber: responseData.accountNumber,
-        token: responseData.token
+        accountNumber: '',
+        token: ''
     }
 }
 

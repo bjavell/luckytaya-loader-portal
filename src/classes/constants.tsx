@@ -40,7 +40,11 @@ const BANK_DETAILS = [
     }
   ];
 
-
+const ACCOUNT_TYPE = {
+  MASTER: 'master',
+  COMMISSION: 'commission',
+  FEE: 'fee'
+}
 
 export {
     SESSION_COOKIE_NAME,
@@ -48,5 +52,6 @@ export {
     QR_TRANSACTION_STATUS,
     DB_COLLECTIONS,
     TRAN_TYPE,
-    BANK_DETAILS
+    BANK_DETAILS,
+    ACCOUNT_TYPE
 }

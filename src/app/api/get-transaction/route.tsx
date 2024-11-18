@@ -19,11 +19,20 @@ const GET = async (req: NextRequest) => {
         })
 
         const customResponse = response.data.map((e: any) => {
-            return {
+
+            const transaction = {
                 ...e,
                 fromFullName: `${e.fromFirstname} ${e.fromLastname}`,
                 toFullName: `${e.toFirstname} ${e.toLastname}`
             }
+
+
+            if (transaction.amount < 0) {
+                transaction.amount *= -1
+            }
+
+
+            return transaction
         }).sort((a: any, b: any) => {
             return b.transactionNumber - a.transactionNumber
         })

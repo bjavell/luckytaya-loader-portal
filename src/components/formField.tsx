@@ -71,7 +71,7 @@ const FormField: NextPage<FormFieldProps> = (props) => {
 
     return (
         <div className={defaultClass}>
-            <label htmlFor={name} className={labelClassName}>{label}</label>
+            {label ? <label htmlFor={name} className={labelClassName}>{label}</label> : <></>}
             {formField}
             <span className={`text-sm max-w-[300px] text-[#E74C3C] hidden peer-[.visited:invalid]:block transition-all`}>{props.required && !value ? "Field is required" : errorMessage}</span>
 

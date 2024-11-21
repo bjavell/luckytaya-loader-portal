@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getCurrentSession } from "./context/auth"
 
-const protectedRoutes = ['/dashboard', '/history', '/players', '/loading-station']
+const protectedRoutes = ['/dashboard', '/user']
 const publicRoutes = ['/login']
 
 const middleware = async (request: NextRequest) => {
@@ -19,14 +19,9 @@ const middleware = async (request: NextRequest) => {
 
     const validRoutes = protectedRoutes.concat(publicRoutes)
 
-    let isValidRoutes = validRoutes.some(route =>
+    const isValidRoutes = validRoutes.some(route =>
         pathname.startsWith(route) || pathname === route
     )
-
-    if (pathname.startsWith('/players')) {
-        isValidRoutes = false
-    }
-
     if (!isValidRoutes) {
         if (currentSession) {
             return NextResponse.redirect(new URL('/dashboard', request.nextUrl))
@@ -41,9 +36,7 @@ const middleware = async (request: NextRequest) => {
 export const config = {
     matcher: [
         '/dashboard',
-        '/history/:path*',
-        '/players/:path*',
-        '/loading-station/:path*'
+        '/user/:path*'
     ]
 }
 

@@ -8,13 +8,21 @@ interface ButtonProps {
     isLoading?: boolean,
     loadingText?: string,
     customCss?: string,
-    type: 'button' | 'submit'
+    type: 'button' | 'submit',
+    size?: string
 }
 
 const Button: NextPage<ButtonProps> = (props) => {
-    const { children, customCss, type, onClick } = props
+    const { children, customCss, type, size, onClick } = props
+
+    let customSize = 'text-[20px]'
+    if (size) {
+        customSize = size
+    }
+
+
     return (
-        <button type={type} className={`justify-center inline-block py-3 px-6 rounded-xlg bg-yellow-green text-[20px]  group-invalid:pointer-events-none group-invalid:opacity-50 ${customCss ?? ''}`} onClick={onClick} disabled={props.disabled || props.isLoading}>{props.isLoading ? props.loadingText : children}</button>
+        <button type={type} className={`justify-center inline-block py-3 px-6 rounded-xlg bg-yellow-green ${customSize}  group-invalid:pointer-events-none group-invalid:opacity-50 ${customCss ?? ''}`} onClick={onClick} disabled={props.disabled || props.isLoading}>{props.isLoading ? props.loadingText : children}</button>
     )
 }
 

@@ -46,6 +46,11 @@ const ACCOUNT_TYPE = {
   FEE: 'fee'
 }
 
+const USER_TYPE = {
+  PLAYER: 'player',
+  MANAGEMENT: 'management'
+}
+
 export {
     SESSION_COOKIE_NAME,
     PATTERNS,
@@ -53,5 +58,6 @@ export {
     DB_COLLECTIONS,
     TRAN_TYPE,
     BANK_DETAILS,
-    ACCOUNT_TYPE
+    ACCOUNT_TYPE,
+    USER_TYPE
 }

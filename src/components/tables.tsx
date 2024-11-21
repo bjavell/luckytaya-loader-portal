@@ -5,6 +5,7 @@ interface HeadersProp<T> {
     key: string,
     customValueClass?: string,
     format?: (item: any) => string,
+    customValue?: (item: any) => object,
     concatKey?: Array<string>,
     concatSeparator?: string
 }
@@ -92,7 +93,15 @@ const Tables = <T,>({ headers, items, primaryId, isCentered = false }: TablesPro
             })
         }
 
-        return <td key={`row-key-${h.key}-${i}`} className={className}>{h.format ? h.format(value) : value}</td>
+        let showFormatCustom
+
+        if (h.format) {
+            showFormatCustom = h.format(value)
+        } else if (h.customValue) {
+            showFormatCustom = h.customValue(i)
+        }
+
+        return <td key={`row-key-${h.key}-${i}`} className={className}>{showFormatCustom ?? value}</td>
     })
 
     return (

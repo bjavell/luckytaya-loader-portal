@@ -4,16 +4,12 @@ import logo from '@/assets/images/logo-1.svg'
 import Image from "next/image"
 import Dashboard from '@/assets/images/Dashboard.svg'
 import CashOut from '@/assets/images/CashOut.svg'
-import Commission from '@/assets/images/Commission.svg'
-import ActivePlayer from '@/assets/images/ActivePlayer.svg'
-import DeactPlayer from '@/assets/images/DeactPlayer.svg'
 import LoadStation from '@/assets/images/LoadStation.svg'
 import Transfer from '@/assets/images/Transfer.svg'
 import Logout from '@/assets/images/Logout.svg'
 import { SetStateAction, useEffect, useState } from "react"
 import axios from "axios"
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime"
-import { getCurrentSession } from "@/context/auth"
 import UserAvatar from '@/assets/images/UserAvatar.png'
 import { useApiData } from "@/app/context/apiContext"
 
@@ -33,53 +29,34 @@ const sideBarRoutes = [{
     }]
 
 },
-//  {
-//     module: 'PLAYERS',
-//     item: [{
-//         module: 'Players',
-//         ico: ActivePlayer,
-//         link: '/players'
-//     }]
-
-// },
 {
-    module: 'LOADING STATION',
+    module: 'USERS',
     item: [{
-        module: 'Self Cash-In',
+        module: 'Management Users',
         ico: LoadStation,
-        link: '/loading-station/cash-in/self'
+        link: '/user/management'
     }, {
-        module: 'Player Cash-In',
+        module: 'Player Users',
         ico: LoadStation,
-        link: '/loading-station/cash-in/player'
-    },
-    {
-        module: 'Cash-Out',
-        ico: CashOut,
-        link: '/loading-station/cash-out'
+        link: '/user/players'
     }]
 
-}, {
-    module: 'HISTORY',
-    item: [{
-        module: 'Transfer',
-        ico: Transfer,
-        link: '/history/transfer'
-    }
-        // , {
-        //     module: 'Commission',
-        //     ico: Commission,
-        //     link: '/history/commission'
-        // }
-    ]
+}, 
+// {
+//     module: 'NOTIFY',
+//     item: [{
+//         module: 'Send Message',
+//         ico: Transfer,
+//         link: '/notify'
+//     }]
 
-}]
+// }
+]
 
 const populateRoutes = (routes: SideBarRoutesProps, currentRoute: string) => {
     return (
         <li key={routes.module} className="px-4 py-2 flex flex-col">
             <span className="pb-2">{routes.module}</span>
-            {/* {routes.link ? <Link href={routes.link} className={`${currentRoute === routes.link ? 'bg-cursedBlack' : ''} h-full w-full rounded `}>{routes.module}</Link> : routes.module} */}
             <div className="flex flex-col gap-2">
 
                 {
@@ -135,29 +112,6 @@ const SideBar = () => {
             setName(`${data?.fistname} ${data?.lastname}`)
         }
     }, [data])
-    // const getUserDetails = async () => {
-    //     await axios.get('/api/get-user-details')
-    //         .then(response => {
-    //             setName(`${response.data?.fistname} ${response.data?.lastname}`)
-    //         })
-    //         .catch((e) => {
-    //             const errorMessages = e.response.data.error
-    //             if (errorMessages) {
-    //                 if (errorMessages['Unauthorized']) {
-    //                     router.push('/login')
-    //                 }
-    //             }
-
-    //         })
-    //         .finally(() => {
-    //         })
-    // }
-
-    // useEffect(() => {
-    //     getUserDetails()
-    // }, [])
-
-
 
     return (
         <aside className="flex flex-col w-[232px] h-screen top-0">
@@ -166,7 +120,7 @@ const SideBar = () => {
                 <ul className="flex flex-col w-full">
                     <li className="flex bg-cursedBlack h-11 mb-4">
                         <div className="font-sans m-auto">
-                            Agent Portal
+                            Admin Portal
                         </div>
                     </li>
                     {sideBarRoutes.map(__routes => populateRoutes(__routes, currentRoute))}

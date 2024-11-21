@@ -21,7 +21,7 @@ export default function RootLayout({
 
 export const metadata:Metadata = {
   title: {
-    template: 'Loader Portal | %s',
-    default: 'Loader Portal'
+    template: 'Admin Portal | %s',
+    default: 'Admin Portal'
   }
 }

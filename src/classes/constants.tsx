@@ -7,7 +7,8 @@ const PATTERNS = {
 
 const QR_TRANSACTION_STATUS = {
     CREATED: 'Created',
-    COMPLETED: 'Completed'
+    COMPLETED: 'Completed',    
+    FAILED: 'Failed'
 }
 
 const DB_COLLECTIONS = {

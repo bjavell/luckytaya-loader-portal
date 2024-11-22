@@ -33,41 +33,48 @@ const POST = async (req: NextRequest) => {
         const config = await findOne(DB_COLLECTIONS.CONFIG, { code: 'CFG0001' })
         const auth = decrypt(transaction.agentAuth)
 
+        transaction.response = rawRequest.request
         if (config) {
-            // const commissionFee = parseFloat(transaction.commissionFee)
-            const fees = parseFloat(transaction.convenienceFee) // + commissionFee
-            // const commissionFee = parseFloat(transaction.commissionFee)
-            const amountToBeCredited = parseFloat(insertDecimalAtThirdToLast(rawRequest.request.trxAmount))
 
-            // const masterAgentAccount = await loginAccount(config, ACCOUNT_TYPE.MASTER)
-            console.log('Master Agent to Agent')
-            const masterAgentToAgent = await otherAccountTransfer(amountToBeCredited, transaction.accountNumber, config, ACCOUNT_TYPE.MASTER)
-            
-            // console.log('Agent to Commission Account/Wallet')
-            // const agentToCommission = await fundTransferV2(auth, {
-            //     amount: commissionFee,
-            //     toAccountNumber: config.commissionAccountNumber
-            // })
-
-            console.log('Agent To Incovenience Fee Account/Wallet')
-            const agentToFee = await fundTransferV2(auth, {
-                amount: fees,
-                toAccountNumber: config.commissionAccountNumber
-            })
-
-            // console.log('Commission Account/Wallet to Agent')
-            // const commissionToAgent = await otherAccountTransfer(commissionFee, transaction.agentAccountNumber, config, ACCOUNT_TYPE.COMMISSION)
+            if (rawRequest.request.trxState === 'SUCCESS') {
 
 
+                // const commissionFee = parseFloat(transaction.commissionFee)
+                const fees = parseFloat(transaction.convenienceFee) // + commissionFee
+                // const commissionFee = parseFloat(transaction.commissionFee)
+                const amountToBeCredited = parseFloat(insertDecimalAtThirdToLast(rawRequest.request.trxAmount))
 
-            transaction.agentToFee = agentToFee
-            // transaction.agentToCommission = agentToCommission
-            transaction.masterAgentToAgent = masterAgentToAgent
-            // transaction.commissionToAgent = commissionToAgent
-            // transaction.commissionFeeToAgent = commissionFeeToAgent
-            // transaction.agentToAgentPlayer = agentToAgentPlayer
-            transaction.response = rawRequest.request
-            transaction.status = QR_TRANSACTION_STATUS.COMPLETED
+                // const masterAgentAccount = await loginAccount(config, ACCOUNT_TYPE.MASTER)
+                console.log('Master Agent to Agent')
+                const masterAgentToAgent = await otherAccountTransfer(amountToBeCredited, transaction.accountNumber, config, ACCOUNT_TYPE.MASTER)
+
+                // console.log('Agent to Commission Account/Wallet')
+                // const agentToCommission = await fundTransferV2(auth, {
+                //     amount: commissionFee,
+                //     toAccountNumber: config.commissionAccountNumber
+                // })
+
+                console.log('Agent To Incovenience Fee Account/Wallet')
+                const agentToFee = await fundTransferV2(auth, {
+                    amount: fees,
+                    toAccountNumber: config.commissionAccountNumber
+                })
+
+                // console.log('Commission Account/Wallet to Agent')
+                // const commissionToAgent = await otherAccountTransfer(commissionFee, transaction.agentAccountNumber, config, ACCOUNT_TYPE.COMMISSION)
+
+
+
+                transaction.agentToFee = agentToFee
+                // transaction.agentToCommission = agentToCommission
+                transaction.masterAgentToAgent = masterAgentToAgent
+                // transaction.commissionToAgent = commissionToAgent
+                // transaction.commissionFeeToAgent = commissionFeeToAgent
+                // transaction.agentToAgentPlayer = agentToAgentPlayer
+                transaction.status = QR_TRANSACTION_STATUS.COMPLETED
+            } else {
+                transaction.status = QR_TRANSACTION_STATUS.FAILED
+            }
             await update(DB_COLLECTIONS.QR_TRANSACITON, query, transaction)
 
         } else {

@@ -13,10 +13,11 @@ interface TablesProps<T> {
     headers: Array<HeadersProp<T>>,
     items: Array<T>,
     primaryId: string,
-    isCentered?: boolean
+    isCentered?: boolean,
+    onItemClick? : any
 }
 
-const Tables = <T,>({ headers, items, primaryId, isCentered = false }: TablesProps<T>) => {
+const Tables = <T,>({ headers, items, primaryId, isCentered = false, onItemClick = null }: TablesProps<T>) => {
     const [currentPage, setCurrentPage] = useState(1)
     const pageSize = 10
     const totalPages = Math.ceil(items.length / pageSize)
@@ -109,7 +110,7 @@ const Tables = <T,>({ headers, items, primaryId, isCentered = false }: TablesPro
                 </thead>
                 <tbody>
                     {paginatedItems.map((item: any, i) => (
-                        <tr key={`key-${item[primaryId]}-${i}`} className="even:bg-gray13 odd:bg-cursedBlack text-xs">
+                        <tr onClick={()=>onItemClick(item)} key={`key-${item[primaryId]}-${i}`} className="even:bg-gray13 odd:bg-cursedBlack text-xs">
                             {headers.map(h => populateItem(i, h, item))}
                         </tr>
                     ))}

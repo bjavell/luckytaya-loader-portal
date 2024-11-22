@@ -22,3 +22,43 @@ input[type="number"]::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
+
+
+.meronColor {
+  background: rgb(210, 44, 44);
+  background: linear-gradient(
+    180deg,
+    rgba(210, 44, 44, 1) 0%,
+    rgba(139, 0, 0, 1) 100%
+  );
+  color: white;
+}
+
+.walaColor {
+  background: rgb(0, 0, 169);
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 169, 1) 0%,
+    rgba(0, 0, 82, 1) 100%
+  );
+  color: white;
+}
+
+
+.spinner {
+  border: 8px solid #f3f3f3; /* Light gray */
+  border-top: 8px solid #3498db; /* Blue */
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

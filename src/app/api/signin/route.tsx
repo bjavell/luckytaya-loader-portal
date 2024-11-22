@@ -18,7 +18,7 @@ const POST = async (req: NextRequest) => {
         const response = await luckTayaAxios.post(`/api/v1/User/Login`, request)
         const responseData = response.data
 
-        if (!responseData.roles.includes('acctmgr')) {
+        if (!responseData.roles.includes('acctmgr') && !responseData.roles.includes('eventmgr')) {
             throw new CustomError('Invalid Account Type', {
                 'Not found': [`User '${request.username}' not found.`]
             })

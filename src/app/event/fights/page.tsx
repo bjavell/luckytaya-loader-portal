@@ -97,7 +97,7 @@ const Fight = () => {
     await axios
       .get("/api/event/list")
       .then((response) => {
-        var data = response.data;
+        const data = response.data;
         setEvents(data);
         if (data) setSelectedEvent(data[0].eventId);
       })
@@ -124,7 +124,7 @@ const Fight = () => {
         },
       })
       .then((response) => {
-        var data = response.data;
+        let data = response.data;
         data = data.map((e: SabongFight) => {
           const stats = getEventStatus(e.fightStatusCode);
           return {
@@ -166,58 +166,6 @@ const Fight = () => {
     };
   }, [selectedEvent, statuses]);
 
-  const onHandleSubmit = async (e: any) => {
-    const self = this;
-    setIsLoading(true);
-    setErrorMessage("");
-    e.preventDefault();
-
-    const form = e.target;
-
-    if (!form.fightNum.value) {
-      setErrorMessage("Please Enter Fight Number");
-      return;
-    }
-
-    const request = {
-      eventId: selectedEvent,
-      fightNum: form.fightNum.value,
-    };
-
-    console.log(request);
-    await axios
-      .post("/api/event/fight", request)
-      .then(() => {
-        getFights(selectedEvent);
-        setErrorMessage("");
-        setIsModalOpen(false);
-        alert("Successfully Saved");
-      })
-      .catch((e) => {
-        const errorMessages = e.response.data.error;
-        if (errorMessages) {
-          if (errorMessages["Not found"]) {
-            setErrorMessage(errorMessages["Not found"][0]);
-          } else if (errorMessages["Bad request"]) {
-            setErrorMessage(errorMessages["Bad request"][0]);
-          } else if (errorMessages["Unexpexted Error"]) {
-            setErrorMessage(errorMessages["Unexpexted Error"][0]);
-          } else {
-            setErrorMessage("Oops! something went wrong");
-          }
-        } else {
-          setErrorMessage("Oops! something went wrong");
-        }
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  };
-
-  const closeModal = () => {
-    setIsModalOpen(false);
-  };
-
   const handleEventChange = (e: any) => {
     setSelectedEvent(e.target.value);
   };
@@ -244,7 +192,6 @@ const Fight = () => {
   };
 
   const onFightDetailsSubmit = async (e: any) => {
-    const self = this;
     setIsLoading(true);
     setErrorMessage("");
     e.preventDefault();

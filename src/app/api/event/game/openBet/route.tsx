@@ -8,9 +8,9 @@ const POST = async (req: NextRequest) => {
   try {
     const request = await req.json();
     const currentSession = await getCurrentSession();
-    
-    request.eventDate = request.eventDate + ':00.000Z'
-    request.venueId = parseInt(request.venueId)
+
+    request.eventDate = request.eventDate + ":00.000Z";
+    request.venueId = parseInt(request.venueId);
     const response = await luckTayaAxios.post(
       `/api/v1/SabongEvent/V2`,
       request,

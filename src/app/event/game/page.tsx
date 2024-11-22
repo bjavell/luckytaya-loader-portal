@@ -89,7 +89,7 @@ const Fight = () => {
     await axios
       .get("/api/event/list")
       .then((response) => {
-        var data = response.data;
+        const data = response.data;
         setEvents(data);
         if (data) setSelectedEvent(data[0]);
       })
@@ -117,7 +117,7 @@ const Fight = () => {
         },
       })
       .then((response) => {
-        var data = response.data;
+        let data = response.data;
         data = data.map((e: any) => {
           const stats = getEventStatus(e.fightStatusCode);
           return {
@@ -192,7 +192,7 @@ const Fight = () => {
         },
       })
       .then((response) => {
-        var data = response.data;
+        const data = response.data;
         setGameData(data);
         if (data.length > 0) setFight(data[0]);
         setIsLoading (false)
@@ -354,7 +354,7 @@ const Fight = () => {
   };
 
   const renderOpenBetting = () => {
-    var isDisabled = true;
+    const isDisabled = true;
     if (gameData) {
       if (
         gameData.event.eventStatusCode == 11 &&
@@ -381,7 +381,7 @@ const Fight = () => {
   };
 
   const renderCloseBetting = () => {
-    var isDisabled = true;
+    const isDisabled = true;
     if (gameData) {
       if (
         gameData.event.eventStatusCode == 11 &&
@@ -408,7 +408,7 @@ const Fight = () => {
   };
 
   const renderLastCall = () => {
-    var isDisabled = true;
+    const isDisabled = true;
     if (gameData) {
       if (
         gameData.event.eventStatusCode == 11 &&
@@ -434,7 +434,7 @@ const Fight = () => {
       );
   };
   const renderResultButton = () => {
-    var isDisabled = true;
+    const isDisabled = true;
     if (gameData) {
       if (
         gameData.event.eventStatusCode == 11 &&

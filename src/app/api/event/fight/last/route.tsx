@@ -19,7 +19,7 @@ const GET = async (req: NextRequest) => {
     );
 
     const data = response.data;
-    data.fightDetails = await fightDetails(data.fightId)
+    data.fightDetails = await fightDetails(data.fightId);
     return NextResponse.json(data);
   } catch (e) {
     return NextResponse.json(
@@ -30,7 +30,6 @@ const GET = async (req: NextRequest) => {
     );
   }
 };
-
 
 const fightDetails = async (fightId: number) => {
   try {
@@ -46,7 +45,14 @@ const fightDetails = async (fightId: number) => {
     );
     return response.data;
   } catch (e) {
-    return {};
+    return NextResponse.json(
+      {
+        error: formatGenericErrorResponse(e),
+      },
+      {
+        status: 500,
+      }
+    );
   }
 };
 export { GET };

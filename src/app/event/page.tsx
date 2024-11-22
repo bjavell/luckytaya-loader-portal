@@ -43,7 +43,7 @@ const Event = () => {
     await axios
       .get("/api/event/list")
       .then((response) => {
-        var data = response.data;
+        let data = response.data;
         data = data.map((e: SabongEvent) => {
           const stats = getEventStatus(e.eventStatusCode);
           const location = getEventVenue(e.venueId);
@@ -97,7 +97,6 @@ const Event = () => {
   }, [statuses, venues]);
 
   const onHandleSubmit = async (e: any) => {
-    const self = this;
     setIsLoading(true);
     setErrorMessage("");
     e.preventDefault();

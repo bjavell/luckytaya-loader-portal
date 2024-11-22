@@ -8,10 +8,10 @@ const POST = async (req: NextRequest) => {
   try {
     const request = await req.json();
     const currentSession = await getCurrentSession();
-    
-    request.fightStatusCode = parseInt(request.fightStatusCode)
-    request.fightId = parseInt(request.fightId)
-    console.log(request,'--------')
+
+    request.fightStatusCode = parseInt(request.fightStatusCode);
+    request.fightId = parseInt(request.fightId);
+    console.log(request, "--------");
     const response = await luckTayaAxios.put(
       `/api/v1/SabongFight/UpdateStatus`,
       request,

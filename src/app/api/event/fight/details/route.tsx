@@ -21,7 +21,6 @@ const POST = async (req: NextRequest) => {
           },
         });
       } else {
-
         delete element.operatorId;
 
         await luckTayaAxios.post(`/api/v1/SabongFightDetail/V3`, element, {
@@ -46,8 +45,9 @@ const POST = async (req: NextRequest) => {
   }
 };
 
-const GET = async (fightId: number) => {
+const GET = async (req: NextRequest) => {
   try {
+    const fightId = req.nextUrl.searchParams.get("fightId");
     const currentSession = await getCurrentSession();
 
     const response = await luckTayaAxios.get(
@@ -59,9 +59,16 @@ const GET = async (fightId: number) => {
       }
     );
 
-    return response.data;
+    return NextResponse.json(response.data);
   } catch (e) {
-    return {};
+    return NextResponse.json(
+      {
+        error: formatGenericErrorResponse(e),
+      },
+      {
+        status: 500,
+      }
+    );
   }
 };
 export { POST, GET };

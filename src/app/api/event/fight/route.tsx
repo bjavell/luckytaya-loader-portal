@@ -28,8 +28,8 @@ const GET = async (req: NextRequest) => {
           };
         })
         .sort((a: any, b: any) => {
-          var bDate = new Date(b.entryDateTime);
-          var aDate = new Date(a.entryDateTime);
+          const bDate = new Date(b.entryDateTime);
+          const aDate = new Date(a.entryDateTime);
           return bDate.getTime() - aDate.getTime();
         })
     );
@@ -45,11 +45,11 @@ const GET = async (req: NextRequest) => {
   }
 };
 const POST = async (req: NextRequest) => {
-  var fightResult: any;
+  let fightResult: any;
   const request = await req.json();
   const { fightDetails, fight } = request;
-  var isContinue = true;
-  var result: any;
+  let isContinue = true;
+  let result: any;
   const currentSession = await getCurrentSession();
   try {
     fight.eventId = parseInt(fight.eventId);
@@ -78,7 +78,7 @@ const POST = async (req: NextRequest) => {
     if (data.detail == "Bad request") {
       if (data.errors[data.detail][0].includes("already exists")) {
         isContinue = true;
-        fightResult = fight
+        fightResult = fight;
       }
     }
   }
@@ -148,9 +148,16 @@ const fightDetails = async (fightId: number) => {
       }
     );
 
-    return response.data;
+    return NextResponse.json(response.data);
   } catch (e) {
-    return {};
+    return NextResponse.json(
+      {
+        error: formatGenericErrorResponse(e),
+      },
+      {
+        status: 500,
+      }
+    );
   }
 };
 export { POST, GET };

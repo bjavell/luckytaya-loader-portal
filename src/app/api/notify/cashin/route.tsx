@@ -68,7 +68,7 @@ const POST = async (req: NextRequest) => {
             // transaction.agentToAgentPlayer = agentToAgentPlayer
             transaction.response = rawRequest.request
             transaction.status = QR_TRANSACTION_STATUS.COMPLETED
-            // await update(DB_COLLECTIONS.QR_TRANSACITON, query, transaction)
+            await update(DB_COLLECTIONS.QR_TRANSACITON, query, transaction)
 
         } else {
 

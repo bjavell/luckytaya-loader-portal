@@ -5,7 +5,7 @@ import { useEffect } from "react"
 const Customer404 = () => {
     const router = useRouter()
     useEffect(() => {
-        // router.push('/dashboard')
+        router.push('/dashboard')
     }, [router])
 
     return null

@@ -28,15 +28,19 @@ const Commisson = () => {
 
         const startDateDateTime = new Date(startDate)
         startDateDateTime.setHours(0, 0, 0, 0);
+        // Adjust for the local timezone offset
+        const localStartDateTime = new Date(startDateDateTime.getTime() - startDateDateTime.getTimezoneOffset() * 60000);
 
 
         const endDateDateTime = new Date(endDate)
         endDateDateTime.setHours(23, 59, 59, 999);
+        // Adjust for the local timezone offset
+        const localEndDateTime = new Date(endDateDateTime.getTime() - endDateDateTime.getTimezoneOffset() * 60000);
 
         await axios.get('/api/get-transaction', {
             params: {
-                startDate: startDateDateTime.toISOString(),
-                endDate: endDateDateTime.toISOString()
+                startDate: localStartDateTime.toISOString(),
+                endDate: localEndDateTime.toISOString()
             }
         }).then(response => {
             setTransactions(response.data)

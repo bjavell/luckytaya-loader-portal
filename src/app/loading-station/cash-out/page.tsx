@@ -25,10 +25,17 @@ const CashOut = () => {
 
     const { data, loading, error } = useApiData();
 
+
+    // const getBankList = async() => {
+    //     await axios.get('/api/get-bank-lists')
+    // }
+
     useEffect(() => {
         if (data) {
             setBalance(data.balance)
         }
+
+        // getBankList()
     }, [data])
 
 

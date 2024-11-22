@@ -118,7 +118,7 @@ const Fight = () => {
         },
       })
       .then((response) => {
-        let data = response.data;
+        const data = response.data;
   
         setFights(data);
         if (data.length > 0) setFight(getFightWithStatus(data[0].fight));

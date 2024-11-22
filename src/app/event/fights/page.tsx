@@ -1,0 +1,469 @@
+"use client";
+
+import Tables from "@/components/tables";
+import axios from "axios";
+import { useEffect, useState } from "react";
+import { format, getDate } from "date-fns";
+import FormField from "@/components/formField";
+import Form from "@/components/form";
+import Button from "@/components/button";
+
+type SabongEvent = {
+  entryDateTime: string;
+  operatorId: number;
+  eventId: number;
+  eventStatusCode: number;
+  venueId: number;
+  eventDate: string;
+  eventName: string;
+  webRtcStream: string;
+};
+
+type SabongFight = {
+  fightId: number;
+  eventId: number;
+  fightNum: number;
+  fightStatusCode: number;
+  entryDateTime: string;
+  operatorId: number;
+  fightDetails: any;
+};
+
+const Fight = () => {
+  const [events, setEvents] = useState<SabongEvent[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [statuses, setStatuses] = useState([]);
+  const [fights, setFights] = useState<SabongFight[]>([]);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(0);
+  const [selectedFight, setSelectedFight] = useState<SabongFight>();
+  const [isModalFightOpen, setIsModalFightOpen] = useState(false);
+  // const [walaImage, setWalaImage] = useState("");
+  // const [meronImage, setMeronImage] = useState("");
+  // const handleFileChange = (
+  //   event: React.ChangeEvent<HTMLInputElement>,
+  //   type: any
+  // ) => {
+  //   const file = event.target.files?.[0]; // Get the selected file
+  //   if (file) {
+  //     const reader = new FileReader();
+
+  //     // Convert the image file to base64
+  //     reader.onloadend = () => {
+  //       if (reader.result) {
+  //         if (type == 1) setMeronImage(reader.result.toString());
+  //         else setWalaImage(reader.result.toString());
+  //       }
+  //     };
+
+  //     // Read the file as a data URL (Base64)
+  //     reader.readAsDataURL(file);
+  //   }
+  // };
+
+  // const imageInput = (id: any, type: any) => {
+  //   const image = type == 1 ? meronImage : walaImage;
+  //   return (
+  //     <div>
+  //       {" "}
+  //       <input
+  //         type="file"
+  //         id={id}
+  //         accept="image/*"
+  //         onChange={(e) => handleFileChange(e, type)}
+  //         className="mb-4"
+  //       />
+  //       {image ? (
+  //         <div>
+  //           <h3>Preview:</h3>
+  //           <img
+  //             src={image}
+  //             alt="Base64 Preview"
+  //             className="w-64 h-64 object-cover"
+  //           />
+  //         </div>
+  //       ) : (
+  //         <p>No image selected</p>
+  //       )}
+  //     </div>
+  //   );
+  // };
+
+  const getEventStatus = (code: number): any => {
+    return statuses.find((x: any) => x.code == code);
+  };
+  const getEvents = async () => {
+    await axios
+      .get("/api/event/list")
+      .then((response) => {
+        const data = response.data;
+        setEvents(data);
+        if (data) setSelectedEvent(data[0].eventId);
+      })
+      .catch(() => {
+        setEvents([]);
+      });
+  };
+
+  const getStatus = async () => {
+    await axios
+      .get("/api/event/fight/status")
+      .then((response) => {
+        setStatuses(response.data);
+      })
+      .catch(() => {
+        setStatuses([]);
+      });
+  };
+  const getFights = async (eventId: any) => {
+    await axios
+      .get("/api/event/fight", {
+        params: {
+          eventId,
+        },
+      })
+      .then((response) => {
+        let data = response.data;
+        data = data.map((e: SabongFight) => {
+          const stats = getEventStatus(e.fightStatusCode);
+          return {
+            ...e,
+            fightStatusName: stats ? stats.name : "",
+          };
+        });
+        setFights(data);
+      })
+      .catch(() => {});
+  };
+
+  useEffect(() => {
+    const getData = async () => {
+      await getStatus();
+    };
+
+    getData();
+  }, []);
+
+  useEffect(() => {
+    if (errorMessage) {
+      alert(errorMessage);
+    }
+    return () => {
+      setErrorMessage("");
+    };
+  }, [errorMessage]);
+
+  useEffect(() => {
+    if (statuses) {
+      getEvents();
+    }
+  }, [statuses]);
+  useEffect(() => {
+    if (selectedEvent && statuses) getFights(selectedEvent);
+    return () => {
+      // setSelectedEvent(0);
+    };
+  }, [selectedEvent, statuses]);
+
+  const handleEventChange = (e: any) => {
+    setSelectedEvent(e.target.value);
+  };
+
+  const onFightClick = (fight: any) => {
+    console.log(fight, "hell0000");
+    setSelectedFight(fight);
+    setIsModalFightOpen(true);
+    // setWalaImage("");
+    // setMeronImage("");
+  };
+
+  const getFightDetailValue = (side: any, property: any) => {
+    if (selectedFight && selectedFight.fightDetails.length > 0) {
+      const { fightDetails } = selectedFight;
+
+      const fightSide = fightDetails.find((x: any) => x.side == side);
+      if (fightSide) {
+        return fightSide[property];
+      }
+      return "";
+    }
+    return "";
+  };
+
+  const onFightDetailsSubmit = async (e: any) => {
+    setIsLoading(true);
+    setErrorMessage("");
+    e.preventDefault();
+
+    const form = e.target;
+    if (!form["fightNum"].value) {
+      setErrorMessage("Please Enter Fight Number");
+      return;
+    }
+    if (!form["meron-owner"].value) {
+      setErrorMessage("Please Enter Meron Owner");
+      return;
+    }
+    if (!form["meron-breed"].value) {
+      setErrorMessage("Please Enter Meron Breed");
+      return;
+    }
+    if (!form["meron-weight"].value) {
+      setErrorMessage("Please Enter Meron Weight");
+      return;
+    }
+    if (!form["meron-tag"].value) {
+      setErrorMessage("Please Enter Meron Tag");
+      return;
+    }
+
+    if (!form["wala-owner"].value) {
+      setErrorMessage("Please Enter Wala Owner");
+      return;
+    }
+    if (!form["wala-breed"].value) {
+      setErrorMessage("Please Enter Wala Breed");
+      return;
+    }
+    if (!form["wala-weight"].value) {
+      setErrorMessage("Please Enter Wala Weight");
+      return;
+    }
+    if (!form["wala-tag"].value) {
+      setErrorMessage("Please Enter Wala Tag");
+      return;
+    }
+    const request = {
+      fight: {
+        fightId: selectedFight?.fightId,
+        fightNum: form["fightNum"].value,
+        eventId: selectedEvent,
+      },
+      fightDetails: [
+        {
+          fightId: selectedFight?.fightId,
+          id: form["meron-id"]?.value,
+          side: 1,
+          owner: form["meron-owner"].value,
+          breed: form["meron-breed"].value,
+          weight: form["meron-weight"].value,
+          tag: form["meron-tag"].value,
+          imageBase64: "",
+          operatorId: 0,
+        },
+        {
+          fightId: selectedFight?.fightId,
+          id: form["wala-id"]?.value,
+          side: 0,
+          owner: form["wala-owner"].value,
+          breed: form["wala-breed"].value,
+          weight: form["wala-weight"].value,
+          tag: form["wala-tag"].value,
+          imageBase64: "",
+          operatorId: 0,
+        },
+      ],
+    };
+
+    await axios
+      .post("/api/event/fight", request)
+      .then(() => {
+        getFights(selectedEvent);
+        setErrorMessage("");
+        setIsModalFightOpen(false);
+        alert("Successfully Saved");
+      })
+      .catch((e) => {
+        const errorMessages = e.response.data.error;
+        if (errorMessages) {
+          if (errorMessages["Not found"]) {
+            setErrorMessage(errorMessages["Not found"][0]);
+          } else if (errorMessages["Bad request"]) {
+            setErrorMessage(errorMessages["Bad request"][0]);
+          } else if (errorMessages["Unexpexted Error"]) {
+            setErrorMessage(errorMessages["Unexpexted Error"][0]);
+          } else {
+            setErrorMessage("Oops! something went wrong");
+          }
+        } else {
+          setErrorMessage("Oops! something went wrong");
+        }
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
+
+  const renderBody = () => {
+    return (
+      <Form onSubmit={onFightDetailsSubmit} className="">
+        <div className="col-span-4 grid grid-cols-5 grid-rows-1 gap-2">
+          <FormField
+            name="fightNum"
+            label="Fight Number"
+            placeholder="Enter Fight Number"
+            type="number"
+            value={selectedFight?.fightNum}
+          />
+        </div>
+
+        <div className="col-span-4 grid grid-cols-5 grid-rows-1 gap-2">
+          <label>Owner</label>
+          <label>Breed</label>
+          <label>Weight</label>
+          <label>Tag</label>
+        </div>
+        <div className="grid grid-cols-5 grid-rows-1 gap-0 items-center">
+          <div className="col-span-4 grid grid-cols-4 grid-rows-1 gap-1">
+            <input hidden value={1} name="meron-side" />
+            <input
+              hidden
+              value={getFightDetailValue(1, "id")}
+              name="meron-id"
+            />
+
+            <FormField
+              name="meron-owner"
+              label=""
+              placeholder="Enter Owner"
+              type="text"
+              value={getFightDetailValue(1, "owner")}
+            />
+            <FormField
+              name="meron-breed"
+              label=""
+              placeholder="Enter Breed"
+              value={getFightDetailValue(1, "breed")}
+              type="text"
+            />
+            <FormField
+              name="meron-weight"
+              label=""
+              placeholder="Enter Weight"
+              value={getFightDetailValue(1, "weight")}
+              type="text"
+            />
+            <FormField
+              name="meron-tag"
+              label=""
+              placeholder="Enter Tag"
+              value={getFightDetailValue(1, "tag")}
+              type="text"
+            />
+
+            <input hidden value={0} name="wala-side" />
+            <input hidden value={getFightDetailValue(0, "id")} name="wala-id" />
+            <FormField
+              name="wala-owner"
+              label=""
+              placeholder="Enter Owner"
+              value={getFightDetailValue(0, "owner")}
+              type="text"
+            />
+            <FormField
+              name="wala-breed"
+              label=""
+              placeholder="Enter Breed"
+              value={getFightDetailValue(0, "breed")}
+              type="text"
+            />
+            <FormField
+              name="wala-weight"
+              label=""
+              placeholder="Enter Weight"
+              value={getFightDetailValue(0, "weight")}
+              type="text"
+            />
+            <FormField
+              name="wala-tag"
+              label=""
+              placeholder="Enter Tag"
+              value={getFightDetailValue(0, "tag")}
+              type="text"
+            />
+          </div>
+          <div className="justify-self-center">
+            <Button
+              onClick={() => {}}
+              isLoading={isLoading}
+              loadingText="Loading..."
+              type={"submit"}
+            >
+              Add Fight
+            </Button>
+          </div>
+        </div>
+      </Form>
+    );
+  };
+  return (
+    <div className="flex flex-col gap-4 w-full">
+      <h1 className="text-xl">Event Fights</h1>
+      <div>
+        <label
+          htmlFor="venueId"
+          className="px-2 text-white font-sans font-light text-nowrap "
+        >
+          Select Event
+        </label>
+        <select
+          onChange={handleEventChange}
+          name="venueId"
+          className="peer rounded-xlg py-4 px-4 bg-semiBlack shadow-sm font-sans font-light text-[13px] tacking-[5%] text-white invalid:border-red-500 invalid:[&.visited]:border invalid:[&.visited]:border-[#E74C3C]"
+        >
+          {events.map((item, index): any => {
+            return (
+              <option key={`option-${index}`} value={item.eventId}>
+                {item.eventName}
+              </option>
+            );
+          })}
+        </select>
+      </div>
+      {/* <div className="w-sm">
+        <Button
+          onClick={() => setIsModalOpen(true)}
+          isLoading={isLoading}
+          loadingText="Loading..."
+          type={"button"}
+        >
+          + New Fight
+        </Button>
+      </div> */}
+      {renderBody()}
+      <div className="flex flex-col">
+        <Tables
+          onItemClick={onFightClick}
+          primaryId="id"
+          headers={[
+            {
+              key: "entryDateTime",
+              label: "Entry Date Time",
+              format: (val: string) => {
+                const formatDate = new Date(val);
+                return format(formatDate, "yyyy-MM-dd hh:mm:ss a");
+              },
+            },
+            {
+              key: "fightId",
+              label: "Fight Id",
+            },
+            {
+              key: "fightNum",
+              label: "Fight Number",
+            },
+            {
+              key: "fightStatusName",
+              label: "Status",
+            },
+          ]}
+          items={fights}
+          isCentered={true}
+        />
+      </div>
+    </div>
+  );
+};
+
+export default Fight;

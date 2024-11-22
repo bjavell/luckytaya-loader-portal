@@ -6,10 +6,9 @@ import { ReactNode } from "react"
 import Image from "next/image"
 import loginBG from '@/assets/images/login-bg.svg'
 import { ApiProvider } from "../context/apiContext"
+import { getCurrentSession } from "@/context/auth"
 
 const CommonLayout: React.FC<{ children: ReactNode, slug: string }> = ({ children, slug }) => {
-
-
     return (
         <ApiProvider>
             <div className="text-neutralGray">
@@ -17,7 +16,7 @@ const CommonLayout: React.FC<{ children: ReactNode, slug: string }> = ({ childre
                     <SideBar />
                     <main className="w-full flex flex-col max-h-screen">
                         <NavBar slug={slug} />
-                        <div className="flex relative bg-black w-full h-screen">
+                        <div className="flex relative bg-black w-full h-full  overflow-auto">
                             <Image src={loginBG} alt="" className="object-cover w-full h-full mix-blend-luminosity relative opacity-10" priority={false} />
                             <div className="absolute inset-0 flex z-10 py-10 px-14">
                                 {children}

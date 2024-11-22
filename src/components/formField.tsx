@@ -4,7 +4,7 @@ import { useState } from "react"
 interface FormFieldProps {
     name: string,
     value?: any,
-    type?: 'text' | 'password' | 'email' | 'textarea' | 'date' | 'number', // add more types if necessary
+    type?: 'text' | 'password' | 'email' | 'textarea' | 'date' | 'number' | 'datetime-local', // add more types if necessary
     label?: string
     errorMessage?: string,
     placeholder?: string,
@@ -16,13 +16,13 @@ interface FormFieldProps {
     required?: boolean,
     readonly?: boolean,
     min?: number,
-    max?: number
+    max?: number,
 }
 
 const FormField: NextPage<FormFieldProps> = (props) => {
     const [isVisited, setIsVisited] = useState(false)
 
-    const { label, name, type, customLabelClass, value, errorMessage, readonly, onChangeTextArea, onBlur, ...inputProps } = props
+    const {label, name, type, customLabelClass, value, errorMessage, readonly, onChangeTextArea, onBlur, ...inputProps } = props
 
     let defaultClass = 'flex flex-col flex-1 gap-4'
     const labelClassName = `text-white font-sans font-light text-nowrap ${customLabelClass ?? ''}`
@@ -46,7 +46,7 @@ const FormField: NextPage<FormFieldProps> = (props) => {
         return e
     }
 
-    if (type === 'date') {
+    if (type === 'date' || type === 'datetime-local') {
         defaultClass = 'flex flex-row flex-1 gap-4 items-center'
     }
 
@@ -54,7 +54,7 @@ const FormField: NextPage<FormFieldProps> = (props) => {
         return (
             <div className="flex flex-col flex-1 gap-4">
                 <label htmlFor={name} className={labelClassName}>{label}</label>
-                <textarea cols={45} rows={4} value={value} id={name} name={name} onChange={onChangeTextArea} className="rounded-xlg py-4 px-4 bg-semiBlack font-sans font-light text-[13px] tacking-[5%] text-white invalid:border-red-500" style={{ resize: 'none' }} />
+                <textarea  cols={45} rows={4} value={value} id={name} name={name} onChange={onChangeTextArea} className="rounded-xlg py-4 px-4 bg-semiBlack font-sans font-light text-[13px] tacking-[5%] text-white invalid:border-red-500" style={{ resize: 'none' }} />
             </div>
         )
     }

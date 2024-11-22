@@ -4,6 +4,7 @@ import logo from '@/assets/images/logo-1.svg'
 import Image from "next/image"
 import Dashboard from '@/assets/images/Dashboard.svg'
 import CashOut from '@/assets/images/CashOut.svg'
+import Game from '@/assets/images/Game.png'
 import Commission from '@/assets/images/Commission.svg'
 import ActivePlayer from '@/assets/images/ActivePlayer.svg'
 import DeactPlayer from '@/assets/images/DeactPlayer.svg'
@@ -75,6 +76,30 @@ const sideBarRoutes = [{
 
 }]
 
+
+
+const sideBarEventRoutes = [{
+    module: 'GENERAL',
+    item: [{
+        module: 'Gaming Control',
+        ico: Game,
+        link: '/event/game'
+    },
+    {
+        module: 'Add Event',
+        ico: Dashboard,
+        link: '/event'
+    },
+    {
+        module: 'Add Fight',
+        ico: Dashboard,
+        link: '/event/fights'
+    }]
+
+},
+]
+
+
 const populateRoutes = (routes: SideBarRoutesProps, currentRoute: string) => {
     return (
         <li key={routes.module} className="px-4 py-2 flex flex-col">
@@ -128,11 +153,14 @@ const SideBar = () => {
     const [isLoading, setIsLoading] = useState(false)
     const [name, setName] = useState('')
     const { data, loading, error } = useApiData();
-
+    const [routes, setRoutes] = useState<any>([])
 
     useEffect(() => {
         if (data) {
             setName(`${data?.fistname} ${data?.lastname}`)
+            if(data.accountType == 9)
+                setRoutes(sideBarEventRoutes)
+            else setRoutes(sideBarRoutes)
         }
     }, [data])
     // const getUserDetails = async () => {
@@ -166,10 +194,10 @@ const SideBar = () => {
                 <ul className="flex flex-col w-full">
                     <li className="flex bg-cursedBlack h-11 mb-4">
                         <div className="font-sans m-auto">
-                            Agent Portal
+                            {data && data.accountType == 9 ? "Event Manager" : "Agent Portal"}
                         </div>
                     </li>
-                    {sideBarRoutes.map(__routes => populateRoutes(__routes, currentRoute))}
+                    {routes && routes.map((__routes : any) => populateRoutes(__routes, currentRoute))}
                     <li className="px-4 flex flex-col" >
                         <button onClick={() => onHandleLogout(router, setIsLoading)} className="p-4 text-red hover:bg-cursedBlack hover:rounded-xlg hover:text-[#E7DE54] flex gap-2" >
                             <Image src={Logout} alt="" className={`h-4 w-auto my-auto`} /> Logout</button>

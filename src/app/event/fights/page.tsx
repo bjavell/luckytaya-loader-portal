@@ -33,12 +33,13 @@ const Fight = () => {
   const [events, setEvents] = useState<SabongEvent[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [statuses, setStatuses] = useState([]);
-  const [fights, setFights] = useState<SabongFight[]>([]);
+  const [fights, setFights] = useState<any>([]);
   const [errorMessage, setErrorMessage] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(0);
   const [selectedFight, setSelectedFight] = useState<SabongFight>();
   const [isModalFightOpen, setIsModalFightOpen] = useState(false);
+  const [fightList, setFightList] = useState<any>([])
   // const [walaImage, setWalaImage] = useState("");
   // const [meronImage, setMeronImage] = useState("");
   // const handleFileChange = (
@@ -125,13 +126,22 @@ const Fight = () => {
       })
       .then((response) => {
         let data = response.data;
-        data = data.map((e: SabongFight) => {
-          const stats = getEventStatus(e.fightStatusCode);
+        data = data.map((e: any) => {
+          const stats = getEventStatus(e.fight.fightStatusCode);
           return {
             ...e,
             fightStatusName: stats ? stats.name : "",
           };
         });
+
+        const fightlst = data.map((e:any)=>{
+          return {
+            ...e.fight,
+            fightDetails : e.fightDetails,
+            fightStatusName : e.fightStatusName
+          }
+        })
+        setFightList(fightlst)
         setFights(data);
       })
       .catch(() => {});
@@ -171,7 +181,6 @@ const Fight = () => {
   };
 
   const onFightClick = (fight: any) => {
-    console.log(fight, "hell0000");
     setSelectedFight(fight);
     setIsModalFightOpen(true);
     // setWalaImage("");
@@ -458,7 +467,7 @@ const Fight = () => {
               label: "Status",
             },
           ]}
-          items={fights}
+          items={fightList}
           isCentered={true}
         />
       </div>

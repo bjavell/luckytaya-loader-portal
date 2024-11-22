@@ -11,28 +11,19 @@ const GET = async (req: NextRequest) => {
 
     const eventId = req.nextUrl.searchParams.get("eventId");
     const response = await luckTayaAxios.get(
-      `/api/v1/SabongFight/ByEventId/${eventId}`,
+      `/api/v1/SabongFight/WithDetailsByEventIdV2/${eventId}`,
       {
         headers: {
           Authorization: `Bearer ${currentSession.token}`,
         },
       }
     );
-
-    const data = await Promise.all(
-      response.data
-        .map(async (item: any) => {
-          return {
-            ...item,
-            fightDetails: await fightDetails(item.fightId),
-          };
-        })
-        .sort((a: any, b: any) => {
-          const bDate = new Date(b.entryDateTime);
-          const aDate = new Date(a.entryDateTime);
-          return bDate.getTime() - aDate.getTime();
-        })
-    );
+    console.log(response.data,'000000000')
+    const data = response.data.sort((a: any, b: any) => {
+      const bDate = new Date(b.fight.entryDateTime);
+      const aDate = new Date(a.fight.entryDateTime);
+      return bDate.getTime() - aDate.getTime();
+    });
 
     return NextResponse.json(data);
   } catch (e) {
@@ -113,7 +104,10 @@ const POST = async (req: NextRequest) => {
       } else {
         element.fightId = fightResult.fightId;
         delete element.operatorId;
-        await luckTayaAxios.post(`/api/v1/SabongFightDetail/V3`, element, {
+        delete element.id;
+        delete element.imageBase64;
+        element.picture = "";
+        await luckTayaAxios.post(`/api/v1/SabongFightDetail/`, element, {
           headers: {
             Authorization: `Bearer ${currentSession.token}`,
           },

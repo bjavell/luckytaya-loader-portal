@@ -268,7 +268,7 @@ const Players = () => {
                                         }
                                     </select>
                                     <label htmlFor="suspend" className="text-white font-sans font-light text-nowrap text-xs">Suspend?</label>
-                                    <select id="accountType" className="rounded-xlg py-4 px-4 bg-semiBlack font-sans font-light text-[13px] tacking-[5%] text-white" value={modalData.suspended} onChange={(e) => onSuspendChange(e.target.value)}>
+                                    <select id="suspend" className="rounded-xlg py-4 px-4 bg-semiBlack font-sans font-light text-[13px] tacking-[5%] text-white" value={modalData.suspended} onChange={(e) => onSuspendChange(e.target.value)}>
                                         <option value={0}>No</option>
                                         <option value={1}>Yes</option>
                                     </select>

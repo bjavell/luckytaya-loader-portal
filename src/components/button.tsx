@@ -22,7 +22,7 @@ const Button: NextPage<ButtonProps> = (props) => {
 
 
     return (
-        <button type={type} className={`justify-center inline-block py-3 px-6 rounded-xlg bg-yellow-green ${customSize}  group-invalid:pointer-events-none group-invalid:opacity-50 ${customCss ?? ''}`} onClick={onClick} disabled={props.disabled || props.isLoading}>{props.isLoading ? props.loadingText : children}</button>
+        <button type={type} className={`justify-center inline-block py-3 px-6 rounded-xlg bg-yellow-green text-black ${customSize} group-invalid:pointer-events-none group-invalid:opacity-50 ${customCss ?? ''}`} onClick={onClick} disabled={props.disabled || props.isLoading}>{props.isLoading ? props.loadingText : children}</button>
     )
 }
 

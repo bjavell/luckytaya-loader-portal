@@ -32,6 +32,10 @@ const sideBarRoutes = [{
 {
     module: 'USERS',
     item: [{
+        module: 'Register User',
+        ico: LoadStation,
+        link: '/user/register'
+    }, {
         module: 'Management Users',
         ico: LoadStation,
         link: '/user/management'
@@ -41,16 +45,16 @@ const sideBarRoutes = [{
         link: '/user/players'
     }]
 
-}, 
-// {
-//     module: 'NOTIFY',
-//     item: [{
-//         module: 'Send Message',
-//         ico: Transfer,
-//         link: '/notify'
-//     }]
+},
+    // {
+    //     module: 'NOTIFY',
+    //     item: [{
+    //         module: 'Send Message',
+    //         ico: Transfer,
+    //         link: '/notify'
+    //     }]
 
-// }
+    // }
 ]
 
 const populateRoutes = (routes: SideBarRoutesProps, currentRoute: string) => {

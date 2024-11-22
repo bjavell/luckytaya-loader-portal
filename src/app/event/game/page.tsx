@@ -51,7 +51,7 @@ const Fight = () => {
       if (messages != null && gameData) {
         const parseMessage = JSON.parse(messages);
         const betDetail = JSON.parse(parseMessage.jsonPacket);
-
+        console.log(gameData,messages)
         switch (parseMessage.PacketType) {
           case 10:
             if (
@@ -68,7 +68,7 @@ const Fight = () => {
           case 50:
             break;
           default:
-            refreshFight();
+            // refreshFight();
             break;
         }
       }
@@ -179,6 +179,7 @@ const Fight = () => {
 
   const refreshFight = async () => {
     
+    if(!gameData)return
     setIsLoadingWithScreen (true)
     const bet = await axios
       .get("/api/event/fight/byId", {

@@ -14,7 +14,7 @@ const POST = async (req: NextRequest) => {
             username: username,
             password: decrypt(password)
         }
-
+        console.log(request,'-------')
         const response = await luckTayaAxios.post(`/api/v1/User/Login`, request)
         const responseData = response.data
 

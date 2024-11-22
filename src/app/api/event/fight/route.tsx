@@ -18,7 +18,6 @@ const GET = async (req: NextRequest) => {
         },
       }
     );
-    console.log(response.data,'000000000')
     const data = response.data.sort((a: any, b: any) => {
       const bDate = new Date(b.fight.entryDateTime);
       const aDate = new Date(a.fight.entryDateTime);

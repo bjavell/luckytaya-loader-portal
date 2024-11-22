@@ -43,6 +43,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
   };
 
   useEffect(() => {
+    console.log(pathname)
     getSess();
   }, [pathname]);
 

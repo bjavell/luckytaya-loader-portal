@@ -26,6 +26,7 @@ const Fight = () => {
   const { socket, messages } = useWebSocketContext();
   const [events, setEvents] = useState<SabongEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingWithScreen, setIsLoadingWithScreen] = useState(false)
   const [statuses, setStatuses] = useState([]);
   const [fight, setFight] = useState<any>(null);
   const [fights, setFights] = useState<any>([]);
@@ -118,15 +119,9 @@ const Fight = () => {
       })
       .then((response) => {
         let data = response.data;
-        data = data.map((e: any) => {
-          const stats = getEventStatus(e.fightStatusCode);
-          return {
-            ...e,
-            fightStatusName: stats ? stats.name : "",
-          };
-        });
+  
         setFights(data);
-        if (data.length > 0) setFight(data[0]);
+        if (data.length > 0) setFight(getFightWithStatus(data[0].fight));
       })
       .catch(() => {});
   };
@@ -184,7 +179,7 @@ const Fight = () => {
 
   const refreshFight = async () => {
     
-    setIsLoading (true)
+    setIsLoadingWithScreen (true)
     const bet = await axios
       .get("/api/event/fight/byId", {
         params: {
@@ -194,12 +189,20 @@ const Fight = () => {
       .then((response) => {
         const data = response.data;
         setGameData(data);
-        if (data.length > 0) setFight(data[0]);
-        setIsLoading (false)
+        if (data.length > 0) setFight(getFightWithStatus(data[0].fight));
+        setIsLoadingWithScreen (false)
       })
       .catch(() => {});
       
   };
+
+  const getFightWithStatus = (fght: any)=>{
+    const stats = getEventStatus(fght.fightStatusCode);
+    return {
+      ...fght,
+      fightStatusName: stats ? stats.name : "",
+    }
+  }
 
   useEffect(() => {
     if (selectedEvent && fight) setupGame();
@@ -217,7 +220,7 @@ const Fight = () => {
 
   const onConfirm = async () => {
     
-    setIsLoading (true)
+    setIsLoadingWithScreen(true)
     const request = {
       fightId: gameData.fight.fightId,
       winSide: winningSide,
@@ -249,6 +252,7 @@ const Fight = () => {
       .finally(() => {
         onCancel();
         refreshFight();
+        setIsLoadingWithScreen(false)
       });
   };
   const onCancel = () => {
@@ -264,7 +268,7 @@ const Fight = () => {
 
   const handleFightChange = (e: any) => {
     setIsLoading(true);
-    setFight(fights[e.target.value]);
+    setFight(getFightWithStatus(fights[e.target.value].fight));
   };
 
   const renderEventStatusButton = () => {
@@ -309,20 +313,20 @@ const Fight = () => {
 
   const lastCall = () => {
     
-    setIsLoading (true)
+    setIsLoadingWithScreen (true)
     axios
       .post("/api/event/game/lastCall", {
         fightId: fight?.fightId,
       })
       .then((response) => {
         alert("Last Call!!");
-        setIsLoading(false)
+        setIsLoadingWithScreen(false)
       });
   };
 
   const setFightStatus = async (status: any) => {
     
-    setIsLoading (true)
+    setIsLoadingWithScreen (true)
     const request = {
       fightId: gameData.fight.fightId,
       fightStatusCode: status,
@@ -349,7 +353,7 @@ const Fight = () => {
         }
       })
       .finally(() => {
-        setIsLoading(false);
+        setIsLoadingWithScreen(false);
       });
   };
 
@@ -499,7 +503,7 @@ const Fight = () => {
           {fights.map((item: any, index: any) => {
             return (
               <option key={`option-${index}`} value={index}>
-                {item.fightNum}
+                {item.fight.fightNum}
               </option>
             );
           })}
@@ -523,7 +527,7 @@ const Fight = () => {
         onConfirm={onConfirm}
         message="Are you sure you want to set Result?"
       ></ConfirmationModal>
-      {isLoading && <LoadingSpinner size="w-20 h-20" color="border-blue" />}
+      {isLoadingWithScreen && <LoadingSpinner size="w-20 h-20" color="border-blue" />}
       {!isLoading && gameData && (
         <div className="grid grid-cols-4 grid-rows-1 gap-4">
           <div className="col-span-3">

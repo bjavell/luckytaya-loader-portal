@@ -37,9 +37,9 @@ const Fight = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(0);
-  const [selectedFight, setSelectedFight] = useState<SabongFight>();
+  const [selectedFight, setSelectedFight] = useState<any>();
   const [isModalFightOpen, setIsModalFightOpen] = useState(false);
-  const [fightList, setFightList] = useState<any>([])
+  const [fightList, setFightList] = useState<any>([]);
   // const [walaImage, setWalaImage] = useState("");
   // const [meronImage, setMeronImage] = useState("");
   // const handleFileChange = (
@@ -134,14 +134,14 @@ const Fight = () => {
           };
         });
 
-        const fightlst = data.map((e:any)=>{
+        const fightlst = data.map((e: any) => {
           return {
             ...e.fight,
-            fightDetails : e.fightDetails,
-            fightStatusName : e.fightStatusName
-          }
-        })
-        setFightList(fightlst)
+            fightDetails: e.fightDetails,
+            fightStatusName: e.fightStatusName,
+          };
+        });
+        setFightList(fightlst);
         setFights(data);
       })
       .catch(() => {});
@@ -181,8 +181,12 @@ const Fight = () => {
   };
 
   const onFightClick = (fight: any) => {
+    setIsLoading(true);
     setSelectedFight(fight);
     setIsModalFightOpen(true);
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 100);
     // setWalaImage("");
     // setMeronImage("");
   };
@@ -274,7 +278,7 @@ const Fight = () => {
         },
       ],
     };
-
+    setSelectedFight(request);
     await axios
       .post("/api/event/fight", request)
       .then(() => {
@@ -440,7 +444,7 @@ const Fight = () => {
           + New Fight
         </Button>
       </div> */}
-      {renderBody()}
+      {!isLoading && renderBody()}
       <div className="flex flex-col">
         <Tables
           onItemClick={onFightClick}

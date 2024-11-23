@@ -1,5 +1,5 @@
 'use client'
-import { FormEvent, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import gcashLoad from '@/assets/images/GcashLoad.png'
 import Image from "next/image"
 import { formatMoney } from "@/util/textUtil"
@@ -8,6 +8,7 @@ import axios from "axios"
 import { useRouter } from "next/navigation"
 import { useApiData } from "@/app/context/apiContext"
 import LoadForm from "@/components/loadForm"
+import ConfirmationModal from "@/components/confirmationModal"
 
 const PlayerCashin = () => {
     const router = useRouter()
@@ -42,6 +43,9 @@ const PlayerCashin = () => {
     })
 
     const { data, reload, setReload } = useApiData();
+    const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+    const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
+    const [alertMessage, setAlertMessage] = useState('');
 
     const getLoadStationConfig = async () => {
         await axios.get('/api/get-load-station-config')
@@ -78,31 +82,36 @@ const PlayerCashin = () => {
 
 
 
-    const onHandleSubmit = async (e: FormEvent | MouseEvent) => {
-        e.preventDefault()
+    const onHandleSubmit = async () => {
         setIsLoading(true)
-        if (confirm('Proceed with the transaction?')) {
+        try {
+            const response = await axios.post('/api/cashin', {
+                amount: parseFloat(amount),
+                convFee,
+                comFee,
+                toAccountNumber: loadTo
+            })
+            setReload(true)
+
+            setIsAlertModalOpen(true)
+            setAlertMessage(response.data.message)
 
 
-            try {
-                const response = await axios.post('/api/cashin', {
-                    amount: parseFloat(amount),
-                    convFee,
-                    comFee,
-                    toAccountNumber: loadTo
-                })
+        } catch (e: any) {
+            const errorMessages = e.response.data.error
 
-                alert(response.data.message)
-                console.log(e)
-                setReload(true)
+            if (errorMessages) {
+                if (errorMessages['Bad request']) {
+                    setAlertMessage(errorMessages['Bad request'][0])
+                }
+            } else {
 
-
-
-            } catch (e) {
-
-            } finally {
-                setIsLoading(false)
+                setAlertMessage('Oops! an error occured')
             }
+
+            setIsAlertModalOpen(true)
+        } finally {
+            setIsLoading(false)
         }
     }
 
@@ -170,8 +179,33 @@ const PlayerCashin = () => {
     }
 
 
+    const onCancel = () => {
+        setIsConfirmModalOpen(false)
+    }
+
+    const onConfirm = () => {
+        setIsConfirmModalOpen(false)
+        onHandleSubmit()
+    }
+
+    const toggelConfirmationModal = () => {
+        setIsConfirmModalOpen(!isConfirmModalOpen)
+    }
+
     return (
         <div className="flex flex-col w-full gap-4">
+            <ConfirmationModal
+                isOpen={isAlertModalOpen}
+                onConfirm={() => setIsAlertModalOpen(false)}
+                isOkOnly={true}
+                message={alertMessage}
+            ></ConfirmationModal>
+            <ConfirmationModal
+                isOpen={isConfirmModalOpen}
+                onCancel={onCancel}
+                onConfirm={onConfirm}
+                message="Proceed with the transaction?"
+            ></ConfirmationModal>
             <BalanceBar title="Player Cash-In" balance={balance} />
             <div className="flex flex-row gap-4">
                 <div className="flex w-1/2 bg-[#005BAA] rounded-xl p-4">
@@ -202,7 +236,7 @@ const PlayerCashin = () => {
                         onChage: setComment
                     }}
                     isLoading={isLoading}
-                    onHandleSubmit={onHandleSubmit}
+                    onHandleSubmit={toggelConfirmationModal}
                 />
             </div>
         </div>

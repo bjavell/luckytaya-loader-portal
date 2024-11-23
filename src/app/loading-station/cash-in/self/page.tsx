@@ -11,6 +11,7 @@ import axios from "axios"
 import { useRouter } from "next/navigation"
 import { useApiData } from "@/app/context/apiContext"
 import LoadForm from "@/components/loadForm"
+import ConfirmationModal from "@/components/confirmationModal"
 
 const SelfCashin = () => {
     const router = useRouter()
@@ -44,6 +45,9 @@ const SelfCashin = () => {
         commissionFeePercentage: 0,
         commissionFeeType: 0
     })
+    const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+    const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
+    const [alertMessage, setAlertMessage] = useState('');
 
     const { data, setReload } = useApiData();
 
@@ -69,46 +73,47 @@ const SelfCashin = () => {
         }
     }, [data])
 
-    const onHandleSubmit = async (e: FormEvent | MouseEvent) => {
-        e.preventDefault()
-        if (confirm('Proceed with the transaction?')) {
-            setIsLoading(true)
-            const date = new Date()
-            const expireDate = new Date()
-            expireDate.setHours(expireDate.getHours() + 2)
+    const onHandleSubmit = async () => {
+        setIsLoading(true)
+        const date = new Date()
+        const expireDate = new Date()
+        expireDate.setHours(expireDate.getHours() + 2)
 
-            const data = {
-                trxAmount: removeDecimalPlaces(amount),
-                timeStart: formatDate(date.toISOString()),
-                timeExpire: formatDate(expireDate.toISOString()),
-                accountNumber: loadTo,
-                convenienceFee: convFee,
-                commissionFee: comFee,
-                comment: comment,
-                type: TRAN_TYPE.CASHIN
-
-            }
-
-            await axios.post('/api/create-qr', data)
-                .then((response) => {
-                    setQrData(response.data.codeUrl)
-                    setShowQr(true)
-                })
-                .catch((e) => {
-                    const errorMessages = e.response.data.error
-                    if (errorMessages) {
-                        if (errorMessages['Unauthorized']) {
-                            router.push('/login')
-                        }
-                    }
-                    setShowQr(false)
-                    setQrData('')
-                })
-                .finally(() => {
-                    setIsLoading(false)
-                })
+        const data = {
+            trxAmount: removeDecimalPlaces(amount),
+            timeStart: formatDate(date.toISOString()),
+            timeExpire: formatDate(expireDate.toISOString()),
+            accountNumber: loadTo,
+            convenienceFee: convFee,
+            commissionFee: comFee,
+            comment: comment,
+            type: TRAN_TYPE.CASHIN
 
         }
+
+        await axios.post('/api/create-qr', data)
+            .then((response) => {
+                setQrData(response.data.codeUrl)
+                setShowQr(true)
+                setIsAlertModalOpen(true)
+                setAlertMessage('QR successfully generated!')
+            })
+            .catch((e) => {
+                const errorMessages = e.response.data.error
+                if (errorMessages) {
+                    if (errorMessages['Unauthorized']) {
+                        router.push('/login')
+                    }
+                }
+                setShowQr(false)
+                setQrData('')
+                setIsAlertModalOpen(true)
+                setAlertMessage('Oops! an error occurred')
+            })
+            .finally(() => {
+                setIsLoading(false)
+            })
+
     }
 
     const onAmountChange = (amount: string) => {
@@ -134,8 +139,34 @@ const SelfCashin = () => {
     }
 
 
+    const onCancel = () => {
+        setIsConfirmModalOpen(false)
+    }
+
+    const onConfirm = () => {
+        setIsConfirmModalOpen(false)
+        onHandleSubmit()
+    }
+
+    const toggelConfirmationModal = () => {
+        setIsConfirmModalOpen(!isConfirmModalOpen)
+    }
+
+
     return (
         <div className="flex flex-col w-full gap-4">
+            <ConfirmationModal
+                isOpen={isAlertModalOpen}
+                onConfirm={() => setIsAlertModalOpen(false)}
+                isOkOnly={true}
+                message={alertMessage}
+            ></ConfirmationModal>
+            <ConfirmationModal
+                isOpen={isConfirmModalOpen}
+                onCancel={onCancel}
+                onConfirm={onConfirm}
+                message="Proceed with the transaction?"
+            ></ConfirmationModal>
             <BalanceBar title="Self Cash-In" balance={balance} />
             <div className="flex flex-row gap-4">
                 <div className="flex w-1/2 bg-[#005BAA] rounded-xl p-4">
@@ -161,7 +192,7 @@ const SelfCashin = () => {
                         onChage: setComment
                     }}
                     isLoading={isLoading}
-                    onHandleSubmit={onHandleSubmit}
+                    onHandleSubmit={toggelConfirmationModal}
 
                 />
             </div>

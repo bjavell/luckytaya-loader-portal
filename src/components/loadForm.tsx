@@ -2,8 +2,7 @@ import { NextPage } from "next"
 import Form from "./form"
 import FormField from "./formField"
 import { PATTERNS } from "@/classes/constants"
-import { comment } from "postcss"
-import { ChangeEvent, ChangeEventHandler, Dispatch, FormEvent, FormEventHandler, SetStateAction } from "react"
+import { Dispatch, SetStateAction } from "react"
 import Button from "./button"
 
 interface LoadFormProps {
@@ -26,7 +25,7 @@ interface LoadFormProps {
         onChage: Dispatch<SetStateAction<string>>
     }
     isLoading: boolean,
-    onHandleSubmit: (e: FormEvent | MouseEvent) => void,
+    onHandleSubmit: () => void,
 }
 
 const LoadForm: NextPage<LoadFormProps> = (props) => {
@@ -35,7 +34,7 @@ const LoadForm: NextPage<LoadFormProps> = (props) => {
 
 
     return <div className="flex w-1/2 bg-gray13 rounded-xl">
-        <Form className="flex flex-row gap-2 w-full" onSubmit={(e) => onHandleSubmit(e)}>
+        <Form className="flex flex-row gap-2 w-full">
             <div className="flex flex-col p-4 gap-4 w-full">
                 <FormField
                     name="loadTo"
@@ -103,10 +102,10 @@ const LoadForm: NextPage<LoadFormProps> = (props) => {
                     type="textarea"
                 />
                 <Button
-                    onClick={(e) => onHandleSubmit(e)}
+                    onClick={onHandleSubmit}
                     isLoading={isLoading}
                     loadingText="Loading..."
-                    type={'submit'}
+                    type={'button'}
                 >
                     Submit
                 </Button>

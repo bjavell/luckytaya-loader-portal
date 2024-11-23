@@ -3,7 +3,7 @@ import { ReactNode } from "react"
 
 interface ButtonProps {
     children?: ReactNode,
-    onClick: () => void | undefined,
+    onClick: () => void | Promise<void> | undefined,
     disabled?: boolean,
     isLoading?: boolean,
     loadingText?: string,

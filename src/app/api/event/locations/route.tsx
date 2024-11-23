@@ -23,4 +23,40 @@ const GET = async (req: NextRequest) => {
   }
 };
 
-export { GET };
+const POST = async (req: NextRequest) => {
+  const request = await req.json();
+  let result: any;
+  try {
+    const currentSession = await getCurrentSession();
+
+    if (request.venueId && request.venueId != 0) {
+      request.venueId = parseInt(request.venueId);
+      result = await luckTayaAxios.put(`/api/v1/SabongVenue`, request, {
+        headers: {
+          Authorization: `Bearer ${currentSession.token}`,
+        },
+      });
+    } else {
+      delete request.venueId;   
+      result = await luckTayaAxios.post(`/api/v1/SabongVenue`, request, {
+        headers: {
+          Authorization: `Bearer ${currentSession.token}`,
+        },
+      });
+    }
+
+    return NextResponse.json({ message: "Successfully Logged In!" });
+  } catch (e) {
+    console.error(e);
+    return NextResponse.json(
+      {
+        error: formatGenericErrorResponse(e),
+      },
+      {
+        status: 500,
+      }
+    );
+  }
+};
+
+export { GET, POST };

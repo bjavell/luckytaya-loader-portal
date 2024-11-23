@@ -79,7 +79,7 @@ const POST = async (req: NextRequest) => {
 
         } else {
 
-            return NextResponse.json({ code: "500", message: "An Error Occurred" })
+            return NextResponse.json({ code: "500", message: "Oops! an error occurred" })
         }
 
 

@@ -54,11 +54,12 @@ const sideBarRoutes = [{
         ico: LoadStation,
         link: '/loading-station/cash-in/player'
     },
-    {
-        module: 'Cash-Out',
-        ico: CashOut,
-        link: '/loading-station/cash-out'
-    }]
+    // {
+    //     module: 'Cash-Out',
+    //     ico: CashOut,
+    //     link: '/loading-station/cash-out'
+    // }
+]
 
 }, {
     module: 'HISTORY',

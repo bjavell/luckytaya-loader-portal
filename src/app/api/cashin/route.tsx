@@ -55,7 +55,7 @@ const POST = async (req: NextRequest) => {
             await otherAccountTransfer(comFee, currentSession.accountNumber, config, ACCOUNT_TYPE.COMMISSION)
 
         } else {
-            throw new Error('Oops an error occurred')
+            throw new Error('Oops! an error occurred')
         }
 
         return NextResponse.json({ message: 'Successfully Cashed-In!' })

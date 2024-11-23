@@ -9,6 +9,8 @@ import Button from "@/components/button"
 import Modal from "@/components/modal"
 import FormField from "@/components/formField"
 import UserData from "@/classes/userData"
+import AlertModal from "@/components/alertModal"
+import ConfirmModal from "@/components/confirmModal"
 
 
 
@@ -38,6 +40,10 @@ const Players = () => {
     const [userType, setUserType] = useState([])
     const [userRole, setUserRole] = useState([])
     const [isLoading, setIsLoading] = useState(false)
+
+    const [isShowConfirmModal, setIsShowConfirmModal] = useState(false)
+    const [showAlertModal, setShowAlertModal] = useState(false)
+    const [alertMessage, setAlertMessage] = useState('')
 
 
     const getUserLists = async () => {
@@ -184,41 +190,53 @@ const Players = () => {
     }
 
     const onButtonSubmit = async () => {
-        if (confirm('Proceed with the changes?')) {
-            try {
-                setIsLoading(true)
-                await axios.post('/api/update-user-account', modalData)
-                alert('Account successfully updated!')
-                setModalData({
-                    "accountNumber": 0,
-                    "accountType": 0,
-                    "accountStatus": 0,
-                    "accountBalance": 0,
-                    "username": "",
-                    "firstname": "",
-                    "lastname": "",
-                    "phoneNumber": "",
-                    "email": "",
-                    "facebookAccount": "",
-                    "referralCode": 0,
-                    "id": 0,
-                    "suspended": 0,
-                    "roles": []
-                })
-                setIsShowModal(false)
-                getUserLists()
-            } catch (e) {
-                alert('An Error occured please try again')
-            } finally {
-                setIsLoading(false)
-            }
+        try {
+            setIsShowConfirmModal(false)
+            setIsLoading(true)
+            await axios.post('/api/update-user-account', modalData)
+            setModalData({
+                "accountNumber": 0,
+                "accountType": 0,
+                "accountStatus": 0,
+                "accountBalance": 0,
+                "username": "",
+                "firstname": "",
+                "lastname": "",
+                "phoneNumber": "",
+                "email": "",
+                "facebookAccount": "",
+                "referralCode": 0,
+                "id": 0,
+                "suspended": 0,
+                "roles": []
+            })
+            setShowAlertModal(true)
+            setAlertMessage('Account successfully updated!')
+            setIsShowModal(false)
+            getUserLists()
+        } catch (e) {
+            setShowAlertModal(true)
+            setAlertMessage('An Error occured please try again')
+        } finally {
+            setIsLoading(false)
         }
+    }
+
+    const onToggleConfirmModal = () => {
+        setIsShowConfirmModal(!isShowConfirmModal)
+    }
+
+    const onCloseAlertModal = () => {
+        setShowAlertModal(false)
+        setAlertMessage('')
     }
 
 
     return (
         <div className="flex flex-col gap-4 w-full">
-            <Modal isOpen={isShowModal} onClose={closeModal}>
+            <ConfirmModal isOpen={isShowConfirmModal} onClose={onToggleConfirmModal} buttonAction={onButtonSubmit} />
+            <AlertModal isOpen={showAlertModal} message={alertMessage} onClose={onCloseAlertModal} />
+            <Modal isOpen={isShowModal} onClose={closeModal} size="medium">
                 <div className="flex flex-col items-end gap-4">
                     <div className="flex w-full gap-4">
                         <div className="flex flex-col gap-4 p-4 w-full">
@@ -278,7 +296,7 @@ const Players = () => {
                     </div>
                     <div className="flex gap-4">
                         <Button
-                            onClick={onButtonSubmit}
+                            onClick={onToggleConfirmModal}
                             isLoading={isLoading}
                             type={"button"}
                             loadingText="Loading..." >

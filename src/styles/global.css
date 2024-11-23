@@ -42,7 +42,6 @@ input[type="number"]::-webkit-inner-spin-button {
   position: relative;
   padding: 20px;
   border-radius: 8px;
-  width: 50%;
   max-width: 90%;
 }
 

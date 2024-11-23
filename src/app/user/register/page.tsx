@@ -6,6 +6,8 @@ import { PATTERNS } from "@/classes/constants"
 import Button from "@/components/button"
 import FormField from "@/components/formField"
 import Form from "@/components/form"
+import AlertModal from "@/components/alertModal"
+import ConfirmModal from "@/components/confirmModal"
 
 
 interface UserRegistrationProps {
@@ -37,6 +39,10 @@ const Players = () => {
         roles: []
     })
     const [index, setIndex] = useState(0)
+
+    const [isShowConfirmModal, setIsShowConfirmModal] = useState(false)
+    const [showAlertModal, setShowAlertModal] = useState(false)
+    const [alertMessage, setAlertMessage] = useState('')
 
     const getUserType = async () => {
         await axios.get('/api/get-account-type')
@@ -118,33 +124,46 @@ const Players = () => {
     }
 
     const onFormSubmit = async () => {
-        if (confirm('Do you wish to proceed on user creation?')) {
-            try {
-                setIsLoading(true)
-                await axios.post('/api/register', userRegistration)
-                alert('User succesffully created')
-                setUserRegistration({
-                    username: '',
-                    firstname: '',
-                    lastname: '',
-                    phoneNumber: '',
-                    email: '',
-                    facebookAccount: '',
-                    referralCode: 0,
-                    accountType: 8,
-                    roles: []
-                })
-                setIndex(index + 1)
-            } catch (e: any) {
-                alert('Oops! something went wrong')
-            } finally {
-                setIsLoading(false)
-            }
+        try {
+            setIsShowConfirmModal(false)
+            setIsLoading(true)
+            const response = await axios.post('/api/register', userRegistration)
+            setUserRegistration({
+                username: '',
+                firstname: '',
+                lastname: '',
+                phoneNumber: '',
+                email: '',
+                facebookAccount: '',
+                referralCode: 0,
+                accountType: 8,
+                roles: []
+            })
+            setIndex(index + 1)
+            setShowAlertModal(true)
+            setAlertMessage(response.data.message)
+        } catch (e: any) {
+            setShowAlertModal(true)
+            setAlertMessage('Oops! something went wrong')
+        } finally {
+            setIsLoading(false)
         }
+    }
+
+
+    const onToggleConfirmModal = () => {
+        setIsShowConfirmModal(!isShowConfirmModal)
+    }
+
+    const onCloseAlertModal = () => {
+        setShowAlertModal(false)
+        setAlertMessage('')
     }
 
     return (
         <div className="flex w-full">
+            <ConfirmModal isOpen={isShowConfirmModal} onClose={onToggleConfirmModal} buttonAction={onFormSubmit} />
+            <AlertModal isOpen={showAlertModal} message={alertMessage} onClose={onCloseAlertModal} />
             <Form className="flex flex-col gap-4 p-4 w-full bg-gray13 h-2/3 rounded-xl" key={`form-${index}`}>
                 <div className="flex w-full gap-4">
                     <div className="flex flex-col gap-4 w-full">
@@ -189,7 +208,7 @@ const Players = () => {
                         </div>
                     </div>
                 </div>
-                <Button isLoading={isLoading} loadingText="Loading..." onClick={() => onFormSubmit()} type={"button"}>Submit</Button>
+                <Button isLoading={isLoading} loadingText="Loading..." onClick={onToggleConfirmModal} type={"button"}>Submit</Button>
             </Form>
         </div>
 

@@ -25,6 +25,8 @@ const CommonLayout: React.FC<{ children: ReactNode, slug: string }> = ({ childre
                     </main>
                 </div>
                 <div id="modal-root"></div>
+                <div id="alert-modal-root"></div>
+                <div id="confirm-modal-root"></div>
             </div>
         </ApiProvider>
     )

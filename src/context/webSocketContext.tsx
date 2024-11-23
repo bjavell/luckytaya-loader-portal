@@ -1,9 +1,16 @@
-'use client';
+"use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
 
-import { usePathname } from 'next/navigation';
-import { getCurrentSession } from './auth';
+import { usePathname } from "next/navigation";
+import { getCurrentSession } from "./auth";
+import { useApiData } from "@/app/context/apiContext";
 
 // Define types for context values
 interface WebSocketContextType {
@@ -12,12 +19,16 @@ interface WebSocketContextType {
 }
 
 // Create context with default values
-const WebSocketContext = createContext<WebSocketContextType | undefined>(undefined);
+const WebSocketContext = createContext<WebSocketContextType | undefined>(
+  undefined
+);
 
 export const useWebSocketContext = (): WebSocketContextType => {
   const context = useContext(WebSocketContext);
   if (!context) {
-    throw new Error('useWebSocketContext must be used within a WebSocketProvider');
+    throw new Error(
+      "useWebSocketContext must be used within a WebSocketProvider"
+    );
   }
   return context;
 };
@@ -25,50 +36,60 @@ export const useWebSocketContext = (): WebSocketContextType => {
 // Type for WebSocketProvider props
 interface WebSocketProviderProps {
   children: ReactNode;
+  token : string
 }
 
-export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }) => {
-  const pathname = usePathname();
+export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
+  children,token
+}) => {
+  // const pathname = usePathname();
 
   // Type the state variables
   const [messages, setMessages] = useState<string | null>(null);
   const [socket, setSocket] = useState<WebSocket | null>(null);
-  const [sessionCookie, setSessionCookie] = useState("");
+  // const [sessionCookie, setSessionCookie] = useState<any>();
 
-  const getSess = async () => {
-    const session = await getCurrentSession();
-    if (session !== sessionCookie) {
-      setSessionCookie(session.token);
-    }
-  };
+  // const getSess = async () => {
+  //   const session = await getCurrentSession();
+  //   console.log(session,'----session')
+  //   try {
+  //     if (session)
+  //       if (session !== sessionCookie) {
+  //         setSessionCookie(session);
+  //       }
+  //   } catch (error) {
+  //     setTimeout(() => {
+  //       getSess();
+  //     }, 1000);
+  //   }
+  // };
 
-  useEffect(() => {
-    console.log(pathname)
-    getSess();
-  }, [pathname]);
+  // useEffect(() => {
+  //   getSess();
+  // }, []);
 
   useEffect(() => {
     const setup = async () => {
-      if (sessionCookie) {
-        const serverUrl = `${process.env.NEXT_PUBLIC_WEB_SOCKET_URL}${sessionCookie}`;
+      if (token) {
+        const serverUrl = `${process.env.NEXT_PUBLIC_WEB_SOCKET_URL}${token}`;
         const socket = new WebSocket(serverUrl);
         socket.onmessage = (event) => {
           setMessages(event.data);
         };
 
         socket.onopen = () => {
-          console.log('WebSocket connected');
+          console.log("WebSocket connected");
         };
 
         socket.onerror = (error) => {
-          console.error('WebSocket error', error);
+          console.error("WebSocket error", error);
         };
 
         setSocket(socket);
       }
     };
 
-    if (sessionCookie) {
+    if (token) {
       if (socket) {
         try {
           socket.close();
@@ -84,7 +105,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
         socket.close();
       }
     };
-  }, [sessionCookie]);
+  }, [token]);
 
   return (
     <WebSocketContext.Provider value={{ messages, socket }}>

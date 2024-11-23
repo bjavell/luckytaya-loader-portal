@@ -41,7 +41,6 @@ const middleware = async (request: NextRequest) => {
   if (pathname.startsWith("/players")) {
     isValidRoutes = false;
   }
-  console.log(currentSession, "hello");
   if (pathname.startsWith("/dashboard")) {
     if (currentSession.roles.includes("eventmgr")) {
       return NextResponse.redirect(new URL("/event", request.nextUrl));

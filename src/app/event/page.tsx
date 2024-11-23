@@ -100,7 +100,6 @@ const Event = () => {
     setIsLoading(true);
     setErrorMessage("");
     e.preventDefault();
-    console.log(e.target.venueId.value, "hello");
 
     const form = e.target;
 

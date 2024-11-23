@@ -11,7 +11,6 @@ const POST = async (req: NextRequest) => {
 
     request.fightStatusCode = parseInt(request.fightStatusCode);
     request.fightId = parseInt(request.fightId);
-    console.log(request, "--------");
     const response = await luckTayaAxios.put(
       `/api/v1/SabongFight/UpdateStatus`,
       request,

@@ -26,7 +26,7 @@ const Fight = () => {
   const { socket, messages } = useWebSocketContext();
   const [events, setEvents] = useState<SabongEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isLoadingWithScreen, setIsLoadingWithScreen] = useState(false)
+  const [isLoadingWithScreen, setIsLoadingWithScreen] = useState(false);
   const [statuses, setStatuses] = useState([]);
   const [fight, setFight] = useState<any>(null);
   const [fights, setFights] = useState<any>([]);
@@ -50,10 +50,9 @@ const Fight = () => {
     try {
       if (messages != null && gameData) {
         const parseMessage = JSON.parse(messages);
-        const betDetail = JSON.parse(parseMessage.jsonPacket);
-        console.log(gameData,messages)
         switch (parseMessage.PacketType) {
           case 10:
+            const betDetail = JSON.parse(parseMessage.jsonPacket);
             if (
               gameData.fight.fightId == parseMessage.FightId &&
               gameData.event.eventId == parseMessage.EventId
@@ -61,7 +60,7 @@ const Fight = () => {
               setBetDetails(betDetail);
             }
             break;
-            // last call
+          // last call
           case 22:
             break;
           // result
@@ -119,7 +118,7 @@ const Fight = () => {
       })
       .then((response) => {
         const data = response.data;
-  
+
         setFights(data);
         if (data.length > 0) setFight(getFightWithStatus(data[0].fight));
       })
@@ -147,7 +146,7 @@ const Fight = () => {
   }, [selectedEvent, statuses]);
 
   const setupGame = async () => {
-    setIsLoading (true)
+    setIsLoading(true);
     const location = await axios.get("/api/event/locationById", {
       params: {
         venueId: selectedEvent.venueId,
@@ -178,9 +177,8 @@ const Fight = () => {
   };
 
   const refreshFight = async () => {
-    
-    if(!gameData)return
-    setIsLoadingWithScreen (true)
+    if (!gameData) return;
+    setIsLoadingWithScreen(true);
     const bet = await axios
       .get("/api/event/fight/byId", {
         params: {
@@ -191,19 +189,18 @@ const Fight = () => {
         const data = response.data;
         setGameData(data);
         if (data.length > 0) setFight(getFightWithStatus(data[0].fight));
-        setIsLoadingWithScreen (false)
+        setIsLoadingWithScreen(false);
       })
       .catch(() => {});
-      
   };
 
-  const getFightWithStatus = (fght: any)=>{
+  const getFightWithStatus = (fght: any) => {
     const stats = getEventStatus(fght.fightStatusCode);
     return {
       ...fght,
       fightStatusName: stats ? stats.name : "",
-    }
-  }
+    };
+  };
 
   useEffect(() => {
     if (selectedEvent && fight) setupGame();
@@ -220,8 +217,7 @@ const Fight = () => {
   };
 
   const onConfirm = async () => {
-    
-    setIsLoadingWithScreen(true)
+    setIsLoadingWithScreen(true);
     const request = {
       fightId: gameData.fight.fightId,
       winSide: winningSide,
@@ -253,7 +249,7 @@ const Fight = () => {
       .finally(() => {
         onCancel();
         refreshFight();
-        setIsLoadingWithScreen(false)
+        setIsLoadingWithScreen(false);
       });
   };
   const onCancel = () => {
@@ -313,21 +309,19 @@ const Fight = () => {
   };
 
   const lastCall = () => {
-    
-    setIsLoadingWithScreen (true)
+    setIsLoadingWithScreen(true);
     axios
       .post("/api/event/game/lastCall", {
         fightId: fight?.fightId,
       })
       .then((response) => {
         alert("Last Call!!");
-        setIsLoadingWithScreen(false)
+        setIsLoadingWithScreen(false);
       });
   };
 
   const setFightStatus = async (status: any) => {
-    
-    setIsLoadingWithScreen (true)
+    setIsLoadingWithScreen(true);
     const request = {
       fightId: gameData.fight.fightId,
       fightStatusCode: status,
@@ -528,7 +522,9 @@ const Fight = () => {
         onConfirm={onConfirm}
         message="Are you sure you want to set Result?"
       ></ConfirmationModal>
-      {isLoadingWithScreen && <LoadingSpinner size="w-20 h-20" color="border-blue" />}
+      {isLoadingWithScreen && (
+        <LoadingSpinner size="w-20 h-20" color="border-blue" />
+      )}
       {!isLoading && gameData && (
         <div className="grid grid-cols-4 grid-rows-1 gap-4">
           <div className="col-span-3">

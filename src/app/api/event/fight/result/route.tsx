@@ -11,7 +11,6 @@ const POST = async (req: NextRequest) => {
 
     request.winSide = parseInt(request.winSide);
     request.fightId = parseInt(request.fightId);
-    console.log(request, "--------");
     const response = await luckTayaAxios.post(
       `/api/v1/SabongFightResultEntry`,
       request,

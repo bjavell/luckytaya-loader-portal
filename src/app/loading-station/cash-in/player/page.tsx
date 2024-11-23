@@ -198,6 +198,7 @@ const PlayerCashin = () => {
                 isOpen={isAlertModalOpen}
                 onConfirm={() => setIsAlertModalOpen(false)}
                 isOkOnly={true}
+                onCancel={() => {}}
                 message={alertMessage}
             ></ConfirmationModal>
             <ConfirmationModal

@@ -71,41 +71,44 @@ const SelfCashin = () => {
 
     const onHandleSubmit = async (e: FormEvent | MouseEvent) => {
         e.preventDefault()
-        setIsLoading(true)
-        const date = new Date()
-        const expireDate = new Date()
-        expireDate.setHours(expireDate.getHours() + 2)
+        if (confirm('Proceed with the transaction?')) {
+            setIsLoading(true)
+            const date = new Date()
+            const expireDate = new Date()
+            expireDate.setHours(expireDate.getHours() + 2)
 
-        const data = {
-            trxAmount: removeDecimalPlaces(amount),
-            timeStart: formatDate(date.toISOString()),
-            timeExpire: formatDate(expireDate.toISOString()),
-            accountNumber: loadTo,
-            convenienceFee: convFee,
-            commissionFee: comFee,
-            comment: comment,
-            type: TRAN_TYPE.CASHIN
+            const data = {
+                trxAmount: removeDecimalPlaces(amount),
+                timeStart: formatDate(date.toISOString()),
+                timeExpire: formatDate(expireDate.toISOString()),
+                accountNumber: loadTo,
+                convenienceFee: convFee,
+                commissionFee: comFee,
+                comment: comment,
+                type: TRAN_TYPE.CASHIN
+
+            }
+
+            await axios.post('/api/create-qr', data)
+                .then((response) => {
+                    setQrData(response.data.codeUrl)
+                    setShowQr(true)
+                })
+                .catch((e) => {
+                    const errorMessages = e.response.data.error
+                    if (errorMessages) {
+                        if (errorMessages['Unauthorized']) {
+                            router.push('/login')
+                        }
+                    }
+                    setShowQr(false)
+                    setQrData('')
+                })
+                .finally(() => {
+                    setIsLoading(false)
+                })
 
         }
-
-        await axios.post('/api/create-qr', data)
-            .then((response) => {
-                setQrData(response.data.codeUrl)
-                setShowQr(true)
-            })
-            .catch((e) => {
-                const errorMessages = e.response.data.error
-                if (errorMessages) {
-                    if (errorMessages['Unauthorized']) {
-                        router.push('/login')
-                    }
-                }
-                setShowQr(false)
-                setQrData('')
-            })
-            .finally(() => {
-                setIsLoading(false)
-            })
     }
 
     const onAmountChange = (amount: string) => {

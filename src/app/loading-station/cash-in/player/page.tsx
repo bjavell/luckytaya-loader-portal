@@ -81,25 +81,28 @@ const PlayerCashin = () => {
     const onHandleSubmit = async (e: FormEvent | MouseEvent) => {
         e.preventDefault()
         setIsLoading(true)
-
-        try {
-            const response = await axios.post('/api/cashin', {
-                amount: parseFloat(amount),
-                convFee,
-                comFee,
-                toAccountNumber: loadTo
-            })
-
-            alert(response.data.message)
-            console.log(e)
-            setReload(true)
+        if (confirm('Proceed with the transaction?')) {
 
 
+            try {
+                const response = await axios.post('/api/cashin', {
+                    amount: parseFloat(amount),
+                    convFee,
+                    comFee,
+                    toAccountNumber: loadTo
+                })
 
-        } catch (e) {
+                alert(response.data.message)
+                console.log(e)
+                setReload(true)
 
-        } finally {
-            setIsLoading(false)
+
+
+            } catch (e) {
+
+            } finally {
+                setIsLoading(false)
+            }
         }
     }
 

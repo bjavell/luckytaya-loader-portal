@@ -158,6 +158,7 @@ const SelfCashin = () => {
             <ConfirmationModal
                 isOpen={isAlertModalOpen}
                 onConfirm={() => setIsAlertModalOpen(false)}
+                onCancel={()=> {}}
                 isOkOnly={true}
                 message={alertMessage}
             ></ConfirmationModal>

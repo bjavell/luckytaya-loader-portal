@@ -10,6 +10,8 @@ import MeronWalaWin from "@/components/meronWalaWin";
 import { useWebSocketContext } from "@/context/webSocketContext";
 import ConfirmationModal from "@/components/confirmationModal";
 import LoadingSpinner from "@/components/loadingSpinner";
+import Form from "@/components/form";
+import FormField from "@/components/formField";
 
 type SabongEvent = {
   entryDateTime: string;
@@ -27,6 +29,8 @@ const Fight = () => {
   const [events, setEvents] = useState<SabongEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingWithScreen, setIsLoadingWithScreen] = useState(false);
+  const [fightStatusCode, setFightStatusCode] = useState(-1);
+  const [isFightStatusModalOpen, setIsFightStatusModalOpen] = useState(false);
   const [statuses, setStatuses] = useState([]);
   const [fight, setFight] = useState<any>(null);
   const [fights, setFights] = useState<any>([]);
@@ -36,6 +40,7 @@ const Fight = () => {
   const [gameData, setGameData] = useState<any>({});
   const [winningSide, setWinningSide] = useState(-1);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [isModalSendMessageOpen, setIsModalSendMessageOpen] = useState(false);
   const [betDetails, setBetDetails] = useState({
     fId: 0,
     s0c: 0,
@@ -203,7 +208,9 @@ const Fight = () => {
         if (data.length > 0) setFight(getFightWithStatus(data[0].fight));
         setIsLoadingWithScreen(false);
       })
-      .catch(() => {  setIsLoadingWithScreen(false);});
+      .catch(() => {
+        setIsLoadingWithScreen(false);
+      });
   };
 
   const getFightWithStatus = (fght: any) => {
@@ -222,6 +229,59 @@ const Fight = () => {
   const closeModal = () => {
     setIsModalOpen(false);
   };
+
+  const onHandleSendMessage = async (e: any) => {
+    // setIsLoading(true);
+    setErrorMessage("");
+    e.preventDefault();
+
+    const form = e.target;
+
+    if (!form.message.value) {
+      setErrorMessage("Please Enter Message");
+      return;
+    }
+
+    if (!form.duration.value) {
+      setErrorMessage("Please Enter Duration");
+      return;
+    }
+
+    const request = {
+      message: form.message.value,
+      duration: form.duration.value,
+    };
+    await axios
+      .post("/api/event/sendMessage", request)
+      .then(() => {
+        setErrorMessage("");
+        setIsModalSendMessageOpen(false);
+        // alert("Successfully Saved");
+      })
+      .catch((e) => {
+        const errorMessages = e.response.data.error;
+        if (errorMessages) {
+          if (errorMessages["Not found"]) {
+            setErrorMessage(errorMessages["Not found"][0]);
+          } else if (errorMessages["Bad request"]) {
+            setErrorMessage(errorMessages["Bad request"][0]);
+          } else if (errorMessages["Unexpexted Error"]) {
+            setErrorMessage(errorMessages["Unexpexted Error"][0]);
+          } else {
+            setErrorMessage("Oops! something went wrong");
+          }
+        } else {
+          setErrorMessage("Oops! something went wrong");
+        }
+      })
+      .finally(() => {
+        // setIsLoading(false);
+      });
+  };
+
+  const closeSendModal = () => {
+    setIsModalSendMessageOpen(false);
+  };
   const setWinSide = (side: any) => {
     setWinningSide(side);
     setIsModalOpen(false);
@@ -239,7 +299,7 @@ const Fight = () => {
       .post("/api/event/fight/result", request)
       .then(() => {
         setErrorMessage("");
-        alert("Successfully Saved");
+        // alert("Successfully Saved");
         // refreshFight()
       })
       .catch((e) => {
@@ -267,6 +327,11 @@ const Fight = () => {
   const onCancel = () => {
     setWinningSide(-1);
     setIsConfirmModalOpen(false);
+  };
+
+  const onCancelSetFight = () => {
+    setFightStatusCode(-1);
+    setIsFightStatusModalOpen(false);
   };
   const handleEventChange = (e: any) => {
     setIsLoading(true);
@@ -327,22 +392,28 @@ const Fight = () => {
         fightId: fight?.fightId,
       })
       .then((response) => {
-        alert("Last Call!!");
+        // alert("Last Call!!");
         setIsLoadingWithScreen(false);
       });
   };
 
   const setFightStatus = async (status: any) => {
+    setFightStatusCode(status);
+    setIsFightStatusModalOpen(true);
+  };
+
+  const onConfirmSetFightStatus = async () => {
     setIsLoadingWithScreen(true);
     const request = {
       fightId: gameData.fight.fightId,
-      fightStatusCode: status,
+      fightStatusCode: fightStatusCode,
     };
     await axios
       .post("/api/event/fight/setStatus", request)
       .then(() => {
-        alert("Successfully Saved");
+        // alert("Successfully Saved");
         refreshFight();
+        setIsFightStatusModalOpen(false);
       })
       .catch((e) => {
         const errorMessages = e.response.data.error;
@@ -382,6 +453,21 @@ const Fight = () => {
             Open Betting
           </Button>
         );
+      else if (
+        gameData.event.eventStatusCode == 11 &&
+        gameData.fight.fightStatusCode == 11
+      ) {
+        return (
+          <Button
+            onClick={() => setFightStatus(21)}
+            isLoading={isLoading}
+            loadingText="Loading..."
+            type={"button"}
+          >
+            Cancel Fight
+          </Button>
+        );
+      }
     }
 
     if (isDisabled)
@@ -535,12 +621,56 @@ const Fight = () => {
         </div>
       </Modal>
 
+      <Modal isOpen={isModalSendMessageOpen} onClose={closeSendModal}>
+        <div className="w-full p-4">
+          {errorMessage !== "" ? (
+            <div className="flex gap-2 text-white bg-red p-4 rounded-xlg">
+              {errorMessage}
+            </div>
+          ) : (
+            ""
+          )}
+          <Form onSubmit={onHandleSendMessage}>
+            <div className="flex flex-col gap-5">
+              <FormField
+                name="message"
+                label="Message"
+                placeholder="Enter Message"
+                type="textarea"
+              />
+              <FormField
+                name="duration"
+                label="Duration (in seconds)"
+                placeholder="Enter Duration"
+                type="number"
+              />
+              <Button
+                onClick={() => {}}
+                isLoading={isLoading}
+                loadingText="Loading..."
+                type={"submit"}
+              >
+                Send
+              </Button>
+            </div>
+          </Form>{" "}
+        </div>
+      </Modal>
+
       <ConfirmationModal
         isOpen={isConfirmModalOpen}
         onCancel={onCancel}
         onConfirm={onConfirm}
         message="Are you sure you want to set Result?"
       ></ConfirmationModal>
+
+      <ConfirmationModal
+        isOpen={isFightStatusModalOpen}
+        onCancel={onCancelSetFight}
+        onConfirm={onConfirmSetFightStatus}
+        message="Are you sure you want proceed with this action?"
+      ></ConfirmationModal>
+
       {isLoadingWithScreen && (
         <LoadingSpinner size="w-20 h-20" color="border-blue" />
       )}
@@ -603,7 +733,7 @@ const Fight = () => {
 
             <br />
           </div>
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-5">
             <div className="bg-gray13 rounded-xl w-full p-5 capitalize">
               <MeronWala type={1} data={betDetails} />
             </div>
@@ -611,6 +741,15 @@ const Fight = () => {
             <div className="bg-gray13 rounded-xl w-full p-5 capitalize">
               <MeronWala type={0} data={betDetails} />
             </div>
+            <Button
+              onClick={() => {
+                setIsModalSendMessageOpen(true);
+              }}
+              loadingText="Loading..."
+              type={"button"}
+            >
+              Send Message
+            </Button>
           </div>
         </div>
       )}

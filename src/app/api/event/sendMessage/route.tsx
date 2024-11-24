@@ -1,38 +1,23 @@
-"use server";
+import { getCurrentSession } from "@/context/auth";
 import { NextRequest, NextResponse } from "next/server";
 import { luckTayaAxios } from "@/util/axiosUtil";
 import { formatGenericErrorResponse } from "@/util/commonResponse";
-import { getCurrentSession } from "@/context/auth";
 
 const POST = async (req: NextRequest) => {
+  const request = await req.json();
+
   try {
-    const request = await req.json();
     const currentSession = await getCurrentSession();
 
-    request.fightStatusCode = parseInt(request.fightStatusCode);
-    request.fightId = parseInt(request.fightId);
-    const response = await luckTayaAxios.put(
-      `/api/v1/SabongFight/UpdateStatus`,
-      request,
+    const params = `?message=${encodeURIComponent(request.message)}&duration=${request.duration}`
+    await luckTayaAxios.get(
+      `/api/v1/WsMessaging/BroadcastGlobalCrawlerMessage${params}`,
       {
         headers: {
           Authorization: `Bearer ${currentSession.token}`,
         },
       }
     );
-    // cancelled event
-    if (request.fightStatusCode == 21) {
-      await luckTayaAxios.get(
-        `/api/v1/SabongRemit/Remit?fightId=${request.fightId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${currentSession.token}`,
-          },
-        }
-      );
-    }
-    const responseData = response.data;
-
     return NextResponse.json({ message: "Successfully Logged In!" });
   } catch (e) {
     console.error(e);

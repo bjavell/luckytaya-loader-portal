@@ -84,7 +84,6 @@ const Tables = <T,>({ headers, items, primaryId, isCentered = false, onItemClick
     const pageNumbers = getPaginationRange()
 
     const populateItem = ((i: number, h: any, item: any) => {
-
         const className = `p-3 font-semibold ${h.customValueClass ? h.customValueClass : ''} ${isCentered ? 'text-center' : ''}`
         let value = item[h.key]
 
@@ -99,7 +98,7 @@ const Tables = <T,>({ headers, items, primaryId, isCentered = false, onItemClick
         if (h.format) {
             showFormatCustom = h.format(value)
         } else if (h.customValue) {
-            showFormatCustom = h.customValue(i)
+            showFormatCustom = h.customValue(item)
         }
 
         return <td key={`row-key-${h.key}-${i}`} className={className}>{showFormatCustom ?? value}</td>
@@ -111,7 +110,7 @@ const Tables = <T,>({ headers, items, primaryId, isCentered = false, onItemClick
                 <thead>
                     <tr>
                         {headers.map(h => (
-                            <th key={`h-${h.key}`} className="bg-green text-[12px] text-black font-semibold p-3">
+                            <th key={`h-${h.key}`} className="bg-green text-[12px] text-black font-semibold p-3" style={{ width: `${100 / headers.length}%` }}>
                                 {h.label}
                             </th>
                         ))}

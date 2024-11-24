@@ -2,10 +2,13 @@ import { NextPage } from "next"
 import balanceSvg from '@/assets/images/Balance.svg'
 import Image from "next/image"
 import { formatMoney } from "@/util/textUtil"
+import { ReactNode } from "react"
 
-const BalanceBar: NextPage<{ title: string, balance: string }> = (props) => {
 
-    const { title, balance } = props
+
+const BalanceBar: NextPage<{ rigthElement: ReactNode, balance: string }> = (props) => {
+
+    const { rigthElement: title, balance } = props
     return (
         <div className="flex justify-between bg-[#1F1F1F] rounded-xl p-3 text-[#C3C3C3] text-base items-center ">
             <div className="flex">{title}</div>

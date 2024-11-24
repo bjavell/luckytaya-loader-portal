@@ -207,7 +207,7 @@ const PlayerCashin = () => {
                 onConfirm={onConfirm}
                 message="Proceed with the transaction?"
             ></ConfirmationModal>
-            <BalanceBar title="Player Cash-In" balance={balance} />
+            <BalanceBar rigthElement="Player Cash-In" balance={balance} />
             <div className="flex flex-row gap-4">
                 <div className="flex w-1/2 bg-[#005BAA] rounded-xl p-4">
                     <Image src={gcashLoad} alt="gcash load background" className="m-auto" />

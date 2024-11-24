@@ -79,7 +79,7 @@ const CashOut = () => {
 
     return (
         <div className="flex flex-col w-full gap-4">
-            <BalanceBar title="Cash-Out" balance={balance} />
+            <BalanceBar rigthElement="Cash-Out" balance={balance} />
             <div className="flex flex-row gap-4">
                 <div className="flex w-2/3 bg-cursedBlack rounded-xl">
                     {showQr ? <QrCode data={qrData} className='m-auto' /> : ''}

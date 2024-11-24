@@ -22,7 +22,8 @@ const config: Config = {
         neutralGray: '#C3C3C3',
         lightGreen: '#73984F',
         gray13: '#212121',
-        green: '#608C4D'
+        green: '#608C4D',
+        codGray: '#090909'
       },
       fontFamily: {
         sans: ['Open Sans', 'sans-serif'],

@@ -86,6 +86,11 @@ const sideBarEventRoutes = [{
         module: 'Add Fight',
         ico: Dashboard,
         link: '/event/fights'
+    },
+    {
+        module: 'Transactions',
+        ico: Dashboard,
+        link: '/event/transaction_history'
     }]
 
 },

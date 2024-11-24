@@ -22,7 +22,7 @@ interface FormFieldProps {
 const FormField: NextPage<FormFieldProps> = (props) => {
     const [isVisited, setIsVisited] = useState(false)
 
-    const {label, name, type, customLabelClass, value, errorMessage, readonly, onChangeTextArea, onBlur, ...inputProps } = props
+    const { label, name, type, customLabelClass, value, errorMessage, readonly, onChangeTextArea, onBlur, ...inputProps } = props
 
     let defaultClass = 'flex flex-col flex-1 gap-4'
     const labelClassName = `text-white font-sans font-light text-nowrap ${customLabelClass ?? ''}`
@@ -54,7 +54,7 @@ const FormField: NextPage<FormFieldProps> = (props) => {
         return (
             <div className="flex flex-col flex-1 gap-4">
                 <label htmlFor={name} className={labelClassName}>{label}</label>
-                <textarea  cols={45} rows={4} value={value} id={name} name={name} onChange={onChangeTextArea} className="rounded-xlg py-4 px-4 bg-semiBlack font-sans font-light text-[13px] tacking-[5%] text-white invalid:border-red-500" style={{ resize: 'none' }} />
+                <textarea cols={45} rows={4} value={value} id={name} name={name} onChange={onChangeTextArea} className="rounded-xlg py-4 px-4 bg-semiBlack font-sans font-light text-[13px] tacking-[5%] text-white invalid:border-red-500" style={{ resize: 'none' }} />
             </div>
         )
     }
@@ -71,7 +71,7 @@ const FormField: NextPage<FormFieldProps> = (props) => {
 
     return (
         <div className={defaultClass}>
-            <label htmlFor={name} className={labelClassName}>{label}</label>
+            {label ? <label htmlFor={name} className={labelClassName}>{label}</label> : null}
             {formField}
             <span className={`text-sm max-w-[300px] text-[#E74C3C] hidden peer-[.visited:invalid]:block transition-all`}>{props.required && !value ? "Field is required" : errorMessage}</span>
 

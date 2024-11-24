@@ -42,7 +42,11 @@ const middleware = async (request: NextRequest) => {
     isValidRoutes = false;
   }
   if (pathname.startsWith("/dashboard")) {
-    if (currentSession.roles.includes("eventmgr")) {
+    if (currentSession.roles.includes('admin') && currentSession.accountType === 9) {
+      return NextResponse.redirect(new URL("/admin/dashboard", request.nextUrl));
+    } else if (currentSession.roles.includes('acctmgr') && currentSession.accountType === 2) {
+      return NextResponse.redirect(new URL("/master/dashboard", request.nextUrl));
+    } else if (currentSession.roles.includes("eventmgr")) {
       return NextResponse.redirect(new URL("/event", request.nextUrl));
     }
   }

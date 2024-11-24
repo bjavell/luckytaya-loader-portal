@@ -4,9 +4,13 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 6001",
+    "dev:agent": "dotenv -e .env.agent next dev",
+    "dev:admin": "dotenv -e .env.admin next dev",
     "build": "next build",
     "start": "next start -p 6001",
-    "lint": "next lint"
+    "lint": "next lint",
+    "build:agent": "dotenv -e .env.agent next build",
+    "build:admin": "dotenv -e .env.admin next build"
   },
   "dependencies": {
     "axios": "^1.7.7",
@@ -19,6 +23,7 @@
     "mongoose": "^8.8.1",
     "next": "^15.0.2",
     "next-qrcode": "^2.5.1",
+    "nodemailer": "^6.9.16",
     "nookies": "^2.5.2",
     "react": "^18",
     "react-dom": "^18"
@@ -27,8 +32,10 @@
     "@types/crypto-js": "^4.2.2",
     "@types/js-cookie": "^3.0.6",
     "@types/node": "^20",
+    "@types/nodemailer": "^6.4.17",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "dotenv-cli": "^7.4.4",
     "eslint": "^8",
     "eslint-config-next": "14.2.15",
     "postcss": "^8",

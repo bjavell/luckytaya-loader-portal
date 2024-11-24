@@ -1,23 +1,21 @@
 import { getCurrentSession } from "@/context/auth"
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { luckTayaAxios } from "@/util/axiosUtil"
 import { formatGenericErrorResponse } from "@/util/commonResponse"
 
-const GET = async () => {
+const GET = async (req: NextRequest) => {
     try {
         const currentSession = await getCurrentSession()
 
-        const response = await luckTayaAxios.get(`/api/v1/UserAccount/MyAccount`, {
+        const response = await luckTayaAxios.get(`/api/v1/AccountType`, {
             headers: {
                 'Authorization': `Bearer ${currentSession.token}`,
             },
         })
 
-        const responseData = response.data
-        responseData.roles = currentSession.roles
-        return NextResponse.json(responseData)
+        return NextResponse.json(response.data)
     } catch (e) {
-
+        console.error(e)
         return NextResponse.json({
             error: formatGenericErrorResponse(e)
         },

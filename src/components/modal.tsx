@@ -5,18 +5,29 @@ interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   children: React.ReactNode;
+  size?: 'small' | 'medium' | 'large';
 }
 
-const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
+const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, size }) => {
   if (!isOpen) return null; // Don't render the modal if it's not open
+  
+  let modalSize
+
+  if(size === 'small') {
+    modalSize = 'w-1/5'
+  } else if(size === 'medium') {
+    modalSize = 'w-1/2'
+  } else {
+    modalSize = 'w-full'
+  }
 
   return (
     <div
-      className="overflow-auto w-full fixed inset-0 bg-opacity-50 flex justify-center items-center z-50"
+      className="overflow-auto bg-black w-screen fixed inset-0 bg-opacity-50 flex justify-center items-center z-10"
       onClick={onClose} // Close modal when clicking outside of it
     >
       <div
-        className=" bg-cursedBlack  p-6 rounded-lg shadow-lg w-full max-w-lg"
+        className={`bg-cursedBlack  p-6 rounded-lg shadow-lg ${modalSize} max-w-lg`}
         onClick={(e) => e.stopPropagation()} // Prevent modal from closing when clicking inside
       >
         <button

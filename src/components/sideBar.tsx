@@ -2,14 +2,6 @@ import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import logo from '@/assets/images/logo-1.svg'
 import Image from "next/image"
-import Dashboard from '@/assets/images/Dashboard.svg'
-import CashOut from '@/assets/images/CashOut.svg'
-import Game from '@/assets/images/Game.png'
-import Commission from '@/assets/images/Commission.svg'
-import ActivePlayer from '@/assets/images/ActivePlayer.svg'
-import DeactPlayer from '@/assets/images/DeactPlayer.svg'
-import LoadStation from '@/assets/images/LoadStation.svg'
-import Transfer from '@/assets/images/Transfer.svg'
 import Logout from '@/assets/images/Logout.svg'
 import { SetStateAction, useEffect, useState } from "react"
 import axios from "axios"
@@ -17,6 +9,7 @@ import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.share
 import { getCurrentSession } from "@/context/auth"
 import UserAvatar from '@/assets/images/UserAvatar.png'
 import { useApiData } from "@/app/context/apiContext"
+import { sideBarEventRoutes, sideBarAgentRoutes, sideBarMasterRoutes, sideBarAdminRoutes } from "@/classes/routes"
 
 interface SideBarRoutesProps {
     module?: string,
@@ -24,87 +17,6 @@ interface SideBarRoutesProps {
     ico?: string,
     link?: string
 }
-
-const sideBarRoutes = [{
-    module: 'GENERAL',
-    item: [{
-        module: 'Dashboard',
-        ico: Dashboard,
-        link: '/dashboard'
-    }]
-
-},
-//  {
-//     module: 'PLAYERS',
-//     item: [{
-//         module: 'Players',
-//         ico: ActivePlayer,
-//         link: '/players'
-//     }]
-
-// },
-{
-    module: 'LOADING STATION',
-    item: [{
-        module: 'Self Cash-In',
-        ico: LoadStation,
-        link: '/loading-station/cash-in/self'
-    }, {
-        module: 'Player Cash-In',
-        ico: LoadStation,
-        link: '/loading-station/cash-in/player'
-    },
-    // {
-    //     module: 'Cash-Out',
-    //     ico: CashOut,
-    //     link: '/loading-station/cash-out'
-    // }
-]
-
-}, {
-    module: 'HISTORY',
-    item: [{
-        module: 'Transfer',
-        ico: Transfer,
-        link: '/history/transfer'
-    }
-        // , {
-        //     module: 'Commission',
-        //     ico: Commission,
-        //     link: '/history/commission'
-        // }
-    ]
-
-}]
-
-
-
-const sideBarEventRoutes = [{
-    module: 'GENERAL',
-    item: [{
-        module: 'Gaming Control',
-        ico: Game,
-        link: '/event/game'
-    },
-    {
-        module: 'Add Venue',
-        ico: Dashboard,
-        link: '/event/venue'
-    },
-    {
-        module: 'Add Event',
-        ico: Dashboard,
-        link: '/event'
-    },
-    {
-        module: 'Add Fight',
-        ico: Dashboard,
-        link: '/event/fights'
-    }]
-
-},
-]
-
 
 const populateRoutes = (routes: SideBarRoutesProps, currentRoute: string) => {
     return (
@@ -164,9 +76,13 @@ const SideBar = () => {
     useEffect(() => {
         if (data) {
             setName(`${data?.fistname} ${data?.lastname}`)
-            if(data.accountType == 9)
+            if (data.accountType == 9 && data.roles?.includes('admin'))
+                setRoutes(sideBarAdminRoutes)
+            else if (data.accountType == 9 && data.roles?.includes('eventmgr'))
                 setRoutes(sideBarEventRoutes)
-            else setRoutes(sideBarRoutes)
+            else if (data.accountType === 2 && data.roles?.includes('acctmgr'))
+                setRoutes(sideBarMasterRoutes)
+            else if (data.accountType === 7) setRoutes(sideBarAgentRoutes)
         }
     }, [data])
     // const getUserDetails = async () => {
@@ -191,6 +107,21 @@ const SideBar = () => {
     //     getUserDetails()
     // }, [])
 
+    let sideBarSlug
+
+    if (data) {
+        if (data.accountType === 9 && data.roles?.includes('admin')) {
+            sideBarSlug = 'Admin Portal'
+        } else if (data.accountType === 9 && data.roles?.includes('eventmgr')) {
+            sideBarSlug = 'Event Manager'
+        } else if (data.accountType === 2 && data.roles?.includes('acctmgr')) {
+            sideBarSlug = 'Master Agent Portal'
+        } else if (data.accountType === 7) {
+            sideBarSlug = 'Agent Portal'
+        }
+    }
+
+    console.log(data)
 
 
     return (
@@ -200,10 +131,10 @@ const SideBar = () => {
                 <ul className="flex flex-col w-full">
                     <li className="flex bg-cursedBlack h-11 mb-4">
                         <div className="font-sans m-auto">
-                            {data && data.accountType == 9 ? "Event Manager" : "Agent Portal"}
+                            {sideBarSlug}
                         </div>
                     </li>
-                    {routes && routes.map((__routes : any) => populateRoutes(__routes, currentRoute))}
+                    {routes?.map((__routes: any) => populateRoutes(__routes, currentRoute))}
                     <li className="px-4 flex flex-col" >
                         <button onClick={() => onHandleLogout(router, setIsLoading)} className="p-4 text-red hover:bg-cursedBlack hover:rounded-xlg hover:text-[#E7DE54] flex gap-2" >
                             <Image src={Logout} alt="" className={`h-4 w-auto my-auto`} /> Logout</button>

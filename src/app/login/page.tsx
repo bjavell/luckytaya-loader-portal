@@ -21,7 +21,7 @@ const Login = () => {
 
         await axios.post('/api/signin', { username: userId, password: encrypt(password) })
             .then(() => {
-                router.push('/dashboard')
+                router.push('/')
             })
             .catch(e => {
                 const errorMessages = e.response.data.error

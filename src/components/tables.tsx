@@ -6,7 +6,8 @@ interface HeadersProp<T> {
     customValueClass?: string,
     format?: (item: any) => string,
     concatKey?: Array<string>,
-    concatSeparator?: string
+    concatSeparator?: string,
+    customValue?: (item: any) => object,
 }
 
 interface TablesProps<T> {
@@ -14,7 +15,7 @@ interface TablesProps<T> {
     items: Array<T>,
     primaryId: string,
     isCentered?: boolean,
-    onItemClick? : any
+    onItemClick?: any
 }
 
 const Tables = <T,>({ headers, items, primaryId, isCentered = false, onItemClick = null }: TablesProps<T>) => {
@@ -93,7 +94,15 @@ const Tables = <T,>({ headers, items, primaryId, isCentered = false, onItemClick
             })
         }
 
-        return <td key={`row-key-${h.key}-${i}`} className={className}>{h.format ? h.format(value) : value}</td>
+        let showFormatCustom
+
+        if (h.format) {
+            showFormatCustom = h.format(value)
+        } else if (h.customValue) {
+            showFormatCustom = h.customValue(i)
+        }
+
+        return <td key={`row-key-${h.key}-${i}`} className={className}>{showFormatCustom ?? value}</td>
     })
 
     return (
@@ -110,7 +119,7 @@ const Tables = <T,>({ headers, items, primaryId, isCentered = false, onItemClick
                 </thead>
                 <tbody>
                     {paginatedItems.map((item: any, i) => (
-                        <tr onClick={()=>onItemClick(item)} key={`key-${item[primaryId]}-${i}`} className="even:bg-gray13 odd:bg-cursedBlack text-xs">
+                        <tr onClick={() => onItemClick ? onItemClick(item) : {}} key={`key-${item[primaryId]}-${i}`} className="even:bg-gray13 odd:bg-cursedBlack text-xs">
                             {headers.map(h => populateItem(i, h, item))}
                         </tr>
                     ))}

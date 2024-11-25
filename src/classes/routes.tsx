@@ -127,6 +127,20 @@ const sideBarMasterRoutes = [{
         ico: UserList,
         link: '/master/agent-list'
     }]
+}, {
+    module: 'HISTORY',
+    item: [{
+        module: 'Transfer',
+        ico: Transfer,
+        link: '/history/transfer'
+    }
+        // , {
+        //     module: 'Commission',
+        //     ico: Commission,
+        //     link: '/history/commission'
+        // }
+    ]
+
 }]
 
 

@@ -36,8 +36,8 @@ const Players = () => {
         "roles": []
     })
     const [search, setSearch] = useState('')
-    const [userType, setUserType] = useState([])
-    const [userRole, setUserRole] = useState([])
+    const [accountType, setAccountType] = useState([])
+    const [accountRole, setAccountRole] = useState([])
     const [isLoading, setIsLoading] = useState(false)
 
     const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
@@ -74,7 +74,7 @@ const Players = () => {
     const getUserType = async () => {
         await axios.get('/api/get-account-type')
             .then(response => {
-                setUserType(response.data)
+                setAccountType(response.data)
             })
             .catch((e) => {
                 const errorMessages = e.response.data.error
@@ -84,7 +84,7 @@ const Players = () => {
                     }
                 }
                 // const errorMessages = e.response.data.error
-                setUserType([])
+                setAccountType([])
             })
             .finally(() => {
                 // setIsLoading(false)
@@ -94,7 +94,7 @@ const Players = () => {
     const getUserRole = async () => {
         await axios.get('/api/get-account-roles')
             .then(response => {
-                setUserRole(response.data)
+                setAccountRole(response.data)
             })
             .catch((e) => {
                 const errorMessages = e.response.data.error
@@ -104,7 +104,7 @@ const Players = () => {
                     }
                 }
                 // const errorMessages = e.response.data.error
-                setUserRole([])
+                setAccountRole([])
             })
             .finally(() => {
                 // setIsLoading(false)
@@ -115,11 +115,11 @@ const Players = () => {
         if (players.length === 0)
             getUserLists()
 
-        if (userType.length === 0) {
+        if (accountType.length === 0) {
             getUserType()
         }
 
-        if (userRole.length === 0) {
+        if (accountRole.length === 0) {
             getUserRole()
         }
 
@@ -213,9 +213,19 @@ const Players = () => {
             setAlertMessage('Account successfully updated!')
             setIsShowModal(false)
             getUserLists()
-        } catch (e) {
+        } catch (e: any) {
+            const errorMessages = e?.response?.data?.error
+            if (errorMessages) {
+                if (errorMessages['Bad request']) {
+                    setAlertMessage(errorMessages['Bad request'][0])
+                } else {
+                    setAlertMessage('An Error occured please try again')
+                }
+
+            } else {
+                setAlertMessage('An Error occured please try again')
+            }
             setIsAlertModalOpen(true)
-            setAlertMessage('An Error occured please try again')
         } finally {
             setIsLoading(false)
         }
@@ -264,7 +274,7 @@ const Players = () => {
                                 <div className="flex flex-col flex-1 gap-4">
                                     <label htmlFor="roles" className="text-white font-sans font-light text-nowrap text-xs">Roles</label>
                                     <div className="grid grid-cols-2 gap-4">
-                                        {userRole.map((e: string) => {
+                                        {accountRole.map((e: string) => {
                                             return <div key={e} className="flex gap-4">
                                                 <input
                                                     type="checkbox"
@@ -282,8 +292,8 @@ const Players = () => {
                                     <label htmlFor="accountType" className="text-white font-sans font-light text-nowrap text-xs">Account Type</label>
                                     <select id="accountType" className="rounded-xlg py-4 px-4 bg-semiBlack font-sans font-light text-[13px] tacking-[5%] text-white" value={modalData.accountType} onChange={(e) => onAccountTypeChange(e.target.value)}>
                                         {
-                                            userType ?
-                                                userType.map((e: any) => {
+                                            accountType ?
+                                                accountType.map((e: any) => {
                                                     return <option key={e.description} value={e.accountType}>{e.description}</option>
                                                 }) :
                                                 <option></option>
@@ -369,10 +379,10 @@ const Players = () => {
                         }, {
                             key: '',
                             label: 'ACTION',
-                            customValue: (index: any) => {
+                            customValue: (item: any) => {
                                 return <div className="flex gap-2 items-center justify-center">
                                     <Button
-                                        onClick={() => openModal(filterPlayers[index])}
+                                        onClick={() => openModal(item)}
                                         type={"button"}
                                         size="text-xs"
                                     >

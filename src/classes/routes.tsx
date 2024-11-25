@@ -5,6 +5,8 @@ import Game from '@/assets/images/Game.png'
 import Commission from '@/assets/images/Commission.svg'
 import ActivePlayer from '@/assets/images/ActivePlayer.svg'
 import DeactPlayer from '@/assets/images/DeactPlayer.svg'
+import User from '@/assets/images/User.svg'
+import UserList from '@/assets/images/UserList.svg'
 import LoadStation from '@/assets/images/LoadStation.svg'
 import Transfer from '@/assets/images/Transfer.svg'
 
@@ -98,21 +100,25 @@ const sideBarMasterRoutes = [{
     module: 'GENERAL',
     item: [{
         module: 'Home',
-        ico: '',
-        link: '/master/home'
-    }, {
-        module: 'Add Agent',
-        ico: '',
-        link: '/master/add-agent'
-    }, {
+        ico: Dashboard,
+        link: '/master/dashboard'
+    },
+    //  {
+    //     module: 'Add Agent',
+    //     ico: User,
+    //     link: '/master/add-agent'
+    // }, 
+    {
         module: 'Agent List',
-        ico: '',
+        ico: UserList,
         link: '/master/agent-list'
-    }, {
-        module: 'Agent Cash-In',
-        ico: LoadStation,
-        link: '/loading-station/cash-in/player'
-    }]
+    },
+        // {       
+        //     module: 'Agent Cash-In',
+        //     ico: LoadStation,
+        //     link: '/loading-station/cash-in/player'
+        // }
+    ]
 }]
 
 
@@ -129,15 +135,15 @@ const sideBarAdminRoutes = [{
     module: 'USERS',
     item: [{
         module: 'Register User',
-        ico: LoadStation,
+        ico: User,
         link: '/admin/user/register'
     }, {
         module: 'Management Users',
-        ico: LoadStation,
+        ico: UserList,
         link: '/admin/user/management'
     }, {
         module: 'Player Users',
-        ico: LoadStation,
+        ico: UserList,
         link: '/admin/user/players'
     }]
 

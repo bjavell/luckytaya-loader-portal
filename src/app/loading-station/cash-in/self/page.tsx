@@ -168,7 +168,7 @@ const SelfCashin = () => {
                 onConfirm={onConfirm}
                 message="Proceed with the transaction?"
             ></ConfirmationModal>
-            <BalanceBar title="Self Cash-In" balance={balance} />
+            <BalanceBar rigthElement="Self Cash-In" balance={balance} />
             <div className="flex flex-row gap-4">
                 <div className="flex w-1/2 bg-[#005BAA] rounded-xl p-4">
                     {showQr ? <QrCode data={qrData} className='m-auto' /> : <Image src={gcashLoad} alt="gcash load background" className="m-auto" />}

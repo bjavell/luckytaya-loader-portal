@@ -13,8 +13,12 @@ const NavBar: NextPage<NavBarProps> = (props) => {
     const [title, setTitle] = useState("Loader Portal")
     useEffect(() => {
         if (data) {
-            if(data.accountType == 9)
+            if(data.accountType == 9 && data.roles?.includes('eventmgr'))
                 setTitle("Event Manager Portal")
+            else if(data.accountType == 9 && data.roles?.includes('admin'))
+                setTitle("Admin Portal")
+            else if(data.accountType === 2 && data.roles?.includes('acctmgr'))
+                setTitle("Master Agent Portal")
         }
     }, [data])
     return (

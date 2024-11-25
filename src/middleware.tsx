@@ -6,6 +6,8 @@ const protectedRoutes = [
   "/history",
   "/players",
   "/loading-station",
+  "/admin",
+  "/master"
 ];
 const protectedEventRoutes = [
   "/event",

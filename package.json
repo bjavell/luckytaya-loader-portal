@@ -10,7 +10,9 @@
     "start": "next start -p 6001",
     "lint": "next lint",
     "build:agent": "dotenv -e .env.agent next build",
-    "build:admin": "dotenv -e .env.admin next build"
+    "build:admin": "dotenv -e .env.admin next build",
+    "start:agent": "dotenv -e .env.agent next start",
+    "start:admin": "dotenv -e .env.admin next start"
   },
   "dependencies": {
     "axios": "^1.7.7",

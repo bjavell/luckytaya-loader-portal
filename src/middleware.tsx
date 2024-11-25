@@ -36,7 +36,7 @@ const middleware = async (request: NextRequest) => {
 
   const validRoutes = protectedRoutes.concat(publicRoutes);
 
-  let isValidRoutes = validRoutes.some(
+  const isValidRoutes = validRoutes.some(
     (route) => pathname.startsWith(route) || pathname === route
   );
 

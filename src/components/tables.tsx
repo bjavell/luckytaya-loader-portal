@@ -117,11 +117,11 @@ const Tables = <T,>({ headers, items, primaryId, isCentered = false, onItemClick
                     </tr>
                 </thead>
                 <tbody>
-                    {paginatedItems.map((item: any, i) => (
+                    {paginatedItems.length > 0 ? paginatedItems.map((item: any, i) => (
                         <tr onClick={() => onItemClick ? onItemClick(item) : {}} key={`key-${item[primaryId]}-${i}`} className="even:bg-gray13 odd:bg-cursedBlack text-xs">
                             {headers.map(h => populateItem(i, h, item))}
                         </tr>
-                    ))}
+                    )) : <tr className="even:bg-gray13 odd:bg-cursedBlack text-xs"><td className="p-3 font-semibold text-center" colSpan={headers.length}>No records found</td></tr>}
                 </tbody>
             </table>
             <div className="flex justify-end gap-2 mt-4">

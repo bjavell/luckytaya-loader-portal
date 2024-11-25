@@ -1,23 +1,27 @@
 'use client'
-import { SetStateAction, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 import axios from "axios"
 import Tables from "@/components/tables"
 import { useRouter } from "next/navigation"
 import { formatMoney } from "@/util/textUtil"
+import Button from "@/components/button"
+import AccountType from "@/classes/accountTypeData"
+import FormField from "@/components/formField"
 
 const Players = () => {
     const router = useRouter()
     const [players, setPlayers] = useState([])
     const [filterPlayers, setFilterPlayers] = useState([])
-    const [status, setStatus] = useState('ALL')
+    const [accountType, setAccountType] = useState<AccountType[]>([])
+    const [search, setSearch] = useState('')
 
 
     const getPlayerLists = async () => {
 
-        await axios.get('/api/get-all-players')
+        await axios.get('/api/get-user-members')
             .then(response => {
-                setPlayers(response.data)
-                setFilterPlayers(response.data)
+                setPlayers(response.data.direct)
+                setFilterPlayers(response.data.direct)
             })
             .catch((e) => {
                 const errorMessages = e.response.data.error
@@ -34,76 +38,102 @@ const Players = () => {
                 // setIsLoading(false)
             })
     }
+    const getAcccountType = async () => {
+        await axios.get('/api/get-account-type')
+            .then(response => {
+                setAccountType(response.data)
+            })
+            .catch((e) => {
+                const errorMessages = e.response.data.error
+                if (errorMessages) {
+                    if (errorMessages['Unauthorized']) {
+                        router.push('/login')
+                    }
+                }
+                // const errorMessages = e.response.data.error
+                setAccountType([])
+            })
+            .finally(() => {
+                // setIsLoading(false)
+            })
+    }
 
     useEffect(() => {
-        if (players.length === 0)
-            getPlayerLists()
+        getPlayerLists()
+        getAcccountType()
+
     }, [])
 
-    const onStatusChange = ((e: { target: { value: SetStateAction<string> } }) => {
-        const filter = players.filter((player: any) => {
-            if (e.target.value === 'ALL') {
-                return true
-            }
-            return player.suspended === Number(e.target.value)
-        })
-        setStatus(e.target.value)
-        setFilterPlayers(filter)
-    })
+    const onCashin = (item: any) => {
+        const url = `/loading-station/cash-in/player?accountNumber=${item.accountNumber}`
+        window.open(url, '_blank')
+    }
 
+    const onUserSearch = (value: string) => {
+        const filter = players.filter((player: any) => {
+            return (`${player?.firstname} ${player?.lastname}`.toUpperCase().includes(value) || String(player?.accountNumber)?.includes(value)
+                || player?.phoneNumber?.toUpperCase().includes(value) || player?.email?.toUpperCase().includes(value))
+        })
+
+        setSearch(value)
+        setFilterPlayers(filter)
+    }
 
     return (
         <div className="flex flex-col gap-4 w-full">
             <h1 className="text-xl">Players</h1>
-            <div className="flex flex-row">
-                <div className="gap-2 flex">
-                    <label htmlFor="status" className="flex items-center">Status</label>
-                    <select id="status" className="rounded-xlg py-4 px-4 bg-semiBlack font-sans font-light text-[13px] tacking-[5%] text-white" value={status} onChange={(e) => onStatusChange(e)}>
-                        <option value="ALL">ALL</option>
-                        <option value="0">Active</option>
-                        <option value="1">Inactive</option>
-                    </select>
-                </div>
+            <div className="flex items-center gap-2 w-1/3">
+                <label htmlFor="accountNumber" >Search</label>
+                <FormField name="accountNumber" value={search} onBlur={(e) => { onUserSearch(e.target.value.toUpperCase()) }} />
+
             </div>
             <div className="flex flex-col">
                 <Tables
                     primaryId="accountNumber"
                     headers={[
                         {
-                            key: 'date',
-                            label: 'DATE'
-                        },
-                        {
-                            key: 'completeName',
-                            label: 'COMPLETE NAME'
-                        },
-                        {
-                            key: 'aspnetuserId',
-                            label: 'USER ID'
+                            key: 'fistname',
+                            label: 'COMPLETE NAME',
+                            concatKey: ['lastname'],
+                            concatSeparator: ' '
                         },
                         {
                             key: 'accountNumber',
                             label: 'ACCOUNT NUMBER'
-                        }, {
+                        },
+                        {
+                            key: 'accountType',
+                            label: 'ACCOUNT TYPE',
+                            format(item: any) {
+
+                                const account = accountType.find(e => e?.accountType === item)
+
+                                return account?.description ?? item
+                            }
+                        },
+                        {
                             key: 'balance',
                             label: 'BALANCE',
                             format: (val: string) => {
                                 return formatMoney(val)
                             }
+                        }, {
+                            key: 'principalAccountNumber',
+                            label: 'PRINCIPAL ACCOUNT NUMBER'
                         },
                         {
-                            key: 'dob',
-                            label: 'DOB'
-                        },
-                        {
-                            key: 'occupation',
-                            label: 'OCCUPATION'
-                        }, {
-                            key: 'province',
-                            label: 'PROVINCE'
-                        }, {
-                            key: 'region',
-                            label: 'REGION'
+                            key: '',
+                            label: 'ACTION',
+                            customValue: (item: any) => <div className="flex gap-2 items-center justify-center">
+                                <Button
+                                    onClick={() => onCashin(item)}
+                                    type={"button"}
+                                    size="text-xs"
+                                >
+                                    Cash In
+                                </Button>
+                            </div>
+
                         }
                     ]}
                     items={filterPlayers}

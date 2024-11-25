@@ -7,12 +7,13 @@ import { formatMoney } from "@/util/textUtil"
 import AccountType from "@/classes/accountTypeData"
 import Button from "@/components/button"
 import ConfirmationModal from "@/components/confirmationModal"
+import FormField from "@/components/formField"
 
 const Players = () => {
     const router = useRouter()
-    const [directMember, setDirectMember] = useState([])
-    const [indirectMember, setIndirectMember] = useState([])
-    const [orphanMember, setOrphanMember] = useState([])
+    const [agents, setAgents] = useState([])
+    const [players, setPlayers] = useState([])
+    const [orphans, setOrphans] = useState([])
     const [accountType, setAccountType] = useState<AccountType[]>([])
 
     const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
@@ -21,13 +22,21 @@ const Players = () => {
     const [member, setMember] = useState('')
     const [action, setAction] = useState('')
 
+    const [filteredAgents, setFilteredAgents] = useState([])
+    const [agentSearch, setAgentSearch] = useState('')
+    const [filteredOrphans, setFilteredOrphans] = useState([])
+    const [orphanSearch, setOrphanSearch] = useState('')
+    const [index, setIndex] = useState(0)
+
     const getMembers = async () => {
         await axios.get('/api/get-user-members')
             .then(response => {
                 const responseData = response.data
-                setDirectMember(responseData.direct)
-                setIndirectMember(responseData.indirect)
-                setOrphanMember(responseData.orphan)
+                setAgents(responseData.direct)
+                setFilteredAgents(responseData.direct)
+                setPlayers(responseData.indirect)
+                setOrphans(responseData.orphan)
+                setFilteredOrphans(responseData.orphan)
             })
             .catch((e) => {
             })
@@ -91,11 +100,35 @@ const Players = () => {
             }
         } finally {
             setIsAlertModalOpen(true)
+            setIndex(index + 1)
         }
     }
 
+    const searchAgent = (value: string) => {
+        const filter = agents.filter((agent: any) => {
+            return (`${agent?.firstname} ${agent?.lastname}`.toUpperCase().includes(value) || String(agent?.accountNumber)?.includes(value)
+                || agent?.phoneNumber?.toUpperCase().includes(value) || agent?.email?.toUpperCase().includes(value))
+        })
+
+        setAgentSearch(value)
+        setFilteredAgents(filter)
+    }
+
+    const searchOrphan = (value: string) => {
+        const filter = orphans.filter((orphan: any) => {
+            return (`${orphan?.firstname} ${orphan?.lastname}`.toUpperCase().includes(value) || String(orphan?.accountNumber)?.includes(value)
+                || orphan?.phoneNumber?.toUpperCase().includes(value) || orphan?.email?.toUpperCase().includes(value))
+        })
+
+        setOrphanSearch(value)
+        setFilteredOrphans(filter)
+    }
+
+
+
+
     return (
-        <div className="flex flex-col w-full">
+        <div className="flex flex-col w-full" key={`agentList-${index}`}>
             <ConfirmationModal
                 isOpen={isAlertModalOpen}
                 onConfirm={() => setIsAlertModalOpen(false)}
@@ -110,9 +143,13 @@ const Players = () => {
                 message="Proceed with the changes?"
             />
             <div className="flex flex-col gap-4 w-full overflow-auto pr-4">
+                <div className="flex gap-4 flex-col">
+                    <h1 className="text-xl">Agents</h1>
+                    <div className="flex items-center gap-2 w-1/3">
+                        <label htmlFor="accountNumber" >Search</label>
+                        <FormField name="accountNumber" value={agentSearch} onBlur={(e) => { searchAgent(e.target.value.toUpperCase()) }} />
 
-                <div className="flex flex-col">
-                    <h1 className="text-xl">Member</h1>
+                    </div>
                     <div className="flex flex-col">
                         <Tables
                             primaryId="accountNumber"
@@ -143,10 +180,11 @@ const Players = () => {
                                     format: (val: string) => {
                                         return formatMoney(val)
                                     }
-                                }, {
-                                    key: 'principalAccountNumber',
-                                    label: 'PRINCIPAL ACCOUNT NUMBER'
                                 },
+                                // {
+                                //     key: 'principalAccountNumber',
+                                //     label: 'PRINCIPAL ACCOUNT NUMBER'
+                                // },
                                 {
                                     key: '',
                                     label: 'ACTION',
@@ -159,17 +197,29 @@ const Players = () => {
                                         >
                                             Remove
                                         </Button>
+                                        <Button
+                                            onClick={() => {
+                                                const url = `/loading-station/cash-in/agent?accountNumber=${item.accountNumber}`
+                                                window.open(url, '_blank')
+                                            }}
+                                            type={"button"}
+                                            size="text-xs"
+                                        >
+                                            Cash-In
+                                        </Button>
                                     </div>
 
                                 }
                             ]}
-                            items={directMember}
+                            items={filteredAgents}
                             isCentered={true}
+                            key={`agents-${index}`}
                         />
                     </div>
                 </div>
-                <div className="flex flex-col">
-                    <h1 className="text-xl">Indirect</h1>
+
+                <div className="flex w-full gap-4 flex-col">
+                    <h1 className="text-xl">Players</h1>
                     <div className="flex flex-col">
                         <Tables
                             primaryId="accountNumber"
@@ -200,18 +250,25 @@ const Players = () => {
                                     format: (val: string) => {
                                         return formatMoney(val)
                                     }
-                                }, {
-                                    key: 'principalAccountNumber',
-                                    label: 'PRINCIPAL ACCOUNT NUMBER'
-                                }
+                                },
+                                //  {
+                                //     key: 'principalAccountNumber',
+                                //     label: 'PRINCIPAL ACCOUNT NUMBER'
+                                // }
                             ]}
-                            items={indirectMember}
+                            items={players}
                             isCentered={true}
+                            key={`players-${index}`}
                         />
                     </div>
                 </div>
-                <div className="flex flex-col">
+
+                <div className="flex gap-4 flex-col">
                     <h1 className="text-xl">Orphan</h1>
+                    <div className="flex items-center gap-2 w-1/3">
+                        <label htmlFor="accountNumber" >Search</label>
+                        <FormField name="accountNumber" value={orphanSearch} onBlur={(e) => { searchOrphan(e.target.value.toUpperCase()) }} />
+                    </div>
                     <div className="flex flex-col">
                         <Tables
                             primaryId="accountNumber"
@@ -242,10 +299,11 @@ const Players = () => {
                                     format: (val: string) => {
                                         return formatMoney(val)
                                     }
-                                }, {
-                                    key: 'principalAccountNumber',
-                                    label: 'PRINCIPAL ACCOUNT NUMBER'
                                 },
+                                // {
+                                //     key: 'principalAccountNumber',
+                                //     label: 'PRINCIPAL ACCOUNT NUMBER'
+                                // },
                                 {
                                     key: '',
                                     label: 'ACTION',
@@ -262,8 +320,9 @@ const Players = () => {
                                     }
                                 }
                             ]}
-                            items={orphanMember}
+                            items={filteredOrphans}
                             isCentered={true}
+                            key={`orphans-${index}`}
                         />
                     </div>
                 </div>

@@ -75,23 +75,6 @@ const LoadForm: NextPage<LoadFormProps> = (props) => {
                     errorMessage="Invalid Amount"
                     required
                 />
-            </div>
-            <div className="flex flex-col p-4 gap-4 w-full">
-                <FormField
-                    name="fee"
-                    label="Fee"
-                    placeholder="Enter Fee"
-                    value={fee}
-                    customLabelClass="text-xs"
-                    readonly
-                />
-                <FormField
-                    name="totalAmount"
-                    label="Total Amount"
-                    value={totalAmount}
-                    customLabelClass="text-xs"
-                    readonly
-                />
                 <FormField
                     name="comment"
                     label="Comment"

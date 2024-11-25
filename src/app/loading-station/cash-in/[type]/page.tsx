@@ -2,16 +2,22 @@
 import { useEffect, useState } from "react"
 import gcashLoad from '@/assets/images/GcashLoad.png'
 import Image from "next/image"
-import { formatMoney } from "@/util/textUtil"
+import { formatDate, formatMoney, removeDecimalPlaces } from "@/util/textUtil"
 import BalanceBar from "@/components/balanceBar"
 import axios from "axios"
-import { useRouter } from "next/navigation"
+import { useParams, useRouter, useSearchParams } from "next/navigation"
 import { useApiData } from "@/app/context/apiContext"
 import LoadForm from "@/components/loadForm"
 import ConfirmationModal from "@/components/confirmationModal"
+import { TRAN_TYPE } from "@/classes/constants"
+import QrCode from "@/components/qrCode"
 
 const PlayerCashin = () => {
     const router = useRouter()
+    const params = useParams()
+
+    const cashinType = params?.type
+    const accountNumber = useSearchParams()?.get('accountNumber')
     const [totalAmount, setTotalAmount] = useState('')
     const [loadTo, setLoadTo] = useState('')
     const [completeName, setCompleteName] = useState('-')
@@ -46,6 +52,10 @@ const PlayerCashin = () => {
     const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
     const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
     const [alertMessage, setAlertMessage] = useState('');
+    const [isLoadToReadOnly, setIsLoadToReadOnly] = useState(false)
+    const [balanceBarTitle, setBalanceBarTitle] = useState('')
+    const [qrData, setQrData] = useState('')
+    const [showQr, setShowQr] = useState(false)
 
     const getLoadStationConfig = async () => {
         await axios.get('/api/get-load-station-config')
@@ -59,42 +69,43 @@ const PlayerCashin = () => {
             })
     }
 
-    useEffect(() => {
-        // getUserDetails()
-        if (data) {
-            getLoadStationConfig()
-            setBalance(data.balance)
-        }
-        if (reload) {
-            setLoadTo('')
-            setLoadTo('')
-            setAmount('')
-            setConvFee(0)
-            setComFee(0)
-            setFee('')
-            setTotalAmount('')
-            setCompleteName('-')
-            setEmail('-')
-            setComment('')
-            setIndex(index + 1)
-        }
-    }, [data, reload])
-
-
-
     const onHandleSubmit = async () => {
         setIsLoading(true)
         try {
-            const response = await axios.post('/api/cashin', {
-                amount: parseFloat(amount),
-                convFee,
-                comFee,
-                toAccountNumber: loadTo
-            })
-            setReload(true)
+            let response
+            if (cashinType === 'self') {
+                const date = new Date()
+                const expireDate = new Date()
+                expireDate.setHours(expireDate.getHours() + 2)
+
+                const data = {
+                    trxAmount: removeDecimalPlaces(amount),
+                    timeStart: formatDate(date.toISOString()),
+                    timeExpire: formatDate(expireDate.toISOString()),
+                    accountNumber: loadTo,
+                    convenienceFee: convFee,
+                    commissionFee: comFee,
+                    comment: comment,
+                    type: TRAN_TYPE.CASHIN
+
+                }
+
+                response = await axios.post('/api/create-qr', data)
+                setQrData(response.data.codeUrl)
+                setShowQr(true)
+                setAlertMessage('QR successfully generated!')
+            } else {
+                response = await axios.post('/api/cashin', {
+                    amount: parseFloat(amount),
+                    convFee,
+                    comFee,
+                    toAccountNumber: loadTo
+                })
+                setReload(true)
+                setAlertMessage(response.data.message)
+            }
 
             setIsAlertModalOpen(true)
-            setAlertMessage(response.data.message)
 
 
         } catch (e: any) {
@@ -108,7 +119,8 @@ const PlayerCashin = () => {
 
                 setAlertMessage('Oops! an error occured')
             }
-
+            setShowQr(false)
+            setQrData('')
             setIsAlertModalOpen(true)
         } finally {
             setIsLoading(false)
@@ -139,6 +151,37 @@ const PlayerCashin = () => {
             })
             .catch((e) => {
                 const errorMessages = e.response.data.error
+                if (errorMessages) {
+                    if (errorMessages['Unauthorized']) {
+                        router.push('/login')
+                    }
+                }
+            })
+            .finally(() => {
+                setIsLoading(false)
+            })
+    }
+
+    const searchAgent = async (accountNumber: string) => {
+        setIsLoading(true)
+        await axios.get('/api/get-user-members')
+            .then((response) => {
+                const responseData = response.data
+
+                const filteredAgent = responseData.direct.filter((e: any) => {
+                    return Number(e.accountNumber) === Number(accountNumber)
+                })
+                console.log(filteredAgent)
+
+                if (filteredAgent.length > 0) {
+                    setCompleteName(`${filteredAgent[0].fistname} ${filteredAgent[0].lastname}`)
+                } else {
+                    setCompleteName('No user found!')
+                }
+                setEmail('-')
+            })
+            .catch((e) => {
+                const errorMessages = e?.response?.data?.error
                 if (errorMessages) {
                     if (errorMessages['Unauthorized']) {
                         router.push('/login')
@@ -192,13 +235,64 @@ const PlayerCashin = () => {
         setIsConfirmModalOpen(!isConfirmModalOpen)
     }
 
+
+    useEffect(() => {
+        if (data) {
+            getLoadStationConfig()
+            setBalance(data.balance)
+            if (cashinType === 'self') {
+                setLoadTo(data.accountNumber)
+                setCompleteName(`${data.fistname} ${data.lastname}`)
+                setEmail(data.email)
+            }
+        }
+        if (reload) {
+            setLoadTo('')
+            setLoadTo('')
+            setAmount('')
+            setConvFee(0)
+            setComFee(0)
+            setFee('')
+            setTotalAmount('')
+            setCompleteName('-')
+            setEmail('-')
+            setComment('')
+            setIndex(index + 1)
+        }
+        switch (cashinType) {
+            case 'player':
+                if (accountNumber) {
+                    setIsLoadToReadOnly(true)
+                    setLoadTo(accountNumber)
+                    searchAgent(accountNumber)
+                }
+                setBalanceBarTitle('Player Cash-In')
+                break;
+            case 'self':
+                setIsLoadToReadOnly(true)
+                setBalanceBarTitle('Self Cash-In')
+                break;
+            case 'agent':
+                if (accountNumber) {
+                    setIsLoadToReadOnly(true)
+                    setLoadTo(accountNumber)
+                    searchAgent(accountNumber)
+                }
+                setBalanceBarTitle('Agent Cash-In')
+                break;
+            default:
+                setBalanceBarTitle('Cash-In')
+        }
+
+    }, [data, reload])
+
     return (
         <div className="flex flex-col w-full gap-4">
             <ConfirmationModal
                 isOpen={isAlertModalOpen}
                 onConfirm={() => setIsAlertModalOpen(false)}
                 isOkOnly={true}
-                onCancel={() => {}}
+                onCancel={() => { }}
                 message={alertMessage}
             ></ConfirmationModal>
             <ConfirmationModal
@@ -207,10 +301,10 @@ const PlayerCashin = () => {
                 onConfirm={onConfirm}
                 message="Proceed with the transaction?"
             ></ConfirmationModal>
-            <BalanceBar rigthElement="Player Cash-In" balance={balance} />
+            <BalanceBar rigthElement={balanceBarTitle} balance={balance} />
             <div className="flex flex-row gap-4">
                 <div className="flex w-1/2 bg-[#005BAA] rounded-xl p-4">
-                    <Image src={gcashLoad} alt="gcash load background" className="m-auto" />
+                    {showQr ? <QrCode data={qrData} className='m-auto' /> : <Image src={gcashLoad} alt="gcash load background" className="m-auto" />}
                 </div>
                 <LoadForm
                     key={`load-form-${index}`}
@@ -218,9 +312,13 @@ const PlayerCashin = () => {
                         value: loadTo,
                         onChange: setLoadTo,
                         onBlur: (val: string) => {
-                            searchPlayer(val)
+                            if (cashinType === 'player') {
+                                searchPlayer(val)
+                            } else {
+                                searchAgent(val)
+                            }
                         },
-                        isReadOnly: false
+                        isReadOnly: isLoadToReadOnly
                     }}
                     completeName={completeName}
                     email={email}

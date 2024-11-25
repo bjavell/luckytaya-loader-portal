@@ -20,26 +20,28 @@ const sideBarAgentRoutes = [{
     }]
 
 },
-//  {
-//     module: 'PLAYERS',
-//     item: [{
-//         module: 'Players',
-//         ico: ActivePlayer,
-//         link: '/players'
-//     }]
+{
+    module: 'PLAYERS',
+    item: [{
+        module: 'Players',
+        ico: ActivePlayer,
+        link: '/players'
+    }]
 
-// },
+},
 {
     module: 'LOADING STATION',
-    item: [{
-        module: 'Self Cash-In',
-        ico: LoadStation,
-        link: '/loading-station/cash-in/self'
-    }, {
-        module: 'Player Cash-In',
-        ico: LoadStation,
-        link: '/loading-station/cash-in/player'
-    },
+    item: [
+        //     {
+        //     module: 'Self Cash-In',
+        //     ico: LoadStation,
+        //     link: '/loading-station/cash-in/self'
+        // },
+        {
+            module: 'Player Cash-In',
+            ico: LoadStation,
+            link: '/loading-station/cash-in/player'
+        },
         // {
         //     module: 'Cash-Out',
         //     ico: CashOut,
@@ -102,23 +104,29 @@ const sideBarMasterRoutes = [{
         module: 'Home',
         ico: Dashboard,
         link: '/master/dashboard'
+    }]
+},
+{
+    module: 'LOADING STATION',
+    item: [{
+        module: 'Self Cash-In',
+        ico: LoadStation,
+        link: '/loading-station/cash-in/self'
     },
-    //  {
-    //     module: 'Add Agent',
-    //     ico: User,
-    //     link: '/master/add-agent'
-    // }, 
     {
+        module: 'Agent Cash-In',
+        ico: LoadStation,
+        link: '/loading-station/cash-in/agent'
+    }]
+
+},
+{
+    module: 'Agent',
+    item: [{
         module: 'Agent List',
         ico: UserList,
         link: '/master/agent-list'
-    },
-        // {       
-        //     module: 'Agent Cash-In',
-        //     ico: LoadStation,
-        //     link: '/loading-station/cash-in/player'
-        // }
-    ]
+    }]
 }]
 
 

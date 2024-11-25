@@ -23,11 +23,11 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children, size }) => {
 
   return (
     <div
-      className="overflow-auto bg-black w-screen fixed inset-0 bg-opacity-50 flex justify-center items-center z-10"
+      className="overflow-auto bg-black w-screen fixed inset-0 bg-opacity-50 flex justify-center items-center z-10 p-4"
       onClick={onClose} // Close modal when clicking outside of it
     >
       <div
-        className={`bg-cursedBlack  p-6 rounded-lg shadow-lg ${modalSize} max-w-lg`}
+        className={`bg-cursedBlack  p-6 rounded-lg shadow-lg ${modalSize} `}
         onClick={(e) => e.stopPropagation()} // Prevent modal from closing when clicking inside
       >
         <button

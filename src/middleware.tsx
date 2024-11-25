@@ -40,9 +40,6 @@ const middleware = async (request: NextRequest) => {
     (route) => pathname.startsWith(route) || pathname === route
   );
 
-  if (pathname.startsWith("/players")) {
-    isValidRoutes = false;
-  }
   if (pathname.startsWith("/dashboard")) {
     if (currentSession.roles.includes('admin') && currentSession.accountType === 9) {
       return NextResponse.redirect(new URL("/admin/dashboard", request.nextUrl));

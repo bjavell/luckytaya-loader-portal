@@ -2,6 +2,7 @@
 import '@/styles/global.css'
 import { Metadata } from 'next'
 
+const portal = process.env.PORTAL
 
 export default function RootLayout({
   children
@@ -19,9 +20,9 @@ export default function RootLayout({
   )
 }
 
-export const metadata:Metadata = {
+export const metadata: Metadata = {
   title: {
-    template: 'Loader Portal | %s',
-    default: 'Loader Portal'
+    template: portal === 'ADMIN' ? 'Admin Portal | %s' : 'Backoffice Portal | %s',
+    default: portal === 'ADMIN' ? 'Admin Portal' : 'Backoffice Portal'
   }
 }

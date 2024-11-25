@@ -309,6 +309,14 @@ const Players = () => {
                     </div>
                     <div className="flex gap-4">
                         <Button
+                            onClick={closeModal}
+                            isLoading={isLoading}
+                            type={"button"}
+                            textColor="text-red"
+                        >
+                            Cancel
+                        </Button>
+                        <Button
                             onClick={onToggleConfirmModal}
                             isLoading={isLoading}
                             type={"button"}

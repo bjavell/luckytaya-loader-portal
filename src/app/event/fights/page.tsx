@@ -322,10 +322,10 @@ const Fight = () => {
         </div>
 
         <div className="col-span-4 grid grid-cols-5 grid-rows-1 gap-2">
-          <label>Owner</label>
-          <label>Breed</label>
-          <label>Weight</label>
-          <label>Tag</label>
+          <label>First Name</label>
+          <label>Last Name</label>
+          <label>Age</label>
+          <label>Remarks</label>
         </div>
         <div className="grid grid-cols-5 grid-rows-1 gap-0 items-center">
           <div className="col-span-4 grid grid-cols-4 grid-rows-1 gap-1">

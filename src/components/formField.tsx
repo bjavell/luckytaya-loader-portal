@@ -63,7 +63,7 @@ const FormField: NextPage<FormFieldProps> = (props) => {
 
     if (readonly) {
         formField = <>
-            <span>{value ?? '-'}</span>
+            <span className="break-words">{value ?? '-'}</span>
             <input {...inputProps} type="hidden" value={value} className="peer visited" />
         </>
     }

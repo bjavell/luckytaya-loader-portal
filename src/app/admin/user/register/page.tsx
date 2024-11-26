@@ -161,10 +161,10 @@ const Players = () => {
 
     return (
         <div className="flex w-full">
-             <ConfirmationModal
+            <ConfirmationModal
                 isOpen={isAlertModalOpen}
                 onConfirm={() => setIsAlertModalOpen(false)}
-                onCancel={()=> {}}
+                onCancel={() => { }}
                 isOkOnly={true}
                 message={alertMessage}
             ></ConfirmationModal>
@@ -174,17 +174,16 @@ const Players = () => {
                 onConfirm={onFormSubmit}
                 message="Proceed with the registration?"
             ></ConfirmationModal>
-            <Form className="flex flex-col gap-4 p-4 w-full bg-gray13 h-2/3 rounded-xl" key={`form-${index}`}>
-                <div className="flex w-full gap-4">
-                    <div className="flex flex-col gap-4 w-full">
+            <Form className="flex flex-col w-full" key={`form-${index}`}>
+                <div className="flex flex-col gap-4 p-4 w-full bg-gray13 rounded-xl w-full gap-4">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 w-full">
                         <FormField name={"username"} label="Username" customLabelClass="text-xs" onBlur={handleChange} value={userRegistration.username} required />
+                        <FormField name={"facebookAccount"} label="Facebook Account" customLabelClass="text-xs" onBlur={handleChange} value={userRegistration.facebookAccount} required />
                         <FormField name={"firstname"} label="First Name" customLabelClass="text-xs" onBlur={handleChange} value={userRegistration.firstname} required />
                         <FormField name={"lastname"} label="Last Name" customLabelClass="text-xs" onBlur={handleChange} value={userRegistration.lastname} required />
                         <FormField name={"phoneNumber"} label="Phone Number" customLabelClass="text-xs" onBlur={handleChange} value={userRegistration.phoneNumber} required />
                         <FormField name={"email"} label="Email" customLabelClass="text-xs" type="email" pattern={PATTERNS.EMAIL} errorMessage="Invalid Email Address" onBlur={handleChange} value={userRegistration.email} required />
-                    </div>
-                    <div className="flex flex-col gap-4 w-full">
-                        <FormField name={"facebookAccount"} label="Facebook Account" customLabelClass="text-xs" onBlur={handleChange} value={userRegistration.facebookAccount} required />
+
                         <FormField name={"referralCode"} label="Referral Code" customLabelClass="text-xs" onBlur={handleChange} value={userRegistration.referralCode} required />
                         <div className="flex flex-col flex-1 gap-4">
                             <label htmlFor="roles" className="text-white font-sans font-light text-nowrap text-xs">Roles</label>
@@ -202,23 +201,23 @@ const Players = () => {
                                 })}
                             </div>
 
-                        </div>
-                        <div className="flex flex-col flex-1 gap-4">
-                            <label htmlFor="accountType" className="text-white font-sans font-light text-nowrap text-xs">Account Type</label>
-                            <select id="accountType" name='accountType' className="rounded-xlg py-4 px-4 bg-semiBlack font-sans font-light text-[13px] tacking-[5%] text-white" value={userRegistration.accountType} onChange={onDropDownChange}>
-                                {
-                                    userType ?
-                                        userType.map((e: any) => {
-                                            return <option key={e.description} value={e.accountType}>{e.description}</option>
-                                        }) :
-                                        <option></option>
-                                }
-                            </select>
+                            <div className="flex flex-col flex-1 gap-4">
+                                <label htmlFor="accountType" className="text-white font-sans font-light text-nowrap text-xs">Account Type</label>
+                                <select id="accountType" name='accountType' className="rounded-xlg py-4 px-4 bg-semiBlack font-sans font-light text-[13px] tacking-[5%] text-white" value={userRegistration.accountType} onChange={onDropDownChange}>
+                                    {
+                                        userType ?
+                                            userType.map((e: any) => {
+                                                return <option key={e.description} value={e.accountType}>{e.description}</option>
+                                            }) :
+                                            <option></option>
+                                    }
+                                </select>
 
+                            </div>
                         </div>
                     </div>
+                    <Button isLoading={isLoading} loadingText="Loading..." onClick={onToggleConfirmModal} type={"button"}>Submit</Button>
                 </div>
-                <Button isLoading={isLoading} loadingText="Loading..." onClick={onToggleConfirmModal} type={"button"}>Submit</Button>
             </Form>
         </div>
 

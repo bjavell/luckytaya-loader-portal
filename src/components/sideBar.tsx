@@ -3,7 +3,7 @@ import { usePathname, useRouter } from "next/navigation"
 import logo from '@/assets/images/logo-1.svg'
 import Image from "next/image"
 import Logout from '@/assets/images/Logout.svg'
-import { SetStateAction, useEffect, useState } from "react"
+import { ReactNode, SetStateAction, useEffect, useState } from "react"
 import axios from "axios"
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime"
 import { getCurrentSession } from "@/context/auth"
@@ -65,7 +65,10 @@ const onHandleLogout = async (router: AppRouterInstance | string[], setIsLoading
         })
 }
 
-const SideBar = () => {
+const SideBar: React.FC<{ isOpen: boolean, toggleSideBar: () => void }> = (props) => {
+
+    const { isOpen, toggleSideBar } = props
+
     const router = useRouter()
     const currentRoute = usePathname() ?? ''
     const [isLoading, setIsLoading] = useState(false)
@@ -85,27 +88,6 @@ const SideBar = () => {
             else if ((data.accountType === 6 || data.accountType === 7) && data.roles?.includes('acctmgr')) setRoutes(sideBarAgentRoutes)
         }
     }, [data])
-    // const getUserDetails = async () => {
-    //     await axios.get('/api/get-user-details')
-    //         .then(response => {
-    //             setName(`${response.data?.fistname} ${response.data?.lastname}`)
-    //         })
-    //         .catch((e) => {
-    //             const errorMessages = e.response.data.error
-    //             if (errorMessages) {
-    //                 if (errorMessages['Unauthorized']) {
-    //                     router.push('/login')
-    //                 }
-    //             }
-
-    //         })
-    //         .finally(() => {
-    //         })
-    // }
-
-    // useEffect(() => {
-    //     getUserDetails()
-    // }, [])
 
     let sideBarSlug
 
@@ -125,29 +107,30 @@ const SideBar = () => {
 
 
     return (
-        <aside className="flex flex-col w-[232px] h-screen top-0">
-            <div className="flex brand w-[232px] min-h-[181px] bg-black"> <Image src={logo} alt="" className="m-auto" priority={false} /> </div>
-            <div className="flex h-screen bg-darkGrey justify-center">
+        <aside className={`bg-darkGrey flex flex-col lg:block w-56 h-screen top-0 fixed z-10 text-sm lg:text-base transform transition-transform ease-in-out duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 `}>
+            <div className="flex brand w-56 h-24 lg:h-32 bg-black relative justify-center items-center">
+                <div className="absolute top-5 -right-10 flex sm:block lg:hidden">
+                    <button className="rounded-full p-1 bg-cursedBlack border-white border-1 transform transition-transform ease-in-out duration-300" onClick={toggleSideBar}> {isOpen ? 'X' : '☰'}</button>
+                </div>
+                <Image src={logo} alt="" priority={false} />
+            </div>
+            <div className="flex flex-col h-2/3 overflow-auto">
                 <ul className="flex flex-col w-full">
-                    <li className="flex bg-cursedBlack h-11 mb-4">
-                        <div className="font-sans m-auto">
-                            {sideBarSlug}
-                        </div>
+                    <li className="flex bg-cursedBlack mb-4 font-sans justify-center min-h-11 items-center">
+                        {sideBarSlug}
                     </li>
                     {routes?.map((__routes: any) => populateRoutes(__routes, currentRoute))}
                     <li className="px-4 flex flex-col" >
                         <button onClick={() => onHandleLogout(router, setIsLoading)} className="p-4 text-red hover:bg-cursedBlack hover:rounded-xlg hover:text-[#E7DE54] flex gap-2" >
                             <Image src={Logout} alt="" className={`h-4 w-auto my-auto`} /> Logout</button>
                     </li>
-                    <li className="mt-auto mb-[5.563rem]">
-                        <div className="bg-gray13 w-full h-32">
-                            <div className="flex justify-center items-center m-auto w-full h-full flex-col gap-2">
-                                <Image src={UserAvatar} alt="avatar" className="h-14 w-14" />
-                                {name}
-                            </div>
-                        </div>
-                    </li>
                 </ul>
+            </div>
+            <div className="bg-gray13 w-full h-24 flex">
+                <div className="flex justify-center items-center m-auto w-full h-full flex-col gap-2">
+                    <Image src={UserAvatar} alt="avatar" className="h-7 lg:h-14 w-7 lg:w-14" />
+                    {name}
+                </div>
             </div>
 
         </aside>

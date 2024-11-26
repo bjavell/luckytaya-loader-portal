@@ -303,7 +303,7 @@ const PlayerCashin = () => {
             ></ConfirmationModal>
             <BalanceBar rigthElement={balanceBarTitle} balance={balance} />
             <div className="flex flex-row gap-4">
-                <div className="flex w-1/2 bg-[#005BAA] rounded-xl p-4">
+                <div className="flex hidden lg:block lg:w-1/2 bg-[#005BAA] rounded-xl p-4">
                     {showQr ? <QrCode data={qrData} className='m-auto' /> : <Image src={gcashLoad} alt="gcash load background" className="m-auto" />}
                 </div>
                 <LoadForm

@@ -135,9 +135,14 @@ const Fight = () => {
         });
 
         const fightlst = data.map((e: any) => {
+          const meron = e.fightDetails.find((x: any) => x.side == 1);
+          const wala = e.fightDetails.find((x: any) => x.side == 0);
+        
           return {
             ...e.fight,
             fightDetails: e.fightDetails,
+            meron : meron ? `${meron.owner} ${meron.breed}`: "",
+            wala : wala ? `${wala.owner} ${wala.breed}`: "",
             fightStatusName: e.fightStatusName,
           };
         });
@@ -184,16 +189,16 @@ const Fight = () => {
     setIsLoading(true);
     setSelectedFight(fight);
     setIsModalFightOpen(true);
-    refreshFields()
+    refreshFields();
     // setWalaImage("");
     // setMeronImage("");
   };
 
-  const refreshFields = () =>{
+  const refreshFields = () => {
     setTimeout(() => {
       setIsLoading(false);
     }, 100);
-  }
+  };
 
   const getFightDetailValue = (side: any, property: any) => {
     if (selectedFight && selectedFight.fightDetails.length > 0) {
@@ -283,7 +288,7 @@ const Fight = () => {
     };
     setSelectedFight(request);
     setIsLoading(true);
-   
+
     await axios
       .post("/api/event/fight", request)
       .then(() => {
@@ -471,6 +476,17 @@ const Fight = () => {
               key: "fightNum",
               label: "Fight Number",
             },
+            
+            {
+              key: "meron",
+              label: "Meron",
+            },
+            
+            {
+              key: "wala",
+              label: "Wala",
+            },
+            
             {
               key: "fightStatusName",
               label: "Status",

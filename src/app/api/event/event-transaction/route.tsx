@@ -1,28 +1,67 @@
-import { getCurrentSession } from "@/context/auth"
-import { NextRequest, NextResponse } from "next/server"
-import { luckTayaAxios } from "@/util/axiosUtil"
-import { formatGenericErrorResponse } from "@/util/commonResponse"
+import { getCurrentSession } from "@/context/auth";
+import { NextRequest, NextResponse } from "next/server";
+import { luckTayaAxios } from "@/util/axiosUtil";
+import { formatGenericErrorResponse } from "@/util/commonResponse";
+import axios from "axios";
 
 const GET = async (req: NextRequest) => {
-    try {
-        const currentSession = await getCurrentSession()
-
-        const eventId =  req.nextUrl.searchParams.get('eventId');
-        const response = await luckTayaAxios.get(`/api/v1/SabongBet/GetByEventId?eventId=${eventId}`, {
-            headers: {
-                'Authorization': `Bearer ${currentSession.token}`,
-            },
-        })
-       
-
-        return NextResponse.json(response.data)
-    } catch (e) {
-        console.log(e,'hell0')
-        return NextResponse.json({
-            error: formatGenericErrorResponse(e)
+  try {
+    const currentSession = await getCurrentSession();
+    console.log(req.headers);
+    const eventId = req.nextUrl.searchParams.get("eventId");
+    const response = await luckTayaAxios.get(
+      `/api/v1/SabongBet/GetByEventId?eventId=${eventId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${currentSession.token}`,
         },
-            { status: 500 })
-    }
-}
+      }
+    );
 
-export { GET }
+    const data = response.data;
+    let total = 0;
+    for (let index = 0; index < data.length; index++) {
+      const element = data[index];
+      total += element.amount;
+      const fight = await luckTayaAxios.get(
+        `/api/v1/SabongFight/${element.fightId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${currentSession.token}`,
+          },
+        }
+      );
+      const fightDetails = await luckTayaAxios.get(
+        `/api/v1/SabongFightDetail/GetByFightId/V3/${element.fightId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${currentSession.token}`,
+          },
+        }
+      );
+      data[index].fightNum = fight.data.fightNum
+
+      if (fightDetails.data) {
+        const meron = fightDetails.data.find((x: any) => x.side == 1);
+        const wala = fightDetails.data.find((x: any) => x.side == 0);
+        if (meron) {
+          data[index].meron = `${meron.owner} ${meron.breed}`;
+        }
+        if (wala) {
+          data[index].wala = `${wala.owner} ${wala.breed}`;
+        }
+      }
+    }
+    return NextResponse.json({ list: data, summary: total });
+  } catch (e) {
+    console.log(e, "hell0");
+    return NextResponse.json(
+      {
+        error: formatGenericErrorResponse(e),
+      },
+      { status: 500 }
+    );
+  }
+};
+
+export { GET };

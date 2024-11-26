@@ -36,6 +36,7 @@ const Fight = () => {
   const [fights, setFights] = useState<any>([]);
   const [selectedEvent, setSelectedEvent] = useState<any>();
   const [transactions, setTransactions] = useState<any>();
+  const [total, setTotal] = useState(0);
   const getEvents = async () => {
     await axios
       .get("/api/event/list")
@@ -90,7 +91,9 @@ const Fight = () => {
         params,
       })
       .then((response) => {
-        setTransactions(response.data);
+        console.log(response.data.list)
+        setTotal(response.data.summary);
+        setTransactions(response.data.list);
       })
       .catch(() => {
         setTransactions([]);
@@ -117,9 +120,9 @@ const Fight = () => {
   };
 
   const handleFightChange = (e: any) => {
-    if(!e.target.value){
-      setFight(null)
-      return
+    if (!e.target.value) {
+      setFight(null);
+      return;
     }
     setIsLoading(true);
     setFight(fights[e.target.value].fight);
@@ -174,6 +177,10 @@ const Fight = () => {
       {isLoadingWithScreen && (
         <LoadingSpinner size="w-20 h-20" color="border-blue" />
       )}
+      <h1>
+        Total :{" "}
+        <span className="text-semiYellow">{formatMoney(`${total}`)}</span>
+      </h1>
       {!isLoading && (
         <div className="flex flex-col">
           <Tables
@@ -196,18 +203,50 @@ const Fight = () => {
                 label: "Account Number",
               },
               {
+                key: "fightNum",
+                label: "Fight Number",
+              },
+              {
+                key: "meron",
+                label: "Meron",
+              },
+              {
+                key: "wala",
+                label: "Wala",
+              },
+
+              // {
+              //   key: "balance",
+              //   label: "Meron",
+              //   customValue: (item: any) => {
+              //     const {fightDetails} = item;
+              //     return (
+              //       <div className="flex gap-2 items-center justify-center">
+              //         <Button
+              //           onClick={() => openModal(item)}
+              //           type={"button"}
+              //           size="text-xs"
+              //         >
+              //           Edit
+              //         </Button>
+              //       </div>
+              //     );
+              //   },
+              // },
+
+              {
+                key: "side",
+                label: "Bet On",
+                format: (val: number) => {
+                  return val == 1 ? "Meron" : "Wala";
+                },
+              },
+              {
                 key: "amount",
                 label: "AMOUNT",
                 customValueClass: "text-semiYellow",
                 format: (val: string) => {
                   return formatMoney(val);
-                },
-              },
-              {
-                key: "side",
-                label: "Side",
-                format: (val: number) => {
-                  return val == 1 ? "Meron" : "Wala"
                 },
               },
             ]}

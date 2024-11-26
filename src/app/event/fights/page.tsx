@@ -184,12 +184,16 @@ const Fight = () => {
     setIsLoading(true);
     setSelectedFight(fight);
     setIsModalFightOpen(true);
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 100);
+    refreshFields()
     // setWalaImage("");
     // setMeronImage("");
   };
+
+  const refreshFields = () =>{
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 100);
+  }
 
   const getFightDetailValue = (side: any, property: any) => {
     if (selectedFight && selectedFight.fightDetails.length > 0) {
@@ -205,7 +209,6 @@ const Fight = () => {
   };
 
   const onFightDetailsSubmit = async (e: any) => {
-    setIsLoading(true);
     setErrorMessage("");
     e.preventDefault();
 
@@ -215,36 +218,36 @@ const Fight = () => {
       return;
     }
     if (!form["meron-owner"].value) {
-      setErrorMessage("Please Enter Meron Owner");
+      setErrorMessage("Please Enter Meron First Name");
       return;
     }
     if (!form["meron-breed"].value) {
-      setErrorMessage("Please Enter Meron Breed");
+      setErrorMessage("Please Enter Meron Last Name");
       return;
     }
     if (!form["meron-weight"].value) {
-      setErrorMessage("Please Enter Meron Weight");
+      setErrorMessage("Please Enter Meron Age");
       return;
     }
     if (!form["meron-tag"].value) {
-      setErrorMessage("Please Enter Meron Tag");
+      setErrorMessage("Please Enter Meron Remarks");
       return;
     }
 
     if (!form["wala-owner"].value) {
-      setErrorMessage("Please Enter Wala Owner");
+      setErrorMessage("Please Enter Wala First Name");
       return;
     }
     if (!form["wala-breed"].value) {
-      setErrorMessage("Please Enter Wala Breed");
+      setErrorMessage("Please Enter Wala Last Name");
       return;
     }
     if (!form["wala-weight"].value) {
-      setErrorMessage("Please Enter Wala Weight");
+      setErrorMessage("Please Enter Wala Age");
       return;
     }
     if (!form["wala-tag"].value) {
-      setErrorMessage("Please Enter Wala Tag");
+      setErrorMessage("Please Enter Wala Remarks");
       return;
     }
     const request = {
@@ -279,6 +282,8 @@ const Fight = () => {
       ],
     };
     setSelectedFight(request);
+    setIsLoading(true);
+   
     await axios
       .post("/api/event/fight", request)
       .then(() => {
@@ -304,7 +309,7 @@ const Fight = () => {
         }
       })
       .finally(() => {
-        setIsLoading(false);
+        refreshFields();
       });
   };
 
@@ -339,28 +344,28 @@ const Fight = () => {
             <FormField
               name="meron-owner"
               label=""
-              placeholder="Enter Owner"
+              placeholder="Enter First Name"
               type="text"
               value={getFightDetailValue(1, "owner")}
             />
             <FormField
               name="meron-breed"
               label=""
-              placeholder="Enter Breed"
+              placeholder="Enter Last Name"
               value={getFightDetailValue(1, "breed")}
               type="text"
             />
             <FormField
               name="meron-weight"
               label=""
-              placeholder="Enter Weight"
+              placeholder="Enter Age"
               value={getFightDetailValue(1, "weight")}
               type="text"
             />
             <FormField
               name="meron-tag"
               label=""
-              placeholder="Enter Tag"
+              placeholder="Enter Remarks"
               value={getFightDetailValue(1, "tag")}
               type="text"
             />
@@ -370,28 +375,28 @@ const Fight = () => {
             <FormField
               name="wala-owner"
               label=""
-              placeholder="Enter Owner"
+              placeholder="Enter First Name"
               value={getFightDetailValue(0, "owner")}
               type="text"
             />
             <FormField
               name="wala-breed"
               label=""
-              placeholder="Enter Breed"
+              placeholder="Enter Last Name"
               value={getFightDetailValue(0, "breed")}
               type="text"
             />
             <FormField
               name="wala-weight"
               label=""
-              placeholder="Enter Weight"
+              placeholder="Enter Age"
               value={getFightDetailValue(0, "weight")}
               type="text"
             />
             <FormField
               name="wala-tag"
               label=""
-              placeholder="Enter Tag"
+              placeholder="Enter Remarks"
               value={getFightDetailValue(0, "tag")}
               type="text"
             />

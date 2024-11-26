@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { luckTayaAxios } from "@/util/axiosUtil";
 import { formatGenericErrorResponse } from "@/util/commonResponse";
 import { getCurrentSession } from "@/context/auth";
+import axios from "axios";
 
 const POST = async (req: NextRequest) => {
   try {

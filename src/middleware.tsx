@@ -36,13 +36,10 @@ const middleware = async (request: NextRequest) => {
 
   const validRoutes = protectedRoutes.concat(publicRoutes);
 
-  let isValidRoutes = validRoutes.some(
+  const isValidRoutes = validRoutes.some(
     (route) => pathname.startsWith(route) || pathname === route
   );
 
-  if (pathname.startsWith("/players")) {
-    isValidRoutes = false;
-  }
   if (pathname.startsWith("/dashboard")) {
     if (currentSession.roles.includes('admin') && currentSession.accountType === 9) {
       return NextResponse.redirect(new URL("/admin/dashboard", request.nextUrl));

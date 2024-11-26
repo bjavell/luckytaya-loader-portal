@@ -54,18 +54,18 @@ const POST = async (req: NextRequest) => {
                 //     toAccountNumber: config.commissionAccountNumber
                 // })
 
-                console.log('Agent To Incovenience Fee Account/Wallet')
-                const agentToFee = await fundTransferV2(auth, {
-                    amount: fees,
-                    toAccountNumber: config.commissionAccountNumber
-                })
+                // console.log('Agent To Incovenience Fee Account/Wallet')
+                // const agentToFee = await fundTransferV2(auth, {
+                //     amount: fees,
+                //     toAccountNumber: config.commissionAccountNumber
+                // })
 
                 // console.log('Commission Account/Wallet to Agent')
                 // const commissionToAgent = await otherAccountTransfer(commissionFee, transaction.agentAccountNumber, config, ACCOUNT_TYPE.COMMISSION)
 
 
 
-                transaction.agentToFee = agentToFee
+                // transaction.agentToFee = agentToFee
                 // transaction.agentToCommission = agentToCommission
                 transaction.masterAgentToAgent = masterAgentToAgent
                 // transaction.commissionToAgent = commissionToAgent

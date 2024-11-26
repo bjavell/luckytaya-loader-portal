@@ -82,7 +82,7 @@ const SideBar = () => {
                 setRoutes(sideBarEventRoutes)
             else if (data.accountType === 2 && data.roles?.includes('acctmgr'))
                 setRoutes(sideBarMasterRoutes)
-            else if (data.accountType === 7) setRoutes(sideBarAgentRoutes)
+            else if ((data.accountType === 6 || data.accountType === 7) && data.roles?.includes('acctmgr')) setRoutes(sideBarAgentRoutes)
         }
     }, [data])
     // const getUserDetails = async () => {
@@ -116,7 +116,7 @@ const SideBar = () => {
             sideBarSlug = 'Event Manager'
         } else if (data.accountType === 2 && data.roles?.includes('acctmgr')) {
             sideBarSlug = 'Master Agent Portal'
-        } else if (data.accountType === 7) {
+        } else if ((data.accountType === 6 || data.accountType === 7) && data.roles?.includes('acctmgr')) {
             sideBarSlug = 'Agent Portal'
         }
     }

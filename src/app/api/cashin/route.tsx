@@ -27,32 +27,32 @@ const POST = async (req: NextRequest) => {
                 },
             })
 
-            console.log('Agent to Fee')
-            // await otherAccountTransfer(convFee * -1, toAccountNumber, config, ACCOUNT_TYPE.FEE)
-            await luckTayaAxios.get(`/api/v1/Account/transferV2`, {
-                params: {
-                    amount: convFee,
-                    toAccountnumber: config.convenienceAccountNumber
-                },
-                headers: {
-                    'Authorization': `Bearer ${currentSession.token}`,
-                },
-            })
+            // console.log('Agent to Fee')
+            // // await otherAccountTransfer(convFee * -1, toAccountNumber, config, ACCOUNT_TYPE.FEE)
+            // await luckTayaAxios.get(`/api/v1/Account/transferV2`, {
+            //     params: {
+            //         amount: convFee,
+            //         toAccountnumber: config.convenienceAccountNumber
+            //     },
+            //     headers: {
+            //         'Authorization': `Bearer ${currentSession.token}`,
+            //     },
+            // })
 
-            console.log('Agent to Commission')
-            // await otherAccountTransfer(comFee * -1, toAccountNumber, config, ACCOUNT_TYPE.COMMISSION)
-            await luckTayaAxios.get(`/api/v1/Account/transferV2`, {
-                params: {
-                    amount: comFee,
-                    toAccountnumber: config.commissionAccountNumber
-                },
-                headers: {
-                    'Authorization': `Bearer ${currentSession.token}`,
-                },
-            })
+            // console.log('Agent to Commission')
+            // // await otherAccountTransfer(comFee * -1, toAccountNumber, config, ACCOUNT_TYPE.COMMISSION)
+            // await luckTayaAxios.get(`/api/v1/Account/transferV2`, {
+            //     params: {
+            //         amount: comFee,
+            //         toAccountnumber: config.commissionAccountNumber
+            //     },
+            //     headers: {
+            //         'Authorization': `Bearer ${currentSession.token}`,
+            //     },
+            // })
 
-            console.log('Commission to Agent')
-            await otherAccountTransfer(comFee, currentSession.accountNumber, config, ACCOUNT_TYPE.COMMISSION)
+            // console.log('Commission to Agent')
+            // await otherAccountTransfer(comFee, currentSession.accountNumber, config, ACCOUNT_TYPE.COMMISSION)
 
         } else {
             throw new Error('Oops! an error occurred')

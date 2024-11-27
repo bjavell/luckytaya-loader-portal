@@ -128,8 +128,6 @@ const loginAccount = async (config: any, accountType: string) => {
             password
         }
 
-        console.log(request)
-
         const response = await luckTayaAxios.post(`/api/v1/User/Login`, request)
         const responseData = response.data
 
@@ -153,7 +151,6 @@ const loginAccount = async (config: any, accountType: string) => {
             token: responseData.token
         }
     } catch (e) {
-        console.log(e)
     }
 
     return {

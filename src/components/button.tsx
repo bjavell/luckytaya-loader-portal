@@ -16,7 +16,7 @@ interface ButtonProps {
 const Button: NextPage<ButtonProps> = (props) => {
     const { children, customCss, textColor, size, type, onClick } = props
 
-    let customSize = 'text-[20px]'
+    let customSize = 'text-base'
     if (size) {
         customSize = size
     }

@@ -15,10 +15,10 @@ const CommonLayout: React.FC<{ children: ReactNode, slug: string }> = ({ childre
             <div className="text-neutralGray">
                 <div className="flex relative">
                     <SideBar isOpen={isSideBarOpen} toggleSideBar={() => setIsSideBarOpen(!isSideBarOpen)} />
-                    <main className="lg:ml-56 w-full flex flex-col max-h-screen">
+                    <main className="lg:ml-56 w-full flex flex-col h-dvh">
                         <NavBar slug={slug} toggleSidebar={() => setIsSideBarOpen(!isSideBarOpen)} />
-                        <div className="flex relative bg-black w-full h-full">
-                            <Image src={loginBG} alt="" className="object-cover w-full h-full mix-blend-luminosity relative opacity-10 fixed" priority={false} />
+                        <div className="flex relative bg-black w-full h-full overflow-auto">
+                            <Image src={loginBG} alt="" className="object-cover w-full h-full mix-blend-luminosity relative opacity-10" priority={false} />
                             <div className="absolute inset-0 flex py-10 px-14 overflow-auto">
                                 {children}
                             </div>

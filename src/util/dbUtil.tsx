@@ -10,6 +10,15 @@ const findOne = async (collection: string, query: any) => {
     return data
 }
 
+const findAll = async (collection: string, query: any) => {
+
+    const database = await db()
+    const dbCollection = database.collection(collection)
+    const cursor = dbCollection.find(query)
+
+    return await cursor.toArray()
+}
+
 const insert = async (collection: string, query: any) => {
 
     const database = await db()
@@ -30,5 +39,6 @@ const update = async (collection: string, query: any, newDocument: any) => {
 export {
     findOne,
     insert,
-    update
+    update,
+    findAll
 }

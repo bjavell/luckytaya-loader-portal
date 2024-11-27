@@ -190,7 +190,7 @@ const Players = () => {
                             <label htmlFor="roles" className="text-white font-sans font-light text-nowrap text-xs">Roles</label>
                             <div className="grid grid-cols-2 gap-4">
                                 {userRole.map((e: string) => {
-                                    return <div key={e} className="flex gap-4">
+                                    return <div key={e} className="flex gap-4 items-center">
                                         <input
                                             type="checkbox"
                                             value={e}

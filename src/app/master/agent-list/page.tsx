@@ -8,6 +8,8 @@ import AccountType from "@/classes/accountTypeData"
 import Button from "@/components/button"
 import ConfirmationModal from "@/components/confirmationModal"
 import FormField from "@/components/formField"
+import { useApiData } from "@/app/context/apiContext"
+import BalanceBar from "@/components/balanceBar"
 
 const Players = () => {
     const router = useRouter()
@@ -27,6 +29,10 @@ const Players = () => {
     const [filteredOrphans, setFilteredOrphans] = useState([])
     const [orphanSearch, setOrphanSearch] = useState('')
     const [index, setIndex] = useState(0)
+
+    const [balance, setBalance] = useState('')
+
+    const { data } = useApiData()
 
     const getMembers = async () => {
         await axios.get('/api/get-user-members')
@@ -66,6 +72,8 @@ const Players = () => {
     useEffect(() => {
         getMembers()
         getAcccountType()
+        if (data)
+            setBalance(data.balance)
     }, [])
 
     const onToggleConfirmModal = (item: any, action: string) => {
@@ -143,6 +151,7 @@ const Players = () => {
                 message="Proceed with the changes?"
             />
             <div className="flex flex-col gap-4 w-full overflow-auto pr-4">
+                <BalanceBar balance={balance} />
                 <div className="flex gap-4 flex-col">
                     <h1 className="text-xl">Agents</h1>
                     <div className="flex items-center gap-2 w-1/3">
@@ -233,16 +242,6 @@ const Players = () => {
                                 {
                                     key: 'accountNumber',
                                     label: 'ACCOUNT NUMBER'
-                                },
-                                {
-                                    key: 'accountType',
-                                    label: 'ACCOUNT TYPE',
-                                    format(item: any) {
-
-                                        const account = accountType.find(e => e?.accountType === item)
-
-                                        return account?.description ?? item
-                                    }
                                 },
                                 {
                                     key: 'balance',

@@ -6,7 +6,7 @@ import { ReactNode } from "react"
 
 
 
-const BalanceBar: NextPage<{ rigthElement: ReactNode, balance: string }> = (props) => {
+const BalanceBar: NextPage<{ rigthElement?: ReactNode, balance: string }> = (props) => {
 
     const { rigthElement: title, balance } = props
     return (

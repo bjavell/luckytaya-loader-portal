@@ -103,8 +103,6 @@ const SideBar: React.FC<{ isOpen: boolean, toggleSideBar: () => void }> = (props
         }
     }
 
-    console.log(data)
-
 
     return (
         <aside className={`bg-darkGrey flex flex-col lg:block w-56 h-screen top-0 fixed z-10 text-sm lg:text-base transform transition-transform ease-in-out duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 `}>

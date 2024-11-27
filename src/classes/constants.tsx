@@ -14,7 +14,8 @@ const QR_TRANSACTION_STATUS = {
 const DB_COLLECTIONS = {
     CONFIG: 'config',
     QR_TRANSACITON: 'qr_transactions',
-    TAYA_USERS: 'taya_user'
+    TAYA_USERS: 'taya_user',
+    TAYA_AGENTS: 'taya_agent'
 }
 
 const TRAN_TYPE = {

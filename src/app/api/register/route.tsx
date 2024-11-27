@@ -1,10 +1,15 @@
+import { DB_COLLECTIONS, QR_TRANSACTION_STATUS } from "@/classes/constants";
+import CustomError from "@/classes/customError";
 import { getCurrentSession } from "@/context/auth";
 import { luckTayaAxios } from "@/util/axiosUtil";
 import { formatGenericErrorResponse } from "@/util/commonResponse";
-import { decrypt } from "@/util/cryptoUtil";
+import { decrypt, encrypt } from "@/util/cryptoUtil";
+import { insert } from "@/util/dbUtil";
 import { getToken } from "@/util/generator";
 import { NextRequest, NextResponse } from "next/server";
 import nodemailer from 'nodemailer'
+import { type } from "os";
+import { comment } from "postcss";
 
 const tempPassword = process.env.TEMP_PASSWORD
 
@@ -41,25 +46,55 @@ const POST = async (req: NextRequest) => {
 
         const generatedPassword = getToken(8)
 
-        const registerResponse = await luckTayaAxios.post('/api/v1/User/Register', { ...request, password: generatedPassword })
 
-        const { accountNumber, userId } = registerResponse.data
-
-        const updateAccount = {
-            roles: request.roles,
-            accountNumber,
-            userId,
-            suspended: 0,
-            accountType: request.accountType
-        }
-
-        await luckTayaAxios.put('/api/v1/User/UserRoleAccountTypeUpdate', updateAccount, {
+        const mgmtUsersResponse = await luckTayaAxios.get(`/api/v1/User/MgmtRole`, {
             headers: {
                 'Authorization': `Bearer ${currentSession.token}`,
             },
         })
 
-        await sendEmail(request.email, request.username, generatedPassword)
+        const mgmtUsersResponseData = mgmtUsersResponse.data
+        let hasMasterAccount
+
+        if (Number(request.accountType) === Number(6)) {
+            hasMasterAccount = mgmtUsersResponseData.filter((e: any) => {
+                return Number(e.accountNumber) === Number(request.masterAgentAccountNumber)
+            })
+
+        }
+
+        if ((hasMasterAccount?.length > 0 && Number(request.accountType) === Number(6)) || Number(request.accountType) !== Number(6)) {
+            const registerResponse = await luckTayaAxios.post('/api/v1/User/Register', { ...request, password: generatedPassword })
+
+            const { accountNumber, userId } = registerResponse.data
+
+            const updateAccount = {
+                roles: request.roles,
+                accountNumber,
+                userId,
+                suspended: 0,
+                accountType: request.accountType
+            }
+
+            await luckTayaAxios.put('/api/v1/User/UserRoleAccountTypeUpdate', updateAccount, {
+                headers: {
+                    'Authorization': `Bearer ${currentSession.token}`,
+                },
+            })
+
+            await insert(DB_COLLECTIONS.TAYA_AGENTS, {
+                request,
+                response: registerResponse.data
+            })
+
+            await sendEmail(request.email, request.username, generatedPassword)
+        } else {
+            throw new CustomError('Bad request', {
+                'Bad request': [`Master Agent Account '${request.masterAgentAccountNumber}' not found.`]
+            })
+        }
+
+
 
         return NextResponse.json({ 'message': 'User succesffully created' })
     } catch (e: any) {

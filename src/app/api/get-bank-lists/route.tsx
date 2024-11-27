@@ -27,8 +27,6 @@ const GET = async () => {
         }
 
         const response = await starpayAxios.post(`${process.env.NEXT_PUBLIC_BASE_URL_STARPAY}/v1/disburse`, data)
-        console.log(data)
-        console.log(response.data)
         const responseData = response.data
 
 

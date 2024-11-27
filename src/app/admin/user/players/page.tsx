@@ -274,15 +274,15 @@ const Players = () => {
                                 <div className="flex flex-col flex-1 gap-4">
                                     <label htmlFor="roles" className="text-white font-sans font-light text-nowrap text-xs">Roles</label>
                                     <div className="grid grid-cols-2 gap-4">
-                                        {accountRole.map((e: string) => {
-                                            return <div key={e} className="flex gap-4">
+                                        {accountRole.map((e: any) => {
+                                            return <div key={e.key} className="flex gap-4 items-center">
                                                 <input
                                                     type="checkbox"
-                                                    value={e}
+                                                    value={e.key}
                                                     checked={modalData.roles.includes(e)}
-                                                    onChange={(e) => onHandleCheckBox(e.target.value, e.target.checked)}
+                                                    onChange={(event) => onHandleCheckBox(event.target.value, event.target.checked)}
                                                 />
-                                                <label>{e}</label>
+                                                <label>{e.description}</label>
                                             </div>
                                         })}
                                     </div>
@@ -314,7 +314,7 @@ const Players = () => {
                             isLoading={isLoading}
                             type={"button"}
                             textColor="text-red"
-                            >
+                        >
                             Cancel
                         </Button>
                         <Button
@@ -337,12 +337,12 @@ const Players = () => {
                         <select id="status" className="rounded-xlg py-4 px-4 bg-semiBlack font-sans font-light text-[13px] tacking-[5%] text-white" value={status} onChange={(e) => onUserSearch(search, e.target.value)}>
                             <option value="ALL">ALL</option>
                             <option value="0">Active</option>
-                            <option value="1">Inactive</option>
+                            <option value="1">Suspended</option>
                         </select>
                     </div>
                 </div>
             </div>
-            <div className="flex flex-col">
+            <div className="flex flex-col pr-4 m-4">
                 <Tables
                     primaryId="accountNumber"
                     headers={[

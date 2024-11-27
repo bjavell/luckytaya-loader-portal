@@ -8,6 +8,15 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      // fontSize: {
+      //   sm: '1rem',
+      //   base: '1.25rem',
+      //   xl: '1.5rem',
+      //   '2xl': '2.126rem',
+      //   '3xl': '3.906rem',
+      //   '4xl': '4.882rem',
+      //   '5xl': '6.104rem',
+      // },
       backgroundImage: {
         'yellow-green': 'linear-gradient(to right, #C1C957, #73984F)',
         'darkGrey-mattBlack': 'linear-gradient(to right, #242424, #242424)'
@@ -33,7 +42,7 @@ const config: Config = {
         xlg: '15px'
       },
       height: {
-        '96.75' : '27.563rem'
+        '96.75': '27.563rem'
       }
     },
   },

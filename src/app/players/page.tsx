@@ -101,16 +101,16 @@ const Players = () => {
                             key: 'accountNumber',
                             label: 'ACCOUNT NUMBER'
                         },
-                        {
-                            key: 'accountType',
-                            label: 'ACCOUNT TYPE',
-                            format(item: any) {
+                        // {
+                        //     key: 'accountType',
+                        //     label: 'ACCOUNT TYPE',
+                        //     format(item: any) {
 
-                                const account = accountType.find(e => e?.accountType === item)
+                        //         const account = accountType.find(e => e?.accountType === item)
 
-                                return account?.description ?? item
-                            }
-                        },
+                        //         return account?.description ?? item
+                        //     }
+                        // },
                         {
                             key: 'balance',
                             label: 'BALANCE',

@@ -273,15 +273,15 @@ const Players = () => {
                                 <div className="flex flex-col flex-1 gap-4">
                                     <label htmlFor="roles" className="text-white font-sans font-light text-nowrap text-xs">Roles</label>
                                     <div className="grid grid-cols-2 gap-4">
-                                        {accountRole.map((e: string) => {
-                                            return <div key={e} className="flex gap-4">
+                                        {accountRole.map((e: any) => {
+                                            return <div key={e.key} className="flex gap-4 items-center">
                                                 <input
                                                     type="checkbox"
-                                                    value={e}
-                                                    checked={modalData.roles.includes(e)}
+                                                    value={e.key}
+                                                    checked={modalData.roles.includes(e.key)}
                                                     onChange={(e) => onHandleCheckBox(e.target.value, e.target.checked)}
                                                 />
-                                                <label>{e}</label>
+                                                <label>{e.description}</label>
                                             </div>
                                         })}
                                     </div>
@@ -289,7 +289,7 @@ const Players = () => {
                                 </div>
                                 <div className="flex flex-col flex-1 gap-4">
                                     <label htmlFor="accountType" className="text-white font-sans font-light text-nowrap text-xs">Account Type</label>
-                                    <select id="accountType" className="rounded-xlg py-4 px-4 bg-semiBlack font-sans font-light text-[13px] tacking-[5%] text-white" value={modalData.accountType} onChange={(e) => onAccountTypeChange(e.target.value)}>
+                                    <select id="accountType" className="rounded-xlg py-4 px-4 bg-semiBlack font-sans font-light text-sm tacking-[5%] text-white" value={modalData.accountType} onChange={(e) => onAccountTypeChange(e.target.value)}>
                                         {
                                             accountType ?
                                                 accountType.map((e: any) => {
@@ -299,7 +299,7 @@ const Players = () => {
                                         }
                                     </select>
                                     <label htmlFor="suspend" className="text-white font-sans font-light text-nowrap text-xs">Suspend?</label>
-                                    <select id="accountType" className="rounded-xlg py-4 px-4 bg-semiBlack font-sans font-light text-[13px] tacking-[5%] text-white" value={modalData.suspended} onChange={(e) => onSuspendChange(e.target.value)}>
+                                    <select id="accountType" className="rounded-xlg py-4 px-4 bg-semiBlack font-sans font-light text-sm tacking-[5%] text-white" value={modalData.suspended} onChange={(e) => onSuspendChange(e.target.value)}>
                                         <option value={0}>No</option>
                                         <option value={1}>Yes</option>
                                     </select>
@@ -333,10 +333,10 @@ const Players = () => {
                 <div className="flex flex-row">
                     <div className="gap-2 flex">
                         <label htmlFor="status" className="flex items-center">Status</label>
-                        <select id="status" className="rounded-xlg py-4 px-4 bg-semiBlack font-sans font-light text-[13px] tacking-[5%] text-white" value={status} onChange={(e) => onUserSearch(search, e.target.value)}>
+                        <select id="status" className="rounded-xlg py-4 px-4 bg-semiBlack font-sans font-light text-sm tacking-[5%] text-white" value={status} onChange={(e) => onUserSearch(search, e.target.value)}>
                             <option value="ALL">ALL</option>
                             <option value="0">Active</option>
-                            <option value="1">Inactive</option>
+                            <option value="1">Suspended</option>
                         </select>
                     </div>
                 </div>

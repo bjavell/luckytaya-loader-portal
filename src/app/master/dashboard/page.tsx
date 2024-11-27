@@ -44,7 +44,7 @@ const Home = () => {
                 <Image src={AgentIco} alt="" /> <span className="text-semiYellow font-semibold text-2xl">{directMember.length}</span> Total Agents
             </div>
             <div className="flex bg-codGray p-4 rounded text-neutralGray gap-2 items-center">
-                <Image src={UserIco} alt="" /> <span className="text-semiYellow font-semibold text-2xl">{indirectMember.length + directMember.length}</span>Total Users
+                <Image src={UserIco} alt="" /> <span className="text-semiYellow font-semibold text-2xl">{indirectMember.length }</span>Total Players
             </div>
         </div>
     }

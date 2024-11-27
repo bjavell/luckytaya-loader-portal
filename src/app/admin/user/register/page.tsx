@@ -19,6 +19,7 @@ interface UserRegistrationProps {
     referralCode: number;
     accountType: number;
     roles: string[];
+    masterAgentAccountNumber: number;
 }
 
 const Players = () => {
@@ -35,13 +36,15 @@ const Players = () => {
         facebookAccount: '',
         referralCode: 0,
         accountType: 8,
-        roles: []
+        roles: [],
+        masterAgentAccountNumber: 0
     })
     const [index, setIndex] = useState(0)
 
     const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
     const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
     const [alertMessage, setAlertMessage] = useState('');
+    const [isShowMasterAgenctAccountField, setIsShowMasterAgenctAccountField] = useState(false)
 
     const getUserType = async () => {
         await axios.get('/api/get-account-type')
@@ -109,6 +112,13 @@ const Players = () => {
             ...prevState,
             [name]: value
         }))
+        if (name === 'accountType') {
+            if (value === '6') {
+                setIsShowMasterAgenctAccountField(true)
+            } else {
+                setIsShowMasterAgenctAccountField(false)
+            }
+        } else { setIsShowMasterAgenctAccountField(false) }
     }
 
 
@@ -136,14 +146,25 @@ const Players = () => {
                 facebookAccount: '',
                 referralCode: 0,
                 accountType: 8,
-                roles: []
+                roles: [],
+                masterAgentAccountNumber: 0
             })
             setIndex(index + 1)
             setIsAlertModalOpen(true)
             setAlertMessage(response.data.message)
         } catch (e: any) {
+            const errorMessages = e?.response?.data?.error
+            if (errorMessages) {
+                if (errorMessages['Bad request']) {
+                    setAlertMessage(errorMessages['Bad request'][0])
+                } else {
+                    setAlertMessage('An Error occured please try again')
+                }
+
+            } else {
+                setAlertMessage('An Error occured please try again')
+            }
             setIsAlertModalOpen(true)
-            setAlertMessage('Oops! something went wrong')
         } finally {
             setIsLoading(false)
         }
@@ -188,15 +209,15 @@ const Players = () => {
                         <div className="flex flex-col flex-1 gap-4">
                             <label htmlFor="roles" className="text-white font-sans font-light text-nowrap text-xs">Roles</label>
                             <div className="grid grid-cols-2 gap-4">
-                                {userRole.map((e: string) => {
-                                    return <div key={e} className="flex gap-4">
+                                {userRole.map((e: any) => {
+                                    return <div key={e.key} className="flex gap-4 items-center">
                                         <input
                                             type="checkbox"
-                                            value={e}
-                                            checked={userRegistration.roles.includes(e)}
-                                            onChange={(e) => onHandleCheckBox(e.target.value, e.target.checked)}
+                                            value={e.key}
+                                            checked={userRegistration.roles.includes(e.key)}
+                                            onChange={(event) => onHandleCheckBox(event.target.value, event.target.checked)}
                                         />
-                                        <label>{e}</label>
+                                        <label>{e.description}</label>
                                     </div>
                                 })}
                             </div>
@@ -215,6 +236,8 @@ const Players = () => {
 
                             </div>
                         </div>
+
+                        {isShowMasterAgenctAccountField ? <FormField name={"masterAgentAccountNumber"} label="Master Agent Account Number" customLabelClass="text-xs" onBlur={handleChange} value={userRegistration.masterAgentAccountNumber} required /> : ''}
                     </div>
                     <Button isLoading={isLoading} loadingText="Loading..." onClick={onToggleConfirmModal} type={"button"}>Submit</Button>
                 </div>

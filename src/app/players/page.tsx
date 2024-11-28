@@ -66,7 +66,7 @@ const Players = () => {
 
     const onCashin = (item: any) => {
         const url = `/loading-station/cash-in/player?accountNumber=${item.accountNumber}`
-        window.open(url, '_blank')
+        router.push(url)
     }
 
     const onUserSearch = (value: string) => {

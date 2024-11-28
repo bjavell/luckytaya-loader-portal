@@ -12,7 +12,7 @@ const luckTayaAxios: AxiosInstance = axios.create({
 })
 
 const starpayAxios: AxiosInstance = axios.create({
-    baseURL: process.env.STARPAY_BASE_URL
+    baseURL: process.env.NEXT_PUBLIC_BASE_URL_STARPAY
 })
 
 export {

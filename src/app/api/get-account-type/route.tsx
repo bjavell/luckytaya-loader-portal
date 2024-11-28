@@ -30,10 +30,10 @@ const GET = async (req: NextRequest) => {
             //     "accountType": 3,
             //     "description": "National"
             // },
-            // {
-            //     "accountType": 4,
-            //     "description": "Dealer"
-            // },
+            {
+                "accountType": 4,
+                "description": "Declarator"
+            },
             // {
             //     "accountType": 5,
             //     "description": "DealerAgent"

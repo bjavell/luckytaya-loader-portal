@@ -23,6 +23,19 @@ interface UserRegistrationProps {
 }
 
 const Players = () => {
+
+
+    const now = new Date();
+
+    // Get each component (as numbers)
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1; // getMonth() is 0-based, so add 1
+    const day = now.getDate();
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+    const seconds = now.getSeconds();
+    const milliseconds = now.getMilliseconds();
+
     const router = useRouter()
     const [isLoading, setIsLoading] = useState(false)
     const [userType, setUserType] = useState([])
@@ -34,7 +47,9 @@ const Players = () => {
         phoneNumber: '',
         email: '',
         facebookAccount: '',
-        referralCode: 0,
+        referralCode: Number(
+            `${year}${month.toString().padStart(2, '0')}${day.toString().padStart(2, '0')}${hours.toString().padStart(2, '0')}${minutes.toString().padStart(2, '0')}${seconds.toString().padStart(2, '0')}${milliseconds.toString().padStart(3, '0')}`
+          ),
         accountType: 8,
         roles: [],
         masterAgentAccountNumber: 0
@@ -205,7 +220,7 @@ const Players = () => {
                         <FormField name={"phoneNumber"} label="Phone Number" customLabelClass="text-xs" onBlur={handleChange} value={userRegistration.phoneNumber} required />
                         <FormField name={"email"} label="Email" customLabelClass="text-xs" type="email" pattern={PATTERNS.EMAIL} errorMessage="Invalid Email Address" onBlur={handleChange} value={userRegistration.email} required />
 
-                        <FormField name={"referralCode"} label="Referral Code" customLabelClass="text-xs" onBlur={handleChange} value={userRegistration.referralCode} required />
+                        <FormField name={"referralCode"} label="Referral Code" customLabelClass="text-xs" value={userRegistration.referralCode} readonly />
                         <div className="flex flex-col flex-1 gap-4">
                             <label htmlFor="roles" className="text-white font-sans font-light text-nowrap text-xs">Roles</label>
                             <div className="grid grid-cols-2 gap-4">

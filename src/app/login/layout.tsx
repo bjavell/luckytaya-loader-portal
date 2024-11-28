@@ -1,4 +1,3 @@
-import Head from "next/head"
 import Image from "next/image"
 import { ReactNode } from "react"
 import loginBG from '@/assets/images/login-bg.svg'
@@ -10,9 +9,6 @@ const Layout: React.FC<{ children: ReactNode }> = ({ children }) => {
 
     return (
         <div className="h-screen flex">
-            <Head>
-                <title>Login</title>
-            </Head>
             <main>
                 <div className="flex flex-row h-screen w-screen bg-gray13">
                     <div className="hidden lg:block lg:w-1/2 flex items-center justify-center relative bg-black">

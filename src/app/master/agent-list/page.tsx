@@ -209,7 +209,7 @@ const Players = () => {
                                         <Button
                                             onClick={() => {
                                                 const url = `/loading-station/cash-in/agent?accountNumber=${item.accountNumber}`
-                                                window.open(url, '_blank')
+                                                router.push(url)
                                             }}
                                             type={"button"}
                                             size="text-xs"

@@ -11,9 +11,7 @@ module.exports = {
         max_memory_restart: '200M',  // Optionally restart app if it exceeds 1 GB of memory
         env: {
           NODE_ENV: 'development'  // Environment variables, you can add more here
-        },
-         post_update: 'npm install && npm run build:admin'
-      }
+        },      }
     ]
   };
   

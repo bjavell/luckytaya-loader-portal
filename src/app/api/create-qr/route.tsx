@@ -16,9 +16,9 @@ const createRequest = (req: NextRequest, privateKey: Buffer, type: string) => {
 
     let notifyUrl
     if (type === TRAN_TYPE.CASHIN) {
-        notifyUrl = 'http://136.158.92.61:6001/api/notify/cashin'
+        notifyUrl = 'https://lucky-stg-backoffice.dvcode.tech/api/notify/cashin'
     } else {
-        notifyUrl = 'http://136.158.92.61:6001/api/notify/cashout'
+        notifyUrl = 'https://lucky-stg-backoffice.dvcode.tech/api/notify/cashout'
     }
 
 

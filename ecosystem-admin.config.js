@@ -12,7 +12,7 @@ module.exports = {
         env: {
           NODE_ENV: 'development'  // Environment variables, you can add more here
         },
-        "pre-start": "npm i && npm run build:admin"
+         post_update: 'npm install && npm run build:admin'
       }
     ]
   };

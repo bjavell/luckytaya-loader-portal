@@ -35,7 +35,11 @@ const Players = () => {
     const { data } = useApiData()
 
     const getMembers = async () => {
-        await axios.get('/api/get-user-members')
+        await axios.get('/api/get-user-members', {
+            params: {
+                type: 'agents'
+            }
+        })
             .then(response => {
                 const responseData = response.data
                 setAgents(responseData.direct)

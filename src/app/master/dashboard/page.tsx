@@ -18,7 +18,11 @@ const Home = () => {
 
 
     const getMembers = async () => {
-        await axios.get('/api/get-user-members')
+        await axios.get('/api/get-user-members', {
+            params: {
+                type:'agents'
+            }
+        })
             .then(response => {
                 const responseData = response.data
                 setDirectMember(responseData.direct)

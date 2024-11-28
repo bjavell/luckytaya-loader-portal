@@ -18,10 +18,14 @@ const Players = () => {
 
     const getPlayerLists = async () => {
 
-        await axios.get('/api/get-user-members')
+        await axios.get('/api/get-user-members', {
+            params: {
+                type: 'players'
+            }
+        })
             .then(response => {
-                setPlayers(response.data.direct)
-                setFilterPlayers(response.data.direct)
+                setPlayers(response.data)
+                setFilterPlayers(response.data)
             })
             .catch((e) => {
                 const errorMessages = e.response.data.error
@@ -92,7 +96,7 @@ const Players = () => {
                     primaryId="accountNumber"
                     headers={[
                         {
-                            key: 'fistname',
+                            key: 'firstname',
                             label: 'COMPLETE NAME',
                             concatKey: ['lastname'],
                             concatSeparator: ' '
@@ -117,10 +121,11 @@ const Players = () => {
                             format: (val: string) => {
                                 return formatMoney(val)
                             }
-                        }, {
-                            key: 'principalAccountNumber',
-                            label: 'PRINCIPAL ACCOUNT NUMBER'
-                        },
+                        }, 
+                        // {
+                        //     key: 'principalAccountNumber',
+                        //     label: 'PRINCIPAL ACCOUNT NUMBER'
+                        // },
                         {
                             key: '',
                             label: 'ACTION',

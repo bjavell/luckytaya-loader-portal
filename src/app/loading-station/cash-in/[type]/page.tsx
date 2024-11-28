@@ -164,7 +164,11 @@ const PlayerCashin = () => {
 
     const searchAgent = async (accountNumber: string) => {
         setIsLoading(true)
-        await axios.get('/api/get-user-members')
+        await axios.get('/api/get-user-members', {
+            params: {
+                type: 'agents'
+            }
+        })
             .then((response) => {
                 const responseData = response.data
 

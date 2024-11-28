@@ -85,7 +85,7 @@ const sideBarEventRoutes = [{
         link: '/event'
     },
     {
-        module: 'Add Fight',
+        module: 'Add Game',
         ico: Dashboard,
         link: '/event/fights'
     },

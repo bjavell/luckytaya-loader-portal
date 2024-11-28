@@ -1,7 +1,7 @@
 module.exports = {
     apps: [
       {
-        name: 'luckytaya-backoffice',        // Name of your application
+        name: 'luckytaya-admin',        // Name of your application
         script: 'npm',             // PM2 will run npm directly
         args: 'run start:admin',   // The script to run (npm run start:admin)
         instances: 3,              // Number of clusters (can be increased dynamically)

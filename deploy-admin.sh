@@ -13,4 +13,4 @@ npm install
 npm run build:admin
 
 # Restart the PM2 application (replace with your app name)
-pm2 restart luckytaya-backoffice
+pm2 restart luckytaya-admin

@@ -219,7 +219,7 @@ const Fight = () => {
 
     const form = e.target;
     if (!form["fightNum"].value) {
-      setErrorMessage("Please Enter Fight Number");
+      setErrorMessage("Please Enter Game Number");
       return;
     }
     if (!form["meron-owner"].value) {
@@ -324,8 +324,8 @@ const Fight = () => {
         <div className="col-span-4 grid grid-cols-5 grid-rows-1 gap-2">
           <FormField
             name="fightNum"
-            label="Fight Number"
-            placeholder="Enter Fight Number"
+            label="Game Number"
+            placeholder="Enter Game Number"
             type="number"
             value={selectedFight?.fightNum}
           />
@@ -413,7 +413,7 @@ const Fight = () => {
               loadingText="Loading..."
               type={"submit"}
             >
-              Add Fight
+              Add Game
             </Button>
           </div>
         </div>
@@ -451,7 +451,7 @@ const Fight = () => {
           loadingText="Loading..."
           type={"button"}
         >
-          + New Fight
+          + New Game
         </Button>
       </div> */}
       {!isLoading && renderBody()}
@@ -470,11 +470,11 @@ const Fight = () => {
             },
             {
               key: "fightId",
-              label: "Fight Id",
+              label: "Game Id",
             },
             {
               key: "fightNum",
-              label: "Fight Number",
+              label: "Game Number",
             },
             
             {

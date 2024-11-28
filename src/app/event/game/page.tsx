@@ -464,7 +464,7 @@ const Fight = () => {
             loadingText="Loading..."
             type={"button"}
           >
-            Cancel Fight
+            Cancel Game
           </Button>
         );
       }
@@ -593,7 +593,7 @@ const Fight = () => {
           htmlFor="venueId"
           className="text-white font-sans font-light text-nowrap "
         >
-          Select Fight
+          Select Game
         </label>
         <select
           onChange={handleFightChange}
@@ -703,7 +703,7 @@ const Fight = () => {
                   {renderEventStatusButton()}
                   <br />
                   <div className="bg-cursedBlack text-center p-3 rounded-xl">
-                    Fight : {gameData.fight.fightStatusName}
+                    Game : {gameData.fight.fightStatusName}
                   </div>
                 </div>
               </div>
@@ -723,11 +723,11 @@ const Fight = () => {
             </div>
             <br />
             {gameData && (
-              <div className="grid grid-cols-4 grid-rows-1 gap-4">
+              <div className="grid grid-cols-3 grid-rows-1 gap-4">
                 {renderOpenBetting()}
                 {renderLastCall()}
                 {renderCloseBetting()}
-                {renderResultButton()}
+                {/* {renderResultButton()} */}
               </div>
             )}
 

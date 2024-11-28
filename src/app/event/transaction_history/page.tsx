@@ -26,7 +26,7 @@ type SabongEvent = {
   webRtcStream: string;
 };
 
-const Fight = () => {
+const TransactionHistory = () => {
   const { socket, messages } = useWebSocketContext();
   const [events, setEvents] = useState<SabongEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -155,14 +155,14 @@ const Fight = () => {
           htmlFor="venueId"
           className="text-white font-sans font-light text-nowrap "
         >
-          Select Fight
+          Select Game
         </label>
         <select
           onChange={handleFightChange}
           name="venueId"
           className="peer rounded-xlg py-4 px-4 bg-semiBlack shadow-sm font-sans font-light text-[13px] tacking-[5%] text-white invalid:border-red-500 invalid:[&.visited]:border invalid:[&.visited]:border-[#E74C3C]"
         >
-          <option>--Select Fight--</option>
+          <option>--Select Game--</option>
           {fights.map((item: any, index: any) => {
             return (
               <option key={`option-${index}`} value={index}>
@@ -204,7 +204,7 @@ const Fight = () => {
               },
               {
                 key: "fightNum",
-                label: "Fight Number",
+                label: "Game Number",
               },
               {
                 key: "meron",
@@ -259,4 +259,4 @@ const Fight = () => {
   );
 };
 
-export default Fight;
+export default TransactionHistory;

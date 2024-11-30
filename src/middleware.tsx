@@ -40,6 +40,9 @@ const middleware = async (request: NextRequest) => {
     (route) => pathname.startsWith(route) || pathname === route
   );
 
+  
+  if (currentSession && currentSession.accountType == 5) 
+    return NextResponse.redirect(new URL("/declarator", request.nextUrl));
   if (pathname.startsWith("/dashboard")) {
     if (currentSession.roles.includes('admin') && currentSession.accountType === 9) {
       return NextResponse.redirect(new URL("/admin/dashboard", request.nextUrl));

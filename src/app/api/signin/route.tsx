@@ -20,7 +20,6 @@ const POST = async (req: NextRequest) => {
         const response = await luckTayaAxios.post(`/api/v1/User/Login`, request)
         const responseData = response.data
 
-
         if (portalType === 'ADMIN') {
             if (!responseData.roles.includes('admin')) {
                 throw new CustomError('Invalid Account Type', {

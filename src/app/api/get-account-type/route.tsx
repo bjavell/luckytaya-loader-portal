@@ -23,7 +23,7 @@ const GET = async (req: NextRequest) => {
             //     "description": "Finance"
             // },
             {
-                "accountType": 2,
+                "accountType": 3,
                 "description": "Master"
             },
             // {

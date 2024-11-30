@@ -10,6 +10,7 @@ import ConfirmationModal from "@/components/confirmationModal"
 import FormField from "@/components/formField"
 import { useApiData } from "@/app/context/apiContext"
 import BalanceBar from "@/components/balanceBar"
+import LoadingSpinner from "@/components/loadingSpinner"
 
 const Players = () => {
     const router = useRouter()
@@ -29,15 +30,17 @@ const Players = () => {
     const [filteredOrphans, setFilteredOrphans] = useState([])
     const [orphanSearch, setOrphanSearch] = useState('')
     const [index, setIndex] = useState(0)
+    const [isMainMasterAgent, setIsMainMasterAgent] = useState(false)
+    const [isLoading, setIsLoading] = useState(true)
 
     const [balance, setBalance] = useState('')
 
     const { data } = useApiData()
 
-    const getMembers = async () => {
+    const getMembers = async (_isMasterAgent: boolean) => {
         await axios.get('/api/get-user-members', {
             params: {
-                type: 'agents'
+                type: _isMasterAgent ? 'masterAgents' : 'agents'
             }
         })
             .then(response => {
@@ -73,12 +76,16 @@ const Players = () => {
                 // setIsLoading(false)
             })
     }
+
     useEffect(() => {
-        getMembers()
         getAcccountType()
-        if (data)
+        if (data) {
+            setIsMainMasterAgent(data.roles.includes('master'))
             setBalance(data.balance)
-    }, [])
+            setIsLoading(false)
+            getMembers(data.roles.includes('master'))
+        }
+    }, [data])
 
     const onToggleConfirmModal = (item: any, action: string) => {
         setMember(item?.accountNumber)
@@ -89,6 +96,7 @@ const Players = () => {
     const onConfirmAction = async () => {
         setIsConfirmModalOpen(false)
         try {
+            setIsLoading(true)
 
             const response = await axios.patch('/api/member', {
                 accountNumber: member,
@@ -97,7 +105,7 @@ const Players = () => {
 
             setAlertMessage(response.data.message)
 
-            await getMembers()
+            await getMembers(isMainMasterAgent)
         } catch (e: any) {
             const errorMessages = e?.response?.data?.error
             if (errorMessages) {
@@ -111,6 +119,7 @@ const Players = () => {
                 setAlertMessage('An Error occured please try again')
             }
         } finally {
+            setIsLoading(false)
             setIsAlertModalOpen(true)
             setIndex(index + 1)
         }
@@ -154,182 +163,185 @@ const Players = () => {
                 onConfirm={onConfirmAction}
                 message="Proceed with the changes?"
             />
-            <div className="flex flex-col gap-4 w-full overflow-auto pr-4">
-                <BalanceBar balance={balance} />
-                <div className="flex gap-4 flex-col">
-                    <h1 className="text-xl">Agents</h1>
-                    <div className="flex items-center gap-2 w-1/3">
-                        <label htmlFor="accountNumber" >Search</label>
-                        <FormField name="accountNumber" value={agentSearch} onBlur={(e) => { searchAgent(e.target.value.toUpperCase()) }} />
+            {isLoading ? <LoadingSpinner /> :
+                <div className="flex flex-col gap-4 w-full overflow-auto pr-4">
+                    <BalanceBar balance={balance} />
+                    <div className="flex gap-4 flex-col">
+                        <h1 className="text-xl"> {isMainMasterAgent ? 'Master Agents' : 'Agents'}</h1>
+                        <div className="flex items-center gap-2 w-1/3">
+                            <label htmlFor="accountNumber" >Search</label>
+                            <FormField name="accountNumber" value={agentSearch} onBlur={(e) => { searchAgent(e.target.value.toUpperCase()) }} />
 
-                    </div>
-                    <div className="flex flex-col">
-                        <Tables
-                            primaryId="accountNumber"
-                            headers={[
-                                {
-                                    key: 'fistname',
-                                    label: 'COMPLETE NAME',
-                                    concatKey: ['lastname'],
-                                    concatSeparator: ' '
-                                },
-                                {
-                                    key: 'accountNumber',
-                                    label: 'ACCOUNT NUMBER'
-                                },
-                                {
-                                    key: 'accountType',
-                                    label: 'ACCOUNT TYPE',
-                                    format(item: any) {
+                        </div>
+                        <div className="flex flex-col">
+                            <Tables
+                                primaryId="accountNumber"
+                                headers={[
+                                    {
+                                        key: 'fistname',
+                                        label: 'COMPLETE NAME',
+                                        concatKey: ['lastname'],
+                                        concatSeparator: ' '
+                                    },
+                                    {
+                                        key: 'accountNumber',
+                                        label: 'ACCOUNT NUMBER'
+                                    },
+                                    {
+                                        key: 'accountType',
+                                        label: 'ACCOUNT TYPE',
+                                        format(item: any) {
 
-                                        const account = accountType.find(e => e?.accountType === item)
+                                            const account = accountType.find(e => e?.accountType === item)
 
-                                        return account?.description ?? item
-                                    }
-                                },
-                                {
-                                    key: 'balance',
-                                    label: 'BALANCE',
-                                    format: (val: string) => {
-                                        return formatMoney(val)
-                                    }
-                                },
-                                // {
-                                //     key: 'principalAccountNumber',
-                                //     label: 'PRINCIPAL ACCOUNT NUMBER'
-                                // },
-                                {
-                                    key: '',
-                                    label: 'ACTION',
-                                    customValue: (item: any) => <div className="flex gap-2 items-center justify-center">
-                                        <Button
-                                            onClick={() => onToggleConfirmModal(item, 'REMOVE')}
-                                            type={"button"}
-                                            size="text-xs"
-                                            textColor="text-red"
-                                        >
-                                            Remove
-                                        </Button>
-                                        <Button
-                                            onClick={() => {
-                                                const url = `/loading-station/cash-in/agent?accountNumber=${item.accountNumber}`
-                                                router.push(url)
-                                            }}
-                                            type={"button"}
-                                            size="text-xs"
-                                        >
-                                            Cash-In
-                                        </Button>
-                                    </div>
-
-                                }
-                            ]}
-                            items={filteredAgents}
-                            isCentered={true}
-                            key={`agents-${index}`}
-                        />
-                    </div>
-                </div>
-
-                <div className="flex w-full gap-4 flex-col">
-                    <h1 className="text-xl">Players</h1>
-                    <div className="flex flex-col">
-                        <Tables
-                            primaryId="accountNumber"
-                            headers={[
-                                {
-                                    key: 'fistname',
-                                    label: 'COMPLETE NAME',
-                                    concatKey: ['lastname'],
-                                    concatSeparator: ' '
-                                },
-                                {
-                                    key: 'accountNumber',
-                                    label: 'ACCOUNT NUMBER'
-                                },
-                                {
-                                    key: 'balance',
-                                    label: 'BALANCE',
-                                    format: (val: string) => {
-                                        return formatMoney(val)
-                                    }
-                                },
-                                //  {
-                                //     key: 'principalAccountNumber',
-                                //     label: 'PRINCIPAL ACCOUNT NUMBER'
-                                // }
-                            ]}
-                            items={players}
-                            isCentered={true}
-                            key={`players-${index}`}
-                        />
-                    </div>
-                </div>
-
-                <div className="flex gap-4 flex-col">
-                    <h1 className="text-xl">Orphan</h1>
-                    <div className="flex items-center gap-2 w-1/3">
-                        <label htmlFor="accountNumber" >Search</label>
-                        <FormField name="accountNumber" value={orphanSearch} onBlur={(e) => { searchOrphan(e.target.value.toUpperCase()) }} />
-                    </div>
-                    <div className="flex flex-col">
-                        <Tables
-                            primaryId="accountNumber"
-                            headers={[
-                                {
-                                    key: 'fistname',
-                                    label: 'COMPLETE NAME',
-                                    concatKey: ['lastname'],
-                                    concatSeparator: ' '
-                                },
-                                {
-                                    key: 'accountNumber',
-                                    label: 'ACCOUNT NUMBER'
-                                },
-                                {
-                                    key: 'accountType',
-                                    label: 'ACCOUNT TYPE',
-                                    format(item: any) {
-
-                                        const account = accountType.find(e => e?.accountType === item)
-
-                                        return account?.description ?? item
-                                    }
-                                },
-                                {
-                                    key: 'balance',
-                                    label: 'BALANCE',
-                                    format: (val: string) => {
-                                        return formatMoney(val)
-                                    }
-                                },
-                                // {
-                                //     key: 'principalAccountNumber',
-                                //     label: 'PRINCIPAL ACCOUNT NUMBER'
-                                // },
-                                {
-                                    key: '',
-                                    label: 'ACTION',
-                                    customValue: (item: any) => {
-                                        return <div className="flex gap-2 items-center justify-center">
+                                            return account?.description ?? item
+                                        }
+                                    },
+                                    {
+                                        key: 'balance',
+                                        label: 'BALANCE',
+                                        format: (val: string) => {
+                                            return formatMoney(val)
+                                        }
+                                    },
+                                    // {
+                                    //     key: 'principalAccountNumber',
+                                    //     label: 'PRINCIPAL ACCOUNT NUMBER'
+                                    // },
+                                    {
+                                        key: '',
+                                        label: 'ACTION',
+                                        customValue: (item: any) => <div className="flex gap-2 items-center justify-center">
                                             <Button
-                                                onClick={() => onToggleConfirmModal(item, 'ADD')}
+                                                onClick={() => onToggleConfirmModal(item, 'REMOVE')}
+                                                type={"button"}
+                                                size="text-xs"
+                                                textColor="text-red"
+                                            >
+                                                Remove
+                                            </Button>
+                                            <Button
+                                                onClick={() => {
+                                                    const url = `/loading-station/cash-in/agent?accountNumber=${item.accountNumber}`
+                                                    router.push(url)
+                                                }}
                                                 type={"button"}
                                                 size="text-xs"
                                             >
-                                                Add
+                                                Cash-In
                                             </Button>
                                         </div>
+
                                     }
-                                }
-                            ]}
-                            items={filteredOrphans}
-                            isCentered={true}
-                            key={`orphans-${index}`}
-                        />
+                                ]}
+                                items={filteredAgents}
+                                isCentered={true}
+                                key={`agents-${index}`}
+                            />
+                        </div>
+                    </div>
+                    {isMainMasterAgent ? null :
+                        <div className="flex w-full gap-4 flex-col">
+                            <h1 className="text-xl">Players</h1>
+                            <div className="flex flex-col">
+                                <Tables
+                                    primaryId="accountNumber"
+                                    headers={[
+                                        {
+                                            key: 'fistname',
+                                            label: 'COMPLETE NAME',
+                                            concatKey: ['lastname'],
+                                            concatSeparator: ' '
+                                        },
+                                        {
+                                            key: 'accountNumber',
+                                            label: 'ACCOUNT NUMBER'
+                                        },
+                                        {
+                                            key: 'balance',
+                                            label: 'BALANCE',
+                                            format: (val: string) => {
+                                                return formatMoney(val)
+                                            }
+                                        },
+                                        //  {
+                                        //     key: 'principalAccountNumber',
+                                        //     label: 'PRINCIPAL ACCOUNT NUMBER'
+                                        // }
+                                    ]}
+                                    items={players}
+                                    isCentered={true}
+                                    key={`players-${index}`}
+                                />
+                            </div>
+                        </div>
+                    }
+
+                    <div className="flex gap-4 flex-col">
+                        <h1 className="text-xl">Orphan</h1>
+                        <div className="flex items-center gap-2 w-1/3">
+                            <label htmlFor="accountNumber" >Search</label>
+                            <FormField name="accountNumber" value={orphanSearch} onBlur={(e) => { searchOrphan(e.target.value.toUpperCase()) }} />
+                        </div>
+                        <div className="flex flex-col">
+                            <Tables
+                                primaryId="accountNumber"
+                                headers={[
+                                    {
+                                        key: 'fistname',
+                                        label: 'COMPLETE NAME',
+                                        concatKey: ['lastname'],
+                                        concatSeparator: ' '
+                                    },
+                                    {
+                                        key: 'accountNumber',
+                                        label: 'ACCOUNT NUMBER'
+                                    },
+                                    {
+                                        key: 'accountType',
+                                        label: 'ACCOUNT TYPE',
+                                        format(item: any) {
+
+                                            const account = accountType.find(e => e?.accountType === item)
+
+                                            return account?.description ?? item
+                                        }
+                                    },
+                                    {
+                                        key: 'balance',
+                                        label: 'BALANCE',
+                                        format: (val: string) => {
+                                            return formatMoney(val)
+                                        }
+                                    },
+                                    // {
+                                    //     key: 'principalAccountNumber',
+                                    //     label: 'PRINCIPAL ACCOUNT NUMBER'
+                                    // },
+                                    {
+                                        key: '',
+                                        label: 'ACTION',
+                                        customValue: (item: any) => {
+                                            return <div className="flex gap-2 items-center justify-center">
+                                                <Button
+                                                    onClick={() => onToggleConfirmModal(item, 'ADD')}
+                                                    type={"button"}
+                                                    size="text-xs"
+                                                >
+                                                    Add
+                                                </Button>
+                                            </div>
+                                        }
+                                    }
+                                ]}
+                                items={filteredOrphans}
+                                isCentered={true}
+                                key={`orphans-${index}`}
+                            />
+                        </div>
                     </div>
                 </div>
-            </div>
+            }
         </div>
 
     )

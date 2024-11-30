@@ -12,7 +12,7 @@ const GET = async (req: NextRequest) => {
 
         const type = req.nextUrl.searchParams.get('type')
 
-        if (type === 'agents') {
+        if (type === 'agents' || type === 'masterAgents') {
 
             const directMemberResponse = await luckTayaAxios.get(`/api/v1/AccountMember/Direct`, {
                 headers: {
@@ -31,12 +31,15 @@ const GET = async (req: NextRequest) => {
                 },
             })
 
-            const getAllAgentOfMasterAgents = await findAll(DB_COLLECTIONS.TAYA_AGENTS, { 'request.masterAgentAccountNumber': String(currentSession.accountNumber) })
-
-
-            const filteredOrphanAccounts = orphanMemberResponse.data.filter((orphanAccount: any) =>
-                getAllAgentOfMasterAgents.some((agent: any) => Number(orphanAccount.accountNumber) === Number(agent.response.accountNumber))
-            )
+            let filteredOrphanAccounts
+            if (type === 'masterAgents') {
+                filteredOrphanAccounts = orphanMemberResponse.data.filter((orphanAccount: any) => orphanAccount.accountType === 3)
+            } else {
+                const getAllAgentOfMasterAgents = await findAll(DB_COLLECTIONS.TAYA_AGENTS, { 'request.masterAgentAccountNumber': String(currentSession.accountNumber) })
+                filteredOrphanAccounts = orphanMemberResponse.data.filter((orphanAccount: any) =>
+                    getAllAgentOfMasterAgents.some((agent: any) => Number(orphanAccount.accountNumber) === Number(agent.response.accountNumber))
+                )
+            }
 
             const response = {
                 direct: directMemberResponse.data,
@@ -61,7 +64,7 @@ const GET = async (req: NextRequest) => {
                 playerResponse.data.some((players: any) => Number(players.accountNumber) === Number(agentPlayer.accountNumber))
             )
 
-            const customPlayerResponse = filteredPlayerAccounts.map((customPlayer:any) => {
+            const customPlayerResponse = filteredPlayerAccounts.map((customPlayer: any) => {
                 delete customPlayer._id
                 delete customPlayer.pin
                 return customPlayer

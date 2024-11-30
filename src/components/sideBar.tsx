@@ -9,7 +9,7 @@ import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.share
 import { getCurrentSession } from "@/context/auth"
 import UserAvatar from '@/assets/images/UserAvatar.png'
 import { useApiData } from "@/app/context/apiContext"
-import { sideBarEventRoutes, sideBarAgentRoutes, sideBarMasterRoutes, sideBarAdminRoutes } from "@/classes/routes"
+import { sideBarEventRoutes, sideBarAgentRoutes, sideBarMasterRoutes, sideBarAdminRoutes, sideBarMainMasterRoutes } from "@/classes/routes"
 
 interface SideBarRoutesProps {
     module?: string,
@@ -75,34 +75,29 @@ const SideBar: React.FC<{ isOpen: boolean, toggleSideBar: () => void }> = (props
     const [name, setName] = useState('')
     const { data, loading, error } = useApiData();
     const [routes, setRoutes] = useState<any>([])
+    const [sideBarSlug, setSideBarSlug] = useState('')
 
     useEffect(() => {
         if (data) {
             setName(`${data?.fistname} ${data?.lastname}`)
-            if (data.accountType == 9 && data.roles?.includes('admin'))
+            if (data.accountType == 9 && data.roles?.includes('admin')) {
+                setSideBarSlug('Admin Portal')
                 setRoutes(sideBarAdminRoutes)
-            else if (data.accountType == 9 && data.roles?.includes('eventmgr'))
+            } else if (data.accountType == 9 && data.roles?.includes('eventmgr')) {
+                setSideBarSlug('Event Manager')
                 setRoutes(sideBarEventRoutes)
-            else if (data.accountType === 2 && data.roles?.includes('acctmgr'))
+            } else if (data.accountType === 2 && data.roles?.includes('master')) {
+                setSideBarSlug('Main Master Agent Portal')
+                setRoutes(sideBarMainMasterRoutes)
+            } else if (data.accountType === 3 && data.roles?.includes('acctmgr')) {
+                setSideBarSlug('Master Agent Portal')
                 setRoutes(sideBarMasterRoutes)
-            else if ((data.accountType === 6 || data.accountType === 7) && data.roles?.includes('acctmgr')) setRoutes(sideBarAgentRoutes)
+            } else if ((data.accountType === 6 || data.accountType === 7) && data.roles?.includes('acctmgr')) {
+                setSideBarSlug('Agent Portal')
+                setRoutes(sideBarAgentRoutes)
+            }
         }
     }, [data])
-
-    let sideBarSlug
-
-    if (data) {
-        if (data.accountType === 9 && data.roles?.includes('admin')) {
-            sideBarSlug = 'Admin Portal'
-        } else if (data.accountType === 9 && data.roles?.includes('eventmgr')) {
-            sideBarSlug = 'Event Manager'
-        } else if (data.accountType === 2 && data.roles?.includes('acctmgr')) {
-            sideBarSlug = 'Master Agent Portal'
-        } else if ((data.accountType === 6 || data.accountType === 7) && data.roles?.includes('acctmgr')) {
-            sideBarSlug = 'Agent Portal'
-        }
-    }
-
 
     return (
         <aside className={`bg-darkGrey flex flex-col lg:block w-56 h-screen top-0 fixed z-10 text-sm lg:text-base transform transition-transform ease-in-out duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 `}>

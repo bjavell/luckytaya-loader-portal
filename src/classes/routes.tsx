@@ -144,6 +144,42 @@ const sideBarMasterRoutes = [{
 }]
 
 
+const sideBarMainMasterRoutes = [{
+    module: 'GENERAL',
+    item: [{
+        module: 'Home',
+        ico: Dashboard,
+        link: '/master/dashboard'
+    }]
+},
+{
+    module: 'LOADING STATION',
+    item: [
+        {
+            module: 'Master Agent Cash-In',
+            ico: LoadStation,
+            link: '/loading-station/cash-in/masterAgent'
+        }]
+
+},
+{
+    module: 'Agent',
+    item: [{
+        module: 'Agent List',
+        ico: UserList,
+        link: '/master/agent-list'
+    }]
+}, {
+    module: 'HISTORY',
+    item: [{
+        module: 'Transfer',
+        ico: Transfer,
+        link: '/history/transfer'
+    }]
+
+}]
+
+
 const sideBarAdminRoutes = [{
     module: 'GENERAL',
     item: [{
@@ -186,5 +222,6 @@ export {
     sideBarAgentRoutes,
     sideBarEventRoutes,
     sideBarMasterRoutes,
-    sideBarAdminRoutes
+    sideBarAdminRoutes,
+    sideBarMainMasterRoutes
 }

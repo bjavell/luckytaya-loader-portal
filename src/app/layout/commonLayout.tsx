@@ -2,7 +2,7 @@
 
 import NavBar from "@/components/navBar"
 import SideBar from "@/components/sideBar"
-import { ReactNode, useState } from "react"
+import { ReactNode, Suspense, useState } from "react"
 import Image from "next/image"
 import loginBG from '@/assets/images/login-bg.svg'
 import { ApiProvider } from "../context/apiContext"

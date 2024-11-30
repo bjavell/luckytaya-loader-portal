@@ -45,6 +45,7 @@ const ApiProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 
             })
             .finally(() => {
+                setLoading(false)
             })
     }
 

@@ -11,6 +11,9 @@ import LoadForm from "@/components/loadForm"
 import ConfirmationModal from "@/components/confirmationModal"
 import { TRAN_TYPE } from "@/classes/constants"
 import QrCode from "@/components/qrCode"
+import Modal from "@/components/modal"
+import LoadingSpinner from "@/components/loadingSpinner"
+import Button from "@/components/button"
 
 const PlayerCashin = () => {
     const router = useRouter()
@@ -284,6 +287,14 @@ const PlayerCashin = () => {
                 }
                 setBalanceBarTitle('Agent Cash-In')
                 break;
+            case 'masterAgent':
+                if (accountNumber) {
+                    setIsLoadToReadOnly(true)
+                    setLoadTo(accountNumber)
+                    searchAgent(accountNumber)
+                }
+                setBalanceBarTitle('Master Agent Cash-In')
+                break;
             default:
                 setBalanceBarTitle('Cash-In')
         }
@@ -292,13 +303,29 @@ const PlayerCashin = () => {
 
     return (
         <div className="flex flex-col w-full gap-4">
-            <ConfirmationModal
-                isOpen={isAlertModalOpen}
-                onConfirm={() => setIsAlertModalOpen(false)}
-                isOkOnly={true}
-                onCancel={() => { }}
-                message={alertMessage}
-            ></ConfirmationModal>
+            {cashinType === 'self' ?
+                <Modal
+                    isOpen={isAlertModalOpen}
+                    // onConfirm={() => setIsAlertModalOpen(false)}
+                    // isOkOnly={true}
+                    onClose={() => setIsAlertModalOpen(false)}
+                    size="small"
+                >
+                    <div className="items-center flex flex-col justify-center gap-4">
+                        <h1>Scan QR Code</h1>
+                        <QrCode data={qrData} className='m-auto' />
+                        <Button onClick={() => setIsAlertModalOpen(false)} type={"button"} >Close</Button>
+                    </div>
+                </Modal>
+                :
+                <ConfirmationModal
+                    isOpen={isAlertModalOpen}
+                    onConfirm={() => setIsAlertModalOpen(false)}
+                    isOkOnly={true}
+                    onCancel={() => { }}
+                    message={alertMessage}
+                ></ConfirmationModal>
+            }
             <ConfirmationModal
                 isOpen={isConfirmModalOpen}
                 onCancel={onCancel}
@@ -307,40 +334,42 @@ const PlayerCashin = () => {
             ></ConfirmationModal>
             <BalanceBar rigthElement={balanceBarTitle} balance={balance} />
             <div className="flex flex-row gap-4">
-                <div className="flex hidden lg:block lg:w-1/2 bg-[#005BAA] rounded-xl p-4">
+                {/* <div className="flex hidden lg:block lg:w-1/2 bg-[#005BAA] rounded-xl p-4">
                     {showQr ? <QrCode data={qrData} className='m-auto' /> : <Image src={gcashLoad} alt="gcash load background" className="m-auto" />}
-                </div>
-                <LoadForm
-                    key={`load-form-${index}`}
-                    loadTo={{
-                        value: loadTo,
-                        onChange: setLoadTo,
-                        onBlur: (val: string) => {
-                            if (cashinType === 'player') {
-                                searchPlayer(val)
-                            } else {
-                                searchAgent(val)
+                </div> */}
+                {isLoading ? <LoadingSpinner /> :
+                    <LoadForm
+                        key={`load-form-${index}`}
+                        loadTo={{
+                            value: loadTo,
+                            onChange: setLoadTo,
+                            onBlur: (val: string) => {
+                                if (cashinType === 'player') {
+                                    searchPlayer(val)
+                                } else {
+                                    searchAgent(val)
+                                }
+                            },
+                            isReadOnly: isLoadToReadOnly
+                        }}
+                        completeName={completeName}
+                        email={email}
+                        amount={{
+                            value: amount,
+                            onBlur: (val: string) => {
+                                onAmountChange(val)
                             }
-                        },
-                        isReadOnly: isLoadToReadOnly
-                    }}
-                    completeName={completeName}
-                    email={email}
-                    amount={{
-                        value: amount,
-                        onBlur: (val: string) => {
-                            onAmountChange(val)
-                        }
-                    }}
-                    fee={fee}
-                    totalAmount={totalAmount}
-                    comment={{
-                        value: comment,
-                        onChage: setComment
-                    }}
-                    isLoading={isLoading}
-                    onHandleSubmit={toggelConfirmationModal}
-                />
+                        }}
+                        fee={fee}
+                        totalAmount={totalAmount}
+                        comment={{
+                            value: comment,
+                            onChage: setComment
+                        }}
+                        isLoading={isLoading}
+                        onHandleSubmit={toggelConfirmationModal}
+                    />
+                }
             </div>
         </div>
     )

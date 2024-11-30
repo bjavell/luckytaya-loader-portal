@@ -12,7 +12,7 @@ interface UserData  {
     referralCode: number,
     id: number,
     suspended: number,
-    roles: string[]
+    // roles: string[]
 }
 
 export default UserData

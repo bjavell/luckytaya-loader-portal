@@ -68,8 +68,18 @@ const POST = async (req: NextRequest) => {
 
             const { accountNumber, userId } = registerResponse.data
 
+            let roles = ['']
+
+            if (request.accountType === '3' || request.accountType === '6') {
+                roles = ['acctmgr']
+            } else if (request.accountType === '4' || request.accountType === '5') {
+                roles = ['eventmgr']
+            } else if (request.accountType === '1') {
+                roles = ['finance']
+            }
+
             const updateAccount = {
-                roles: request.roles,
+                roles: roles,
                 accountNumber,
                 userId,
                 suspended: 0,
@@ -82,10 +92,10 @@ const POST = async (req: NextRequest) => {
                 },
             })
 
-            await insert(DB_COLLECTIONS.TAYA_AGENTS, {
-                request,
-                response: registerResponse.data
-            })
+            // await insert(DB_COLLECTIONS.TAYA_AGENTS, {
+            //     request,
+            //     response: registerResponse.data
+            // })
 
             await sendEmail(request.email, request.username, generatedPassword)
         } else {

@@ -18,23 +18,12 @@ interface UserRegistrationProps {
     facebookAccount: string;
     referralCode: number;
     accountType: number;
-    roles: string[];
+    // roles: string[];
     masterAgentAccountNumber: number;
 }
 
 const Players = () => {
 
-
-    const now = new Date();
-
-    // Get each component (as numbers)
-    const year = now.getFullYear();
-    const month = now.getMonth() + 1; // getMonth() is 0-based, so add 1
-    const day = now.getDate();
-    const hours = now.getHours();
-    const minutes = now.getMinutes();
-    const seconds = now.getSeconds();
-    const milliseconds = now.getMilliseconds();
 
     const router = useRouter()
     const [isLoading, setIsLoading] = useState(false)
@@ -47,11 +36,9 @@ const Players = () => {
         phoneNumber: '',
         email: '',
         facebookAccount: '',
-        referralCode: Number(
-            `${year}${month.toString().padStart(2, '0')}${day.toString().padStart(2, '0')}${hours.toString().padStart(2, '0')}${minutes.toString().padStart(2, '0')}${seconds.toString().padStart(2, '0')}${milliseconds.toString().padStart(3, '0')}`
-          ),
-        accountType: 8,
-        roles: [],
+        referralCode: 0,
+        accountType: 0,
+        // roles: [],
         masterAgentAccountNumber: 0
     })
     const [index, setIndex] = useState(0)
@@ -110,6 +97,24 @@ const Players = () => {
             getUserRole()
         }
 
+        const now = new Date();
+
+        // Get each component (as numbers)
+        const year = now.getFullYear();
+        const month = now.getMonth() + 1; // getMonth() is 0-based, so add 1
+        const day = now.getDate();
+        const hours = now.getHours();
+        const minutes = now.getMinutes();
+        const seconds = now.getSeconds();
+        const milliseconds = now.getMilliseconds();
+        setUserRegistration(prevState => ({
+            ...prevState,
+            referralCode: Number(
+                `${year}${month.toString().padStart(2, '0')}${day.toString().padStart(2, '0')}${hours.toString().padStart(2, '0')}${minutes.toString().padStart(2, '0')}${seconds.toString().padStart(2, '0')}${milliseconds.toString().padStart(3, '0')}`
+            )
+        })
+        )
+
     }, [])
 
 
@@ -137,15 +142,15 @@ const Players = () => {
     }
 
 
-    const onHandleCheckBox = (role: string, checked: boolean) => {
-        setUserRegistration((prevState) => {
-            if (checked) {
-                return { ...prevState, roles: [...prevState.roles, role] };
-            } else {
-                return { ...prevState, roles: prevState.roles.filter((r) => r !== role) };
-            }
-        })
-    }
+    // const onHandleCheckBox = (role: string, checked: boolean) => {
+    //     setUserRegistration((prevState) => {
+    //         if (checked) {
+    //             return { ...prevState, roles: [...prevState.roles, role] };
+    //         } else {
+    //             return { ...prevState, roles: prevState.roles.filter((r) => r !== role) };
+    //         }
+    //     })
+    // }
 
     const onFormSubmit = async () => {
         try {
@@ -160,8 +165,8 @@ const Players = () => {
                 email: '',
                 facebookAccount: '',
                 referralCode: 0,
-                accountType: 8,
-                roles: [],
+                accountType: 0,
+                // roles: [],
                 masterAgentAccountNumber: 0
             })
             setIndex(index + 1)
@@ -222,7 +227,7 @@ const Players = () => {
 
                         <FormField name={"referralCode"} label="Referral Code" customLabelClass="text-xs" value={userRegistration.referralCode} readonly />
                         <div className="flex flex-col flex-1 gap-4">
-                            <label htmlFor="roles" className="text-white font-sans font-light text-nowrap text-xs">Roles</label>
+                            {/* <label htmlFor="roles" className="text-white font-sans font-light text-nowrap text-xs">Roles</label>
                             <div className="grid grid-cols-2 gap-4">
                                 {userRole.map((e: any) => {
                                     return <div key={e.key} className="flex gap-4 items-center">
@@ -235,11 +240,13 @@ const Players = () => {
                                         <label>{e.description}</label>
                                     </div>
                                 })}
-                            </div>
+                            </div> */}
 
                             <div className="flex flex-col flex-1 gap-4">
                                 <label htmlFor="accountType" className="text-white font-sans font-light text-nowrap text-xs">Account Type</label>
-                                <select id="accountType" name='accountType' className="rounded-xlg py-4 px-4 bg-semiBlack font-sans font-light text-[13px] tacking-[5%] text-white" value={userRegistration.accountType} onChange={onDropDownChange}>
+                                <select id="accountType" name='accountType' className="rounded-xlg py-4 px-4 bg-semiBlack font-sans font-light text-[13px] tacking-[5%] text-white" value={userRegistration.accountType} onChange={onDropDownChange} required>
+
+                                    <option value=''>Select Account Type</option>
                                     {
                                         userType ?
                                             userType.map((e: any) => {

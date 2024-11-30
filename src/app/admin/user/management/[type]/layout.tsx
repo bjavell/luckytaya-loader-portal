@@ -4,7 +4,7 @@ import CommonLayout from "@/app/layout/commonLayout"
 
 const DashboardLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
     return (
-        <CommonLayout slug="MANAGEMENT">
+        <CommonLayout slug="MANAGE">
             {children}
         </CommonLayout>
     )
@@ -14,5 +14,5 @@ export default DashboardLayout
 
 
 export const metadata: Metadata = {
-    title: 'Management'
+    title: 'Manage'
 }

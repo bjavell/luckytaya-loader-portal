@@ -8,7 +8,17 @@ const POST = async (req: NextRequest) => {
     try {
 
         const currentSession = await getCurrentSession()
-        const { roles, accountNumber, accountType, suspended, id } = await req.json()
+        const { accountNumber, accountType, suspended, id } = await req.json()
+
+        let roles
+        if (accountType === 3 || accountType === 6) {
+            roles = ['acctmgr']
+        } else if (accountType === 4 || accountType === 5) {
+            roles = ['eventmgr']
+        } else if (accountType === 1) {
+            roles = ['finance']
+        }
+        console.log(typeof accountNumber)
 
         const request = {
             roles,
@@ -17,6 +27,8 @@ const POST = async (req: NextRequest) => {
             suspended,
             userId: id
         }
+
+        console.log(request)
 
         const response = await luckTayaAxios.put('/api/v1/User/UserRoleAccountTypeUpdate', request, {
             headers: {

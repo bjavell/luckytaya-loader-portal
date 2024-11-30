@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react"
 import axios from "axios"
 import Tables from "@/components/tables"
-import { useRouter } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import { formatMoney } from "@/util/textUtil"
 import { USER_TYPE } from "@/classes/constants"
 import Button from "@/components/button"
@@ -14,6 +14,9 @@ import ConfirmationModal from "@/components/confirmationModal"
 
 const Players = () => {
     const router = useRouter()
+    const params = useParams()
+
+    const manageType = params?.type
     const [players, setPlayers] = useState([])
     const [filterPlayers, setFilterPlayers] = useState([])
     const [status, setStatus] = useState('ALL')
@@ -31,8 +34,8 @@ const Players = () => {
         "facebookAccount": "",
         "referralCode": 0,
         "id": 0,
-        "suspended": 0,
-        "roles": []
+        "suspended": 0
+        // "roles": []
     })
     const [search, setSearch] = useState('')
     const [accountType, setAccountType] = useState([])
@@ -47,7 +50,7 @@ const Players = () => {
     const getUserLists = async () => {
         await axios.get('/api/get-all-users', {
             params: {
-                type: USER_TYPE.MANAGEMENT
+                type: manageType === 'backoffice' ? USER_TYPE.MANAGEMENT : USER_TYPE.PLAYER
             }
         })
             .then(response => {
@@ -146,7 +149,7 @@ const Players = () => {
                 "referralCode": 0,
                 "id": 0,
                 "suspended": 0,
-                "roles": []
+                // "roles": []
             })
             setIsShowModal(false)
         }
@@ -177,15 +180,15 @@ const Players = () => {
         }))
     }
 
-    const onHandleCheckBox = (role: string, checked: boolean) => {
-        setModalData((prevModalData) => {
-            if (checked) {
-                return { ...prevModalData, roles: [...prevModalData.roles, role] };
-            } else {
-                return { ...prevModalData, roles: prevModalData.roles.filter((r) => r !== role) };
-            }
-        })
-    }
+    // const onHandleCheckBox = (role: string, checked: boolean) => {
+    //     setModalData((prevModalData) => {
+    //         if (checked) {
+    //             return { ...prevModalData, roles: [...prevModalData.roles, role] };
+    //         } else {
+    //             return { ...prevModalData, roles: prevModalData.roles.filter((r) => r !== role) };
+    //         }
+    //     })
+    // }
 
     const onButtonSubmit = async () => {
         try {
@@ -206,7 +209,7 @@ const Players = () => {
                 "referralCode": 0,
                 "id": 0,
                 "suspended": 0,
-                "roles": []
+                // "roles": []
             })
             setIsAlertModalOpen(true)
             setAlertMessage('Account successfully updated!')
@@ -270,7 +273,7 @@ const Players = () => {
                                 <FormField name={"referralCode"} value={modalData.referralCode} label="Referral Code" customLabelClass="text-xs" readonly />
                             </div>
                             <div className="flex gap-4">
-                                <div className="flex flex-col flex-1 gap-4">
+                                {/* <div className="flex flex-col flex-1 gap-4">
                                     <label htmlFor="roles" className="text-white font-sans font-light text-nowrap text-xs">Roles</label>
                                     <div className="grid grid-cols-2 gap-4">
                                         {accountRole.map((e: any) => {
@@ -286,10 +289,11 @@ const Players = () => {
                                         })}
                                     </div>
 
-                                </div>
+                                </div> */}
                                 <div className="flex flex-col flex-1 gap-4">
                                     <label htmlFor="accountType" className="text-white font-sans font-light text-nowrap text-xs">Account Type</label>
-                                    <select id="accountType" className="rounded-xlg py-4 px-4 bg-semiBlack font-sans font-light text-sm tacking-[5%] text-white" value={modalData.accountType} onChange={(e) => onAccountTypeChange(e.target.value)}>
+                                    <select id="accountType" className="rounded-xlg py-4 px-4 bg-semiBlack font-sans font-light text-sm tacking-[5%] text-white" value={modalData.accountType} onChange={(e) => onAccountTypeChange(e.target.value)} required>
+                                        <option value=''>Select Account Type</option>
                                         {
                                             accountType ?
                                                 accountType.map((e: any) => {
@@ -326,7 +330,7 @@ const Players = () => {
                     </div>
                 </div>
             </Modal>
-            <h1 className="text-xl">Management</h1>
+            <h1 className="text-xl">{manageType === 'backoffice' ? 'Backoffice' : 'Players'}</h1>
             <div className="gap-4 items-center flex w-1/3">
                 <label htmlFor="accountNumber" >Search</label>
                 <FormField name="accountNumber" value={search} onBlur={(e) => { onUserSearch(e.target.value.toUpperCase(), status) }} />

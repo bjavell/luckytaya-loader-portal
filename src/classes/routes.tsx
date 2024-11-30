@@ -196,13 +196,13 @@ const sideBarAdminRoutes = [{
         ico: User,
         link: '/admin/user/register'
     }, {
-        module: 'Management Users',
+        module: 'Backoffice Users',
         ico: UserList,
-        link: '/admin/user/management'
+        link: '/admin/user/management/backoffice'
     }, {
         module: 'Player Users',
         ico: UserList,
-        link: '/admin/user/players'
+        link: '/admin/user/management/players'
     }]
 
 },

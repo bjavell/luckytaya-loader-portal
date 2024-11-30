@@ -18,13 +18,13 @@ const GET = async (req: NextRequest) => {
             //     "accountType": 0,
             //     "description": "Operator"
             // },
-            // {
-            //     "accountType": 1,
-            //     "description": "Finance"
-            // },
+            {
+                "accountType": 1,
+                "description": "Finance"
+            },
             {
                 "accountType": 3,
-                "description": "Master"
+                "description": "Master Agent"
             },
             // {
             //     "accountType": 3,
@@ -32,12 +32,12 @@ const GET = async (req: NextRequest) => {
             // },
             {
                 "accountType": 4,
+                "description": "Event Manager"
+            },
+            {
+                "accountType": 5,
                 "description": "Declarator"
             },
-            // {
-            //     "accountType": 5,
-            //     "description": "DealerAgent"
-            // },
             {
                 "accountType": 6,
                 "description": "Agent"
@@ -50,10 +50,10 @@ const GET = async (req: NextRequest) => {
             //     "accountType": 8,
             //     "description": "Player"
             // },
-            {
-                "accountType": 9,
-                "description": "System"
-            },
+            // {
+            //     "accountType": 9,
+            //     "description": "System"
+            // },
             // {
             //     "accountType": 10,
             //     "description": "KioskPlayer"

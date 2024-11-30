@@ -56,7 +56,7 @@ const Home = () => {
     return (
         <div className="flex flex-col w-full gap-4">
             <BalanceBar rigthElement={rightElement()} balance={balance} />
-            <div className="text-bold text-2xl text-lightGreen">GOOD DAY, <br />E-BILLIARD AGENTS</div>
+            <div className="text-bold text-2xl text-lightGreen">GOOD DAY, <br />E-BILLIARD MASTER AGENTS</div>
         </div>
     )
 }

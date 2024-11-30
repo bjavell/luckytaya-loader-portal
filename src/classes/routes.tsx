@@ -218,10 +218,42 @@ const sideBarAdminRoutes = [{
 ]
 
 
+
+const sideBarFinanceRoutes = [{
+    module: 'GENERAL',
+    item: [{
+        module: 'Dashboard',
+        ico: Dashboard,
+        link: '/finance/dashboard'
+    }]
+
+},
+{
+    module: 'REPORTS',
+    item: [{
+        module: 'Generate Report',
+        ico: Transfer,
+        link: '/finance/reports/all'
+    }]
+
+},
+    // {
+    //     module: 'NOTIFY',
+    //     item: [{
+    //         module: 'Send Message',
+    //         ico: Transfer,
+    //         link: '/notify'
+    //     }]
+
+    // }
+]
+
+
 export {
     sideBarAgentRoutes,
     sideBarEventRoutes,
     sideBarMasterRoutes,
     sideBarAdminRoutes,
-    sideBarMainMasterRoutes
+    sideBarMainMasterRoutes,
+    sideBarFinanceRoutes
 }

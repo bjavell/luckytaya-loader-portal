@@ -98,6 +98,19 @@ const sideBarEventRoutes = [{
 },
 ]
 
+
+const sideBarDeclaratorRoutes = [{
+    module: 'GENERAL',
+    item: [{
+        module: 'Gaming Control',
+        ico: Game,
+        link: '/declarator'
+    }]
+
+},
+]
+
+
 const sideBarMasterRoutes = [{
     module: 'GENERAL',
     item: [{
@@ -255,5 +268,6 @@ export {
     sideBarMasterRoutes,
     sideBarAdminRoutes,
     sideBarMainMasterRoutes,
-    sideBarFinanceRoutes
+    sideBarFinanceRoutes,
+    sideBarDeclaratorRoutes
 }

@@ -9,7 +9,7 @@ import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.share
 import { getCurrentSession } from "@/context/auth"
 import UserAvatar from '@/assets/images/UserAvatar.png'
 import { useApiData } from "@/app/context/apiContext"
-import { sideBarEventRoutes, sideBarAgentRoutes, sideBarMasterRoutes, sideBarAdminRoutes, sideBarMainMasterRoutes, sideBarFinanceRoutes } from "@/classes/routes"
+import { sideBarEventRoutes, sideBarAgentRoutes, sideBarMasterRoutes, sideBarAdminRoutes, sideBarMainMasterRoutes, sideBarFinanceRoutes, sideBarDeclaratorRoutes } from "@/classes/routes"
 
 interface SideBarRoutesProps {
     module?: string,
@@ -98,6 +98,9 @@ const SideBar: React.FC<{ isOpen: boolean, toggleSideBar: () => void }> = (props
             } else if ((data.accountType === 6 || data.accountType === 7) && data.roles?.includes('acctmgr')) {
                 setSideBarSlug('Agent Portal')
                 setRoutes(sideBarAgentRoutes)
+            }else if ((data.accountType === 5) && data.roles?.includes('eventmgr')) {
+                setSideBarSlug('Declarator Portal')
+                setRoutes(sideBarDeclaratorRoutes)
             }
         }
     }, [data])

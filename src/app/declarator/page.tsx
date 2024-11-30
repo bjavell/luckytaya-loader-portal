@@ -115,7 +115,6 @@ const Fight = () => {
     await axios
       .get("/api/event/fight/status")
       .then((response) => {
-        console.log(response.data,'-------')
         setStatuses(response.data);
         // refreshFight();
       })

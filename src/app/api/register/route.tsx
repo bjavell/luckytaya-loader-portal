@@ -76,6 +76,8 @@ const POST = async (req: NextRequest) => {
                 roles = ['eventmgr']
             } else if (request.accountType === '1') {
                 roles = ['finance']
+            } else if (request.accountType === '9') {
+                roles = ['admin']
             }
 
             const updateAccount = {

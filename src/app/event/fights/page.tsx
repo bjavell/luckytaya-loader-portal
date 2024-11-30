@@ -201,7 +201,7 @@ const Fight = () => {
   };
 
   const getFightDetailValue = (side: any, property: any) => {
-    if (selectedFight && selectedFight.fightDetails.length > 0) {
+    if (selectedFight && Object.keys(selectedFight).length > 0 && selectedFight.fightDetails.length > 0) {
       const { fightDetails } = selectedFight;
 
       const fightSide = fightDetails.find((x: any) => x.side == side);
@@ -286,7 +286,6 @@ const Fight = () => {
         },
       ],
     };
-    setSelectedFight(request);
     setIsLoading(true);
 
     await axios
@@ -314,6 +313,7 @@ const Fight = () => {
         }
       })
       .finally(() => {
+        setSelectedFight({});
         refreshFields();
       });
   };

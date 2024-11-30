@@ -41,6 +41,7 @@ const POST = async (req: NextRequest) => {
   let isContinue = true;
   let result: any;
   const currentSession = await getCurrentSession();
+ 
   try {
     fight.eventId = parseInt(fight.eventId);
     fight.fightNum = parseInt(fight.fightNum);

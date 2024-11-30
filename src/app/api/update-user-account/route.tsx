@@ -17,6 +17,8 @@ const POST = async (req: NextRequest) => {
             roles = ['eventmgr']
         } else if (accountType === 1) {
             roles = ['finance']
+        }else if (accountType === 9) {
+            roles = ['admin']
         }
         console.log(typeof accountNumber)
 

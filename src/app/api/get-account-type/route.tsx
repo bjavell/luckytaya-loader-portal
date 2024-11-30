@@ -50,10 +50,10 @@ const GET = async (req: NextRequest) => {
             //     "accountType": 8,
             //     "description": "Player"
             // },
-            // {
-            //     "accountType": 9,
-            //     "description": "System"
-            // },
+            {
+                "accountType": 9,
+                "description": "Admin"
+            },
             // {
             //     "accountType": 10,
             //     "description": "KioskPlayer"

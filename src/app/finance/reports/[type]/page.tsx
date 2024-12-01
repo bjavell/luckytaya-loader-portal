@@ -177,7 +177,7 @@ const Reports = () => {
                                 label: 'sender',
                                 format: (val: string) => {
 
-                                    let spliitedVal = val.split(' | ')
+                                    const spliitedVal = val.split(' | ')
                                     const formatAccountNumber = formatDynamicNumber(spliitedVal[1])
                                     return spliitedVal[0] + ' | ' + formatAccountNumber
                                 }
@@ -188,7 +188,7 @@ const Reports = () => {
                                 label: 'receiver',
                                 format: (val: string) => {
 
-                                    let spliitedVal = val.split(' | ')
+                                    const spliitedVal = val.split(' | ')
                                     const formatAccountNumber = formatDynamicNumber(spliitedVal[1])
                                     return spliitedVal[0] + ' | ' + formatAccountNumber
                                 }

@@ -20,14 +20,12 @@ const protectedRoutes = {
     "/finance/dashboard",
     "/finance/reports",
   ],
-  master: [
+  acctmgr: [
     "/master/dashboard",
     "/master/agent-list",
-  ],
-  agent: [
     "/dashboard",
     "/players",
-    "/loading-station/cash-in/player",
+    "/loading-station",
     "/history/transfer",
   ],
 };
@@ -49,6 +47,7 @@ const middleware = async (request: NextRequest) => {
 
   // Loop through the user roles and check if they have access to the current route
   for (const role of userRoles) {
+    console.log(role)
     if (protectedRoutes[role as keyof typeof protectedRoutes]?.some((route: string) => pathname.startsWith(route))) {
       hasAccess = true;
       break;
@@ -61,12 +60,16 @@ const middleware = async (request: NextRequest) => {
     if (userRoles.includes("admin")) {
       return NextResponse.redirect(new URL("/admin/dashboard", request.nextUrl));
     } else if (userRoles.includes("acctmgr")) {
-      return NextResponse.redirect(new URL("/master/dashboard", request.nextUrl));
+      if (currentSession.accountType === 3) {
+        return NextResponse.redirect(new URL("/master/dashboard", request.nextUrl));
+      } else {
+        return NextResponse.redirect(new URL("/dashboard", request.nextUrl));
+      }
     } else if (userRoles.includes("finance")) {
       return NextResponse.redirect(new URL("/finance/dashboard", request.nextUrl));
     } else if (userRoles.includes("eventmgr")) {
-        if(currentSession.accountType == 5)
-            return NextResponse.redirect(new URL("/declarator", request.nextUrl));
+      if (currentSession.accountType == 5)
+        return NextResponse.redirect(new URL("/declarator", request.nextUrl));
       return NextResponse.redirect(new URL("/event", request.nextUrl));
     } else {
       // Default redirect for unknown roles

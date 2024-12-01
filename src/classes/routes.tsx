@@ -121,11 +121,12 @@ const sideBarMasterRoutes = [{
 },
 {
     module: 'LOADING STATION',
-    item: [{
-        module: 'Self Cash-In',
-        ico: LoadStation,
-        link: '/loading-station/cash-in/self'
-    },
+    item: [
+    //     {
+    //     module: 'Self Cash-In',
+    //     ico: LoadStation,
+    //     link: '/loading-station/cash-in/self'
+    // },
     {
         module: 'Agent Cash-In',
         ico: LoadStation,

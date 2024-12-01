@@ -110,13 +110,16 @@ const GET = async (req: NextRequest) => {
             })
             const getAllAgentPlayers = await findAll(DB_COLLECTIONS.TAYA_USERS, { agentReferralCode: String(currentSession.referralCode) })
 
+
+            console.log(getAllAgentPlayers)
+
             const filteredPlayerAccounts = playerResponse.data.map((player: any) => {
 
-                const matchItem = getAllAgentPlayers.find((agentPlayer: any) => agentPlayer.response.accountNumber === player.accountNumber)
+                const matchItem = getAllAgentPlayers.find((agentPlayer: any) => agentPlayer.accountNumber === player.accountNumber)
                 if (matchItem) {
                     return {
                         ...player,
-                        email: matchItem.response.email || '-'
+                        email: matchItem.email || '-'
                     }
                 }
                 return {
@@ -126,8 +129,8 @@ const GET = async (req: NextRequest) => {
             })
                 .filter((player: any) =>
                     getAllAgentPlayers.some((agentPlayer: any) => {
-                        console.log(player, agentPlayer, player.accountNumber === agentPlayer.response.accountNumber)
-                        return player.accountNumber === agentPlayer.response.accountNumber
+                        console.log(player, agentPlayer, player.accountNumber === agentPlayer.accountNumber)
+                        return player.accountNumber === agentPlayer.accountNumber
                     })
                 )
 

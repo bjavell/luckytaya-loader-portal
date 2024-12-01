@@ -8,7 +8,7 @@ import Button from "./button"
 interface LoadFormProps {
     loadTo: {
         value: string,
-        onChange?: Dispatch<SetStateAction<string>>,
+        onChange?: (val: string) => void,
         onBlur?: (val: string) => void,
         isReadOnly: boolean
     },

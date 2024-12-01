@@ -1,3 +1,6 @@
+import { v4 as uuidv4 } from 'uuid';
+
+
 const formatMoney = (value: string) => {
 
     const numValue = parseFloat(value)
@@ -38,10 +41,36 @@ const removeDecimalPlaces = (amount: string) => {
     return `${(Number.parseFloat(amount)).toFixed(2)}`.replaceAll(",", "").replace(".", "")
 }
 
+const formatDynamicNumber = (input: string | number): string => {
+    // Convert input to a string if it's a number
+    const inputStr = input.toString();
+  
+    // Clean any non-numeric characters
+    const cleanedInput = inputStr.replace(/\D/g, '');
+  
+    // Split the string into chunks of 4 digits
+    const chunks: string[] = [];
+    for (let i = 0; i < cleanedInput.length; i += 4) {
+      chunks.push(cleanedInput.substring(i, i + 4));
+    }
+  
+    // Join the chunks with hyphens
+    return chunks.join('-');
+  }
+
+  function guidToNumber(): number {
+    const guid = uuidv4(); // Generate a UUID string
+    const numericPart = guid.replace(/[^0-9]/g, ''); // Remove non-numeric characters
+    return parseInt(numericPart.substring(0, 15), 10); // Take the first 15 digits and convert to number
+  }
+  
+
 
 export {
     formatMoney,
     formatDate,
     insertDecimalAtThirdToLast,
-    removeDecimalPlaces
+    removeDecimalPlaces,
+    formatDynamicNumber,
+    guidToNumber
 }

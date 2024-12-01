@@ -23,6 +23,7 @@ const protectedRoutes = {
   acctmgr: [
     "/master/dashboard",
     "/master/agent-list",
+    "/master/master-agent-list",
     "/dashboard",
     "/players",
     "/loading-station",
@@ -45,6 +46,14 @@ const middleware = async (request: NextRequest) => {
   const userRoles = currentSession.roles;
   let hasAccess = false;
 
+  if (userRoles.includes("acctmgr") && (currentSession.accountType === 2 || currentSession.accountType === 3)) {
+    // If the user is acctmgr with accountType 2 or 3 and trying to access /dashboard
+    if (pathname === "/dashboard") {
+      // Redirect to another page if trying to access /dashboard
+      return NextResponse.redirect(new URL("/master/dashboard", request.nextUrl)); // or any other page
+    }
+  }
+
   // Loop through the user roles and check if they have access to the current route
   for (const role of userRoles) {
     console.log(role)
@@ -60,7 +69,7 @@ const middleware = async (request: NextRequest) => {
     if (userRoles.includes("admin")) {
       return NextResponse.redirect(new URL("/admin/dashboard", request.nextUrl));
     } else if (userRoles.includes("acctmgr")) {
-      if (currentSession.accountType === 3) {
+      if (currentSession.accountType === 3 || currentSession.accountType === 2) {
         return NextResponse.redirect(new URL("/master/dashboard", request.nextUrl));
       } else {
         return NextResponse.redirect(new URL("/dashboard", request.nextUrl));

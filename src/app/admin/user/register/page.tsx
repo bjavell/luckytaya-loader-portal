@@ -7,6 +7,7 @@ import Button from "@/components/button"
 import FormField from "@/components/formField"
 import Form from "@/components/form"
 import ConfirmationModal from "@/components/confirmationModal"
+import { formatDynamicNumber, guidToNumber } from "@/util/textUtil"
 
 
 interface UserRegistrationProps {
@@ -36,7 +37,7 @@ const Players = () => {
         phoneNumber: '',
         email: '',
         facebookAccount: '',
-        referralCode: 0,
+        referralCode: guidToNumber(),
         accountType: 0,
         // roles: [],
         masterAgentAccountNumber: 0
@@ -97,32 +98,24 @@ const Players = () => {
             getUserRole()
         }
 
-        const now = new Date();
-
-        // Get each component (as numbers)
-        const year = now.getFullYear();
-        const month = now.getMonth() + 1; // getMonth() is 0-based, so add 1
-        const day = now.getDate();
-        const hours = now.getHours();
-        const minutes = now.getMinutes();
-        const seconds = now.getSeconds();
-        const milliseconds = now.getMilliseconds();
         setUserRegistration(prevState => ({
             ...prevState,
-            referralCode: Number(
-                `${year}${month.toString().padStart(2, '0')}${day.toString().padStart(2, '0')}${hours.toString().padStart(2, '0')}${minutes.toString().padStart(2, '0')}${seconds.toString().padStart(2, '0')}${milliseconds.toString().padStart(3, '0')}`
-            )
-        })
-        )
+            referralCode: guidToNumber()
+        }))
 
     }, [])
 
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target
+
+        let updateVal = value
+        if (name === 'masterAgentAccountNumber') {
+            updateVal = value.replaceAll('-', '')
+        }
         setUserRegistration(prevState => ({
             ...prevState,
-            [name]: value,
+            [name]: updateVal,
         }))
     }
 
@@ -164,7 +157,7 @@ const Players = () => {
                 phoneNumber: '',
                 email: '',
                 facebookAccount: '',
-                referralCode: 0,
+                referralCode: guidToNumber(),
                 accountType: 0,
                 // roles: [],
                 masterAgentAccountNumber: 0
@@ -172,6 +165,7 @@ const Players = () => {
             setIndex(index + 1)
             setIsAlertModalOpen(true)
             setAlertMessage(response.data.message)
+            setIsShowMasterAgenctAccountField(false)
         } catch (e: any) {
             const errorMessages = e?.response?.data?.error
             if (errorMessages) {
@@ -195,10 +189,6 @@ const Players = () => {
         setIsConfirmModalOpen(!isConfirmModalOpen)
     }
 
-    const onCloseAlertModal = () => {
-        setIsAlertModalOpen(false)
-        setAlertMessage('')
-    }
 
     return (
         <div className="flex w-full">
@@ -225,8 +215,7 @@ const Players = () => {
                         <FormField name={"phoneNumber"} label="Phone Number" customLabelClass="text-xs" onBlur={handleChange} value={userRegistration.phoneNumber} required />
                         <FormField name={"email"} label="Email" customLabelClass="text-xs" type="email" pattern={PATTERNS.EMAIL} errorMessage="Invalid Email Address" onBlur={handleChange} value={userRegistration.email} required />
 
-                        <FormField name={"referralCode"} label="Referral Code" customLabelClass="text-xs" value={userRegistration.referralCode} readonly />
-                        <div className="flex flex-col flex-1 gap-4">
+                        <div className="flex flex-col flex-1 gap-4 col-end-3">
                             {/* <label htmlFor="roles" className="text-white font-sans font-light text-nowrap text-xs">Roles</label>
                             <div className="grid grid-cols-2 gap-4">
                                 {userRole.map((e: any) => {
@@ -244,7 +233,7 @@ const Players = () => {
 
                             <div className="flex flex-col flex-1 gap-4">
                                 <label htmlFor="accountType" className="text-white font-sans font-light text-nowrap text-xs">Account Type</label>
-                                <select id="accountType" name='accountType' className="rounded-xlg py-4 px-4 bg-semiBlack font-sans font-light text-[13px] tacking-[5%] text-white" value={userRegistration.accountType} onChange={onDropDownChange} required>
+                                <select id="accountType" name='accountType' className="rounded-xlg py-4 px-4 bg-semiBlack font-sans font-light tacking-[5%] text-white" value={userRegistration.accountType} onChange={onDropDownChange} required>
 
                                     <option value=''>Select Account Type</option>
                                     {
@@ -255,11 +244,11 @@ const Players = () => {
                                             <option></option>
                                     }
                                 </select>
-
+                                {isShowMasterAgenctAccountField ? <FormField name={"masterAgentAccountNumber"} label="Master Agent Account Number" customLabelClass="text-xs" onBlur={handleChange} value={formatDynamicNumber(userRegistration.masterAgentAccountNumber)} required /> : ''}
+                                {isShowMasterAgenctAccountField ? <FormField name={"referralCode"} label="Referral Code" customLabelClass="text-xs" value={formatDynamicNumber(userRegistration.referralCode)} readonly /> : null}
                             </div>
                         </div>
 
-                        {isShowMasterAgenctAccountField ? <FormField name={"masterAgentAccountNumber"} label="Master Agent Account Number" customLabelClass="text-xs" onBlur={handleChange} value={userRegistration.masterAgentAccountNumber} required /> : ''}
                     </div>
                     <Button isLoading={isLoading} loadingText="Loading..." onClick={onToggleConfirmModal} type={"button"}>Submit</Button>
                 </div>

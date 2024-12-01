@@ -177,11 +177,11 @@ const sideBarMainMasterRoutes = [{
 
 },
 {
-    module: 'Agent',
+    module: 'Master Agents',
     item: [{
-        module: 'Agent List',
+        module: 'Master Agent List',
         ico: UserList,
-        link: '/master/agent-list'
+        link: '/master/master-agent-list'
     }]
 }, {
     module: 'HISTORY',

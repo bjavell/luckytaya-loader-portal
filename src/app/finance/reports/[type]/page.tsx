@@ -8,7 +8,7 @@ import { format } from 'date-fns'
 import FormField from "@/components/formField"
 import Form from "@/components/form"
 import Button from "@/components/button"
-import { formatMoney } from "@/util/textUtil"
+import { formatDynamicNumber, formatMoney } from "@/util/textUtil"
 import LoadingSpinner from "@/components/loadingSpinner"
 import { useParams } from "next/navigation"
 
@@ -134,7 +134,7 @@ const Reports = () => {
             <div className="search-container flex flex-row items-center justify-between">
                 <Form className="flex flex-row">
                     <div className="gap-4 flex items-center">
-                        <div className="gap-2 flex">
+                        <div className="gap-2 flex items-center">
                             <label htmlFor="accountType" className="text-white font-sans font-light text-nowrap">Transaction Type</label>
                             <select id="accountType" className="rounded-xlg py-4 px-4 bg-semiBlack font-sans font-light text-sm tacking-[5%] text-white" value={transactionType} onChange={(e) => setTransactionType(e.target.value)}>
                                 <option value='ALL'>Select Transaction Type</option>
@@ -159,34 +159,49 @@ const Reports = () => {
                         headers={[
                             {
                                 key: 'transactionDateTime',
-                                label: 'DATE',
+                                label: 'date',
                                 format: (val: string) => {
                                     const formatDate = new Date(val)
                                     return format(formatDate, 'yyyy-MM-dd hh:mm:ss a')
                                 }
                             }, {
                                 key: 'transactionNumber',
-                                label: 'TXN ID'
+                                label: 'transaction number',
+                                format: (val:string) => {
+                                    return formatDynamicNumber(val)
+                                }
                             }, {
                                 key: 'fromFullName',
                                 concatKey: ['fromAccountNumber'],
                                 concatSeparator: ' | ',
-                                label: 'SENDER'
+                                label: 'sender',
+                                format: (val: string) => {
+
+                                    let spliitedVal = val.split(' | ')
+                                    const formatAccountNumber = formatDynamicNumber(spliitedVal[1])
+                                    return spliitedVal[0] + ' | ' + formatAccountNumber
+                                }
                             }, {
                                 key: 'toFullName',
                                 concatKey: ['toAccountNumber'],
                                 concatSeparator: ' | ',
-                                label: 'RECEIVER'
+                                label: 'receiver',
+                                format: (val: string) => {
+
+                                    let spliitedVal = val.split(' | ')
+                                    const formatAccountNumber = formatDynamicNumber(spliitedVal[1])
+                                    return spliitedVal[0] + ' | ' + formatAccountNumber
+                                }
                             }, {
                                 key: 'amount',
-                                label: 'AMOUNT',
+                                label: 'amount',
                                 customValueClass: 'text-semiYellow',
                                 format: (val: string) => {
                                     return formatMoney(val)
                                 }
                             }, {
                                 key: 'transactionDesc',
-                                label: 'TYPE'
+                                label: 'type'
                             },
                         ]}
                         items={filteredTransactions}

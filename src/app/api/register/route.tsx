@@ -94,10 +94,10 @@ const POST = async (req: NextRequest) => {
                 },
             })
 
-            // await insert(DB_COLLECTIONS.TAYA_AGENTS, {
-            //     request,
-            //     response: registerResponse.data
-            // })
+            await insert(DB_COLLECTIONS.TAYA_AGENTS, {
+                request,
+                response: registerResponse.data
+            })
 
             await sendEmail(request.email, request.username, generatedPassword)
         } else {

@@ -60,7 +60,13 @@ const GET = async (req: NextRequest) => {
             // }
         ]
 
-        return NextResponse.json(accountType)
+        const sortedAccountType = accountType.toSorted((a: any, b: any) => {
+            if (a.description < b.description) return -1
+            if (a.description > b.description) return 1
+            return 0
+        })
+
+        return NextResponse.json(sortedAccountType)
     } catch (e) {
         console.error(e)
         return NextResponse.json({

@@ -3,7 +3,7 @@ import { useEffect, useState } from "react"
 import axios from "axios"
 import Tables from "@/components/tables"
 import { useParams, useRouter } from "next/navigation"
-import { formatMoney } from "@/util/textUtil"
+import { formatDynamicNumber, formatMoney } from "@/util/textUtil"
 import { USER_TYPE } from "@/classes/constants"
 import Button from "@/components/button"
 import Modal from "@/components/modal"
@@ -257,7 +257,7 @@ const Players = () => {
                     <div className="flex w-full gap-4">
                         <div className="flex flex-col gap-4 p-4 w-full">
                             <div className="flex">
-                                <FormField name={"accountNumber"} value={modalData.accountNumber} label="Account Number" customLabelClass="text-xs" readonly />
+                                <FormField name={"accountNumber"} value={formatDynamicNumber(modalData.accountNumber)} label="Account Number" customLabelClass="text-xs" readonly />
                                 <FormField name={"accountBalance"} value={formatMoney(`${modalData.accountBalance}`)} label="Account Balance" customLabelClass="text-xs" readonly />
                             </div>
                             <div className="flex">
@@ -270,7 +270,7 @@ const Players = () => {
                             </div>
                             <div className="flex">
                                 <FormField name={"facebookAccount"} value={modalData.facebookAccount} label="Facebook Account" customLabelClass="text-xs" readonly />
-                                <FormField name={"referralCode"} value={modalData.referralCode} label="Referral Code" customLabelClass="text-xs" readonly />
+                                <FormField name={"referralCode"} value={formatDynamicNumber(modalData.referralCode)} label="Referral Code" customLabelClass="text-xs" readonly />
                             </div>
                             <div className="flex gap-4">
                                 {/* <div className="flex flex-col flex-1 gap-4">
@@ -351,31 +351,34 @@ const Players = () => {
                     headers={[
                         {
                             key: 'accountNumber',
-                            label: 'ACCOUNT NUMBER'
+                            label: 'account number',
+                            format: (val: string) => {
+                                return formatDynamicNumber(val)
+                            }
                         },
                         {
                             key: 'firstname',
-                            label: 'COMPLETE NAME',
+                            label: 'complete name',
                             concatKey: ['lastname'],
                             concatSeparator: ' '
                         },
                         {
                             key: 'accountBalance',
-                            label: 'BALANCE',
+                            label: 'balance',
                             format: (val: string) => {
                                 return formatMoney(val)
                             }
                         },
                         {
                             key: 'email',
-                            label: 'EMAIL'
+                            label: 'email'
                         },
                         {
                             key: 'phoneNumber',
-                            label: 'MOBILE NUMBER'
+                            label: 'mobile number'
                         }, {
                             key: 'suspended',
-                            label: 'STATUS',
+                            label: 'status',
                             format: (val: string) => {
 
                                 let formattedValue
@@ -389,7 +392,7 @@ const Players = () => {
                             }
                         }, {
                             key: '',
-                            label: 'ACTION',
+                            label: 'action',
                             customValue: (item: any) => {
                                 return <div className="flex gap-2 items-center justify-center">
                                     <Button

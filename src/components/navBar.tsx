@@ -11,7 +11,7 @@ interface NavBarProps {
 const NavBar: NextPage<NavBarProps> = (props) => {
     const { slug, toggleSidebar } = props
     const { data, } = useApiData();
-    const [title, setTitle] = useState("Loader Portal")
+    const [title, setTitle] = useState("Agent Portal")
     useEffect(() => {
         if (data) {
             if (data.accountType == 9 && data.roles?.includes('eventmgr'))

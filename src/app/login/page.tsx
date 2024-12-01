@@ -7,6 +7,8 @@ import axios from "axios"
 import Link from "next/link"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
+import logo from '@/assets/images/logo-1.svg'
+import Image from "next/image"
 
 const Login = () => {
     const router = useRouter()
@@ -46,7 +48,8 @@ const Login = () => {
     }
 
     return (
-        <Form className="w-96 flex flex-col gap-5 justify-center" onSubmit={onHandleSubmit}>
+        <Form className="w-96 flex flex-col gap-4 justify-center" onSubmit={onHandleSubmit}>
+            <Image src={logo} alt="" className="block lg:hidden m-auto" priority={false} />
             <FormField name="userId" label="User ID" placeholder="Enter User ID" value={userId} onChange={(e) => { setUserId(e.target.value) }} required />
             <FormField name="password" label="Password" placeholder="******" type="password" value={password} onChange={(e) => { setPassword(e.target.value) }} required />
             <Button onClick={onHandleSubmit} isLoading={isLoading} loadingText="Loading..." type={'submit'}>Login</Button>

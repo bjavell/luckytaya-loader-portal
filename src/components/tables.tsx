@@ -101,7 +101,7 @@ const Tables = <T,>({ headers, items, primaryId, isCentered = false, onItemClick
             showFormatCustom = h.customValue(item)
         }
 
-        return <td key={`row-key-${h.key}-${i}`} className={className}>{showFormatCustom ?? value}</td>
+        return <td key={`row-key-${h.key}-${i}`} className={className} style={{whiteSpace:'pre'}}>{showFormatCustom ?? value}</td>
     })
 
     return (
@@ -110,7 +110,7 @@ const Tables = <T,>({ headers, items, primaryId, isCentered = false, onItemClick
                 <thead>
                     <tr>
                         {headers.map(h => (
-                            <th key={`h-${h.key}`} className="bg-green text-sm text-black font-semibold p-3" style={{ width: `${100 / headers.length}%` }}>
+                            <th key={`h-${h.key}`} className="bg-green text-sm text-black font-semibold p-3 capitalize" style={{ width: `${100 / headers.length}%` }}>
                                 {h.label}
                             </th>
                         ))}

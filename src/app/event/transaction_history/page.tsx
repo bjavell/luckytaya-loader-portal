@@ -13,7 +13,7 @@ import LoadingSpinner from "@/components/loadingSpinner";
 import Form from "@/components/form";
 import FormField from "@/components/formField";
 import Tables from "@/components/tables";
-import { formatMoney } from "@/util/textUtil";
+import { formatDynamicNumber, formatMoney } from "@/util/textUtil";
 
 type SabongEvent = {
   entryDateTime: string;
@@ -140,7 +140,7 @@ const TransactionHistory = () => {
         <select
           onChange={handleEventChange}
           name="venueId"
-          className="peer rounded-xlg py-4 px-4 bg-semiBlack shadow-sm font-sans font-light text-[13px] tacking-[5%] text-white invalid:border-red-500 invalid:[&.visited]:border invalid:[&.visited]:border-[#E74C3C]"
+          className="peer rounded-xlg py-4 px-4 bg-semiBlack shadow-sm font-sans font-light tacking-[5%] text-white invalid:border-red-500 invalid:[&.visited]:border invalid:[&.visited]:border-[#E74C3C]"
         >
           {events.map((item, index): any => {
             return (
@@ -160,7 +160,7 @@ const TransactionHistory = () => {
         <select
           onChange={handleFightChange}
           name="venueId"
-          className="peer rounded-xlg py-4 px-4 bg-semiBlack shadow-sm font-sans font-light text-[13px] tacking-[5%] text-white invalid:border-red-500 invalid:[&.visited]:border invalid:[&.visited]:border-[#E74C3C]"
+          className="peer rounded-xlg py-4 px-4 bg-semiBlack shadow-sm font-sans font-light tacking-[5%] text-white invalid:border-red-500 invalid:[&.visited]:border invalid:[&.visited]:border-[#E74C3C]"
         >
           <option>--Select Game--</option>
           {fights.map((item: any, index: any) => {
@@ -196,11 +196,14 @@ const TransactionHistory = () => {
               // },
               {
                 key: "transactionNumber",
-                label: "TXN ID",
+                label: "transaction number",
               },
               {
                 key: "accountNumber",
                 label: "Account Number",
+                format: (val:string)=> {
+                  return formatDynamicNumber(val)
+                }
               },
               {
                 key: "fightNum",

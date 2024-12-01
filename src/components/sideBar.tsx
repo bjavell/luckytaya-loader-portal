@@ -7,7 +7,7 @@ import { ReactNode, SetStateAction, useEffect, useState } from "react"
 import axios from "axios"
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime"
 import { getCurrentSession } from "@/context/auth"
-import UserAvatar from '@/assets/images/UserAvatar.png'
+import UserAvatar from '@/assets/images/Avatar.svg'
 import { useApiData } from "@/app/context/apiContext"
 import { sideBarEventRoutes, sideBarAgentRoutes, sideBarMasterRoutes, sideBarAdminRoutes, sideBarMainMasterRoutes, sideBarFinanceRoutes, sideBarDeclaratorRoutes } from "@/classes/routes"
 

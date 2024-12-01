@@ -32,17 +32,71 @@ const GET = async (req: NextRequest) => {
             })
 
             let filteredOrphanAccounts
+            let filteredDirectMemberResponse
             if (type === 'masterAgents') {
+
+                console.log(directMemberResponse.data)
+                const getAllAgentOfMasterAgents = await findAll(DB_COLLECTIONS.TAYA_AGENTS, {})
+
+                filteredDirectMemberResponse = directMemberResponse.data.map((member: any) => {
+
+                    const matchItem = getAllAgentOfMasterAgents.find((agent: any) => agent.response.accountNumber === member.accountNumber)
+                    if (matchItem) {
+                        return {
+                            ...member,
+                            email: matchItem.response.email || '-'
+                        }
+                    }
+                    return {
+                        ...member,
+                        email: '-'
+                    }
+                })
+                
                 filteredOrphanAccounts = orphanMemberResponse.data.filter((orphanAccount: any) => orphanAccount.accountType === 3)
             } else {
                 const getAllAgentOfMasterAgents = await findAll(DB_COLLECTIONS.TAYA_AGENTS, { 'request.masterAgentAccountNumber': String(currentSession.accountNumber) })
-                filteredOrphanAccounts = orphanMemberResponse.data.filter((orphanAccount: any) =>
-                    getAllAgentOfMasterAgents.some((agent: any) => Number(orphanAccount.accountNumber) === Number(agent.response.accountNumber))
-                )
+
+                filteredDirectMemberResponse = directMemberResponse.data.map((member: any) => {
+
+                    const matchItem = getAllAgentOfMasterAgents.find((agent: any) => agent.response.accountNumber === member.accountNumber)
+                    if (matchItem) {
+                        return {
+                            ...member,
+                            email: matchItem.response.email || '-'
+                        }
+                    }
+                    return {
+                        ...member,
+                        email: '-'
+                    }
+                })
+
+                filteredOrphanAccounts = orphanMemberResponse.data.map((orphan: any) => {
+
+                    const matchItem = getAllAgentOfMasterAgents.find((agent: any) => agent.response.accountNumber === orphan.accountNumber)
+                    if (matchItem) {
+                        return {
+                            ...orphan,
+                            email: matchItem.response.email || '-'
+                        }
+                    }
+                    return {
+                        ...orphan,
+                        email: '-'
+                    }
+                })
+                    .filter((orphan: any) =>
+                        getAllAgentOfMasterAgents.some((agent: any) => {
+                            console.log(orphan, agent, orphan.accountNumber === agent.response.accountNumber)
+                            return orphan.accountNumber === agent.response.accountNumber
+                        })
+                    )
             }
 
+
             const response = {
-                direct: directMemberResponse.data,
+                direct: filteredDirectMemberResponse,
                 indirect: indirectMemberResponse.data,
                 orphan: filteredOrphanAccounts
             }

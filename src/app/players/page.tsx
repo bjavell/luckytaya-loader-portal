@@ -3,7 +3,7 @@ import { useEffect, useState } from "react"
 import axios from "axios"
 import Tables from "@/components/tables"
 import { useRouter } from "next/navigation"
-import { formatMoney } from "@/util/textUtil"
+import { formatDynamicNumber, formatMoney } from "@/util/textUtil"
 import Button from "@/components/button"
 import AccountType from "@/classes/accountTypeData"
 import FormField from "@/components/formField"
@@ -97,13 +97,16 @@ const Players = () => {
                     headers={[
                         {
                             key: 'firstname',
-                            label: 'COMPLETE NAME',
+                            label: 'complete name',
                             concatKey: ['lastname'],
                             concatSeparator: ' '
                         },
                         {
                             key: 'accountNumber',
-                            label: 'ACCOUNT NUMBER'
+                            label: 'account number',
+                            format: (val: string) => {
+                                return formatDynamicNumber(val)
+                            },
                         },
                         // {
                         //     key: 'accountType',
@@ -117,18 +120,18 @@ const Players = () => {
                         // },
                         {
                             key: 'balance',
-                            label: 'BALANCE',
+                            label: 'balance',
                             format: (val: string) => {
                                 return formatMoney(val)
                             }
-                        }, 
+                        },
                         // {
                         //     key: 'principalAccountNumber',
                         //     label: 'PRINCIPAL ACCOUNT NUMBER'
                         // },
                         {
                             key: '',
-                            label: 'ACTION',
+                            label: 'action',
                             customValue: (item: any) => <div className="flex gap-2 items-center justify-center">
                                 <Button
                                     onClick={() => onCashin(item)}

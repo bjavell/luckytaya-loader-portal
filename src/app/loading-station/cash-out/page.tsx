@@ -88,7 +88,7 @@ const CashOut = () => {
                     <Form className="flex flex-col gap-4 p-4 w-full" onSubmit={onHandleSubmit}>
                         <FormField name="amount" label="Amount" value={amount} onChange={(e) => { setAmount(e.target.value) }} customLabelClass="text-xs" type="number" pattern={PATTERNS.NUMBER} min={1} max={1000000} errorMessage="Invalid Amount" required />
                         <label htmlFor="bankList" className="flex items-center text-xs text-white font-sans font-light text-nowrap">Banks</label>
-                        <select id="bankList" className="rounded-xlg py-4 px-4 bg-semiBlack font-sans font-light text-[13px] tacking-[5%] text-white" value={bank} onChange={(e) => setBank(e.target.value)} required>
+                        <select id="bankList" className="rounded-xlg py-4 px-4 bg-semiBlack font-sans font-light tacking-[5%] text-white" value={bank} onChange={(e) => setBank(e.target.value)} required>
                             <option value=''>Select Bank</option>
                             {BANK_DETAILS.map(bank => {
                                 return <option key={bank.bankCode} value={bank.bankCode}>{bank.bankName}</option>

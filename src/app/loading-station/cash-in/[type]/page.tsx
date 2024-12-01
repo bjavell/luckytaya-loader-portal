@@ -275,7 +275,7 @@ const PlayerCashin = () => {
                 if (accountNumber) {
                     setIsLoadToReadOnly(true)
                     formatLoadTo(accountNumber)
-                    searchAgent(accountNumber)
+                    searchPlayer(accountNumber)
                 }
                 setBalanceBarTitle('Player Cash-In Menu')
                 break;

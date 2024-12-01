@@ -65,6 +65,8 @@ const middleware = async (request: NextRequest) => {
     } else if (userRoles.includes("finance")) {
       return NextResponse.redirect(new URL("/finance/dashboard", request.nextUrl));
     } else if (userRoles.includes("eventmgr")) {
+        if(currentSession.accountType == 5)
+            return NextResponse.redirect(new URL("/declarator", request.nextUrl));
       return NextResponse.redirect(new URL("/event", request.nextUrl));
     } else {
       // Default redirect for unknown roles

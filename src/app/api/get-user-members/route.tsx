@@ -119,12 +119,16 @@ const GET = async (req: NextRequest) => {
                 if (matchItem) {
                     return {
                         ...player,
-                        email: matchItem.email || '-'
+                        email: matchItem.email || '-',
+                        firstname: matchItem.firstname || '-',
+                        lastname: matchItem.lastname || '-'
                     }
                 }
                 return {
                     ...player,
-                    email: '-'
+                    email: '-',
+                    firstname: '',
+                    lastname: ''
                 }
             })
                 .filter((player: any) =>

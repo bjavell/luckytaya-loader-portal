@@ -52,7 +52,7 @@ const GET = async (req: NextRequest) => {
                         email: '-'
                     }
                 })
-                
+
                 filteredOrphanAccounts = orphanMemberResponse.data.filter((orphanAccount: any) => orphanAccount.accountType === 3)
             } else {
                 const getAllAgentOfMasterAgents = await findAll(DB_COLLECTIONS.TAYA_AGENTS, { 'request.masterAgentAccountNumber': String(currentSession.accountNumber) })
@@ -110,13 +110,28 @@ const GET = async (req: NextRequest) => {
             })
             const getAllAgentPlayers = await findAll(DB_COLLECTIONS.TAYA_USERS, { agentReferralCode: String(currentSession.referralCode) })
 
+            const filteredPlayerAccounts = playerResponse.data.map((player: any) => {
 
-            console.log(getAllAgentPlayers)
-            console.log(playerResponse.data)
+                const matchItem = getAllAgentPlayers.find((agentPlayer: any) => agentPlayer.response.accountNumber === player.accountNumber)
+                if (matchItem) {
+                    return {
+                        ...player,
+                        email: matchItem.response.email || '-'
+                    }
+                }
+                return {
+                    ...player,
+                    email: '-'
+                }
+            })
+                .filter((player: any) =>
+                    getAllAgentPlayers.some((agentPlayer: any) => {
+                        console.log(player, agentPlayer, player.accountNumber === agentPlayer.response.accountNumber)
+                        return player.accountNumber === agentPlayer.response.accountNumber
+                    })
+                )
 
-            const filteredPlayerAccounts = getAllAgentPlayers.filter((agentPlayer: any) =>
-                playerResponse.data.some((players: any) => Number(players.accountNumber) === Number(agentPlayer.accountNumber))
-            )
+
 
             const customPlayerResponse = filteredPlayerAccounts.map((customPlayer: any) => {
                 delete customPlayer._id

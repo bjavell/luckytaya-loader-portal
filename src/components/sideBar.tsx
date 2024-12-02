@@ -98,7 +98,7 @@ const SideBar: React.FC<{ isOpen: boolean, toggleSideBar: () => void }> = (props
             } else if ((data.accountType === 6 || data.accountType === 7) && data.roles?.includes('acctmgr')) {
                 setSideBarSlug('Agent Portal')
                 setRoutes(sideBarAgentRoutes)
-            }else if ((data.accountType === 5) && data.roles?.includes('eventmgr')) {
+            } else if ((data.accountType === 5) && data.roles?.includes('eventmgr')) {
                 setSideBarSlug('Declarator Portal')
                 setRoutes(sideBarDeclaratorRoutes)
             }
@@ -127,7 +127,9 @@ const SideBar: React.FC<{ isOpen: boolean, toggleSideBar: () => void }> = (props
             </div>
             <div className="bg-gray13 w-full h-24 flex">
                 <div className="flex justify-center items-center m-auto w-full h-full flex-col gap-2">
-                    <Image src={UserAvatar} alt="avatar" className="h-7 lg:h-14 w-7 lg:w-14" />
+                    <Link href={"/profile/edit"}  >
+                        <Image src={UserAvatar} alt="avatar" className="h-7 lg:h-14 w-7 lg:w-14" />
+                    </Link>
                     {name}
                 </div>
             </div>

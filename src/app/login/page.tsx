@@ -9,6 +9,7 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import logo from '@/assets/images/logo-1.svg'
 import Image from "next/image"
+import LoadingSpinner from "@/components/loadingSpinner"
 
 const Login = () => {
     const router = useRouter()
@@ -41,14 +42,15 @@ const Login = () => {
                 else {
                     setErrorMessage('Oops! something went wrong')
                 }
+                setIsLoading(false)
             })
             .finally(() => {
-                setIsLoading(false)
             })
     }
 
     return (
         <Form className="w-96 flex flex-col gap-4 justify-center" onSubmit={onHandleSubmit}>
+            {isLoading ? <LoadingSpinner /> : null}
             <Image src={logo} alt="" className="block lg:hidden m-auto" priority={false} />
             <FormField name="userId" label="User ID" placeholder="Enter User ID" value={userId} onChange={(e) => { setUserId(e.target.value) }} required />
             <FormField name="password" label="Password" placeholder="******" type="password" value={password} onChange={(e) => { setPassword(e.target.value) }} required />
@@ -60,8 +62,9 @@ const Login = () => {
                     </div>
                     : ''
             }
-            <Link href={''} className="flex text-white underline m-auto">Forgot Password?</Link>
+            <Link href={'/forgot-password'} className="flex text-white underline m-auto">Forgot Password?</Link>
             <span className="text-white m-auto font-sans font-light text-wrap">By continuing, you agree to our User Agreement and Privacy Policy</span>
+
         </Form>
 
     )

@@ -23,7 +23,7 @@ interface UserRegistrationProps {
     masterAgentAccountNumber: number;
 }
 
-const Players = () => {
+const Register = () => {
 
 
     const router = useRouter()
@@ -258,4 +258,4 @@ const Players = () => {
     )
 }
 
-export default Players
+export default Register

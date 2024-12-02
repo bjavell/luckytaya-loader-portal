@@ -32,11 +32,11 @@ const sideBarAgentRoutes = [{
 {
     module: 'LOADING STATION',
     item: [
-        //     {
-        //     module: 'Self Cash-In',
-        //     ico: LoadStation,
-        //     link: '/loading-station/cash-in/self'
-        // },
+            {
+            module: 'Self Cash-In',
+            ico: LoadStation,
+            link: '/loading-station/cash-in/self'
+        },
         {
             module: 'Player Cash-In',
             ico: LoadStation,
@@ -212,11 +212,11 @@ const sideBarAdminRoutes = [{
     }, {
         module: 'Backoffice Users',
         ico: UserList,
-        link: '/admin/user/management/backoffice'
+        link: '/admin/user/manage/backoffice'
     }, {
         module: 'Player Users',
         ico: UserList,
-        link: '/admin/user/management/players'
+        link: '/admin/user/manage/players'
     }]
 
 },

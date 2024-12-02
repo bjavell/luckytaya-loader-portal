@@ -6,19 +6,22 @@ const protectedRoutes = {
   admin: [
     "/admin/dashboard",
     "/admin/user/register",
-    "/admin/user/management/backoffice",
-    "/admin/user/management/players",
-    "/notify"
+    "/admin/user/manage/backoffice",
+    "/admin/user/manage/players",
+    "/notify",
+    "/profile"
   ],
   eventmgr: [
     "/event",
     "/event/venue",
     "/event/fights",
     "/event/transaction_history",
+    "/profile"
   ],
   finance: [
     "/finance/dashboard",
     "/finance/reports",
+    "/profile"
   ],
   acctmgr: [
     "/master/dashboard",
@@ -28,6 +31,7 @@ const protectedRoutes = {
     "/players",
     "/loading-station",
     "/history/transfer",
+    "/profile"
   ],
 };
 

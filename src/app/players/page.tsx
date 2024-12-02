@@ -118,13 +118,13 @@ const Players = () => {
                         //         return account?.description ?? item
                         //     }
                         // },
-                        {
-                            key: 'balance',
-                            label: 'balance',
-                            format: (val: string) => {
-                                return formatMoney(val)
-                            }
-                        },
+                        // {
+                        //     key: 'balance',
+                        //     label: 'balance',
+                        //     format: (val: string) => {
+                        //         return formatMoney(val)
+                        //     }
+                        // },
                         // {
                         //     key: 'principalAccountNumber',
                         //     label: 'PRINCIPAL ACCOUNT NUMBER'

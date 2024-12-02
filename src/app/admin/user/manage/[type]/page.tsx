@@ -10,7 +10,7 @@ import Modal from "@/components/modal"
 import FormField from "@/components/formField"
 import UserData from "@/classes/userData"
 import ConfirmationModal from "@/components/confirmationModal"
-
+import AccountType from "@/classes/accountTypeData"
 
 const Players = () => {
     const router = useRouter()
@@ -38,13 +38,47 @@ const Players = () => {
         // "roles": []
     })
     const [search, setSearch] = useState('')
-    const [accountType, setAccountType] = useState([])
+    const [accountType] = useState<AccountType[]>([
+        {
+            "accountType": 1,
+            "description": "Finance"
+        },
+        {
+            "accountType": 4,
+            "description": "Event Manager"
+        },
+        {
+            "accountType": 5,
+            "description": "Declarator"
+        },
+        {
+            "accountType": 9,
+            "description": "Admin"
+        },
+        {
+            "accountType": 3,
+            "description": "Master Agent"
+        },
+        {
+            "accountType": 6,
+            "description": "Agent"
+        },
+        {
+            "accountType": 7,
+            "description": "Agent Player"
+        },
+        {
+            "accountType": 8,
+            "description": "Player"
+        },
+    ])
     const [accountRole, setAccountRole] = useState([])
     const [isLoading, setIsLoading] = useState(false)
 
     const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
     const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
     const [alertMessage, setAlertMessage] = useState('');
+    const [searchAccountType, setSearchAccountType] = useState('ALL')
 
 
     const getUserLists = async () => {
@@ -73,25 +107,25 @@ const Players = () => {
             })
     }
 
-    const getUserType = async () => {
-        await axios.get('/api/get-account-type')
-            .then(response => {
-                setAccountType(response.data)
-            })
-            .catch((e) => {
-                const errorMessages = e.response.data.error
-                if (errorMessages) {
-                    if (errorMessages['Unauthorized']) {
-                        router.push('/login')
-                    }
-                }
-                // const errorMessages = e.response.data.error
-                setAccountType([])
-            })
-            .finally(() => {
-                // setIsLoading(false)
-            })
-    }
+    // const getUserType = async () => {
+    //     await axios.get('/api/get-account-type')
+    //         .then(response => {
+    //             setAccountType(response.data)
+    //         })
+    //         .catch((e) => {
+    //             const errorMessages = e.response.data.error
+    //             if (errorMessages) {
+    //                 if (errorMessages['Unauthorized']) {
+    //                     router.push('/login')
+    //                 }
+    //             }
+    //             // const errorMessages = e.response.data.error
+    //             setAccountType([])
+    //         })
+    //         .finally(() => {
+    //             // setIsLoading(false)
+    //         })
+    // }
 
     const getUserRole = async () => {
         await axios.get('/api/get-account-roles')
@@ -117,15 +151,15 @@ const Players = () => {
         if (players.length === 0)
             getUserLists()
 
-        if (accountType.length === 0) {
-            getUserType()
-        }
+        // if (accountType.length === 0) {
+        //     getUserType()
+        // }
 
         if (accountRole.length === 0) {
             getUserRole()
         }
 
-        onUserSearch(search, status)
+        onUserSearch(search, status, searchAccountType)
     }, [players])
 
     const openModal = (data: any) => {
@@ -155,14 +189,20 @@ const Players = () => {
         }
     }
 
-    const onUserSearch = (value: string, status: string) => {
+    const onUserSearch = (value: string, status: string, srchAcctType: string) => {
         const filter = players.filter((player: any) => {
             return (`${player?.firstname} ${player?.lastname}`.toUpperCase().includes(value) || String(player?.accountNumber)?.includes(value)
-                || player?.phoneNumber?.toUpperCase().includes(value) || player?.email?.toUpperCase().includes(value)) && (status === 'ALL' ? true : Number(status) === player.suspended)
+                || player?.phoneNumber?.toUpperCase().includes(value) ||
+                player?.email?.toUpperCase().includes(value)) &&
+                (status === 'ALL' ? true : Number(status) === player.suspended) &&
+                (srchAcctType === 'ALL' ? true : Number(srchAcctType) === Number(player.accountType))
         })
+
+        console.log('srchAcctType', (srchAcctType === 'ALL' ? true : Number(srchAcctType)))
 
         setSearch(value)
         setStatus(status)
+        setSearchAccountType(srchAcctType)
         setFilterPlayers(filter)
     }
 
@@ -331,19 +371,33 @@ const Players = () => {
                 </div>
             </Modal>
             <h1 className="text-xl">{manageType === 'backoffice' ? 'Backoffice' : 'Players'}</h1>
-            <div className="gap-4 items-center flex w-1/3">
+            <div className="gap-4 items-center flex w-2/3">
                 <label htmlFor="accountNumber" >Search</label>
-                <FormField name="accountNumber" value={search} onBlur={(e) => { onUserSearch(e.target.value.toUpperCase(), status) }} />
+                <FormField name="accountNumber" value={search} onBlur={(e) => { onUserSearch(e.target.value.toUpperCase(), status, searchAccountType) }} />
                 <div className="flex flex-row">
                     <div className="gap-2 flex">
                         <label htmlFor="status" className="flex items-center">Status</label>
-                        <select id="status" className="rounded-xlg py-4 px-4 bg-semiBlack font-sans font-light text-sm tacking-[5%] text-white" value={status} onChange={(e) => onUserSearch(search, e.target.value)}>
+                        <select id="status" className="rounded-xlg py-4 px-4 bg-semiBlack font-sans font-light text-sm tacking-[5%] text-white" value={status} onChange={(e) => onUserSearch(search, e.target.value, searchAccountType)}>
                             <option value="ALL">ALL</option>
                             <option value="0">Active</option>
                             <option value="1">Suspended</option>
                         </select>
                     </div>
                 </div>
+                {manageType === 'backoffice' ?
+                    <div className="flex flex-row">
+                        <div className="gap-2 flex">
+                            <label htmlFor="searchAccountType" className="flex items-center">Account Type</label>
+                            <select id="searchAccountType" className="rounded-xlg py-4 px-4 bg-semiBlack font-sans font-light text-sm tacking-[5%] text-white" value={searchAccountType} onChange={(e) => onUserSearch(search, status, e.target.value)}>
+                                <option value="ALL">ALL</option>
+                                <option value="9">Admin</option>
+                                <option value="5">Declarator</option>
+                                <option value="4">Event Manager</option>
+                                <option value="1">Finance</option>
+                            </select>
+                        </div>
+                    </div>
+                    : null}
             </div>
             <div className="flex flex-col">
                 <Tables
@@ -363,6 +417,33 @@ const Players = () => {
                             concatSeparator: ' '
                         },
                         {
+                            key: 'email',
+                            label: 'email'
+                        },
+                        {
+                            key: 'phoneNumber',
+                            label: 'mobile number'
+                        },
+                        {
+                            key: 'accountType',
+                            label: 'type',
+                            format: (val: string) => {
+
+                                const accountTp = accountType.find((item: any) => {
+
+                                    console.log(item)
+                                    console.log(val)
+
+                                    return Number(item.accountType) === Number(val)
+                                })
+                                if (accountTp) {
+                                    return accountTp ? accountTp?.description : ''
+                                } else {
+                                    return val
+                                }
+                            }
+                        },
+                        {
                             key: 'accountBalance',
                             label: 'balance',
                             format: (val: string) => {
@@ -370,13 +451,6 @@ const Players = () => {
                             }
                         },
                         {
-                            key: 'email',
-                            label: 'email'
-                        },
-                        {
-                            key: 'phoneNumber',
-                            label: 'mobile number'
-                        }, {
                             key: 'suspended',
                             label: 'status',
                             format: (val: string) => {

@@ -32,11 +32,11 @@ const sideBarAgentRoutes = [{
 {
     module: 'LOADING STATION',
     item: [
-        //     {
-        //     module: 'Self Cash-In',
-        //     ico: LoadStation,
-        //     link: '/loading-station/cash-in/self'
-        // },
+            {
+            module: 'Self Cash-In',
+            ico: LoadStation,
+            link: '/loading-station/cash-in/self'
+        },
         {
             module: 'Player Cash-In',
             ico: LoadStation,

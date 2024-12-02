@@ -140,7 +140,7 @@ const Players = () => {
                                 >
                                     Cash In
                                 </Button>
-                            </div>
+                            </div>  
 
                         }
                     ]}

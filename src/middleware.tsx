@@ -6,8 +6,8 @@ const protectedRoutes = {
   admin: [
     "/admin/dashboard",
     "/admin/user/register",
-    "/admin/user/management/backoffice",
-    "/admin/user/management/players",
+    "/admin/user/manage/backoffice",
+    "/admin/user/manage/players",
     "/notify"
   ],
   eventmgr: [

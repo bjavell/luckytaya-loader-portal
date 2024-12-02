@@ -212,11 +212,11 @@ const sideBarAdminRoutes = [{
     }, {
         module: 'Backoffice Users',
         ico: UserList,
-        link: '/admin/user/management/backoffice'
+        link: '/admin/user/manage/backoffice'
     }, {
         module: 'Player Users',
         ico: UserList,
-        link: '/admin/user/management/players'
+        link: '/admin/user/manage/players'
     }]
 
 },

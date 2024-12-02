@@ -4,7 +4,7 @@ import { getCurrentSession } from "@/context/auth";
 import { luckTayaAxios } from "@/util/axiosUtil";
 import { formatGenericErrorResponse } from "@/util/commonResponse";
 import { decrypt, encrypt } from "@/util/cryptoUtil";
-import { insert } from "@/util/dbUtil";
+import { findOne, insert } from "@/util/dbUtil";
 import { getToken } from "@/util/generator";
 import { NextRequest, NextResponse } from "next/server";
 import nodemailer from 'nodemailer'
@@ -87,6 +87,22 @@ const POST = async (req: NextRequest) => {
                 suspended: 0,
                 accountType: request.accountType
             }
+
+            const accountExists = await findOne(DB_COLLECTIONS.TAYA_AGENTS, {
+                $or: [
+                    { 'request.email': request.email },
+                    { 'request.phoneNumber': request.phoneNumber },
+                    { 'request.username': request.username }
+                ]
+            })
+
+
+            if (accountExists) {
+                throw new CustomError('Bad request', {
+                    'Bad request': [`Account already exists`]
+                })
+            }
+
 
             await luckTayaAxios.put('/api/v1/User/UserRoleAccountTypeUpdate', updateAccount, {
                 headers: {

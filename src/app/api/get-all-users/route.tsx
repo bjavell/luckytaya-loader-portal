@@ -2,29 +2,83 @@ import { getCurrentSession } from "@/context/auth"
 import { NextRequest, NextResponse } from "next/server"
 import { luckTayaAxios } from "@/util/axiosUtil"
 import { formatGenericErrorResponse } from "@/util/commonResponse"
-import { USER_TYPE } from "@/classes/constants"
+import { DB_COLLECTIONS, USER_TYPE } from "@/classes/constants"
+import { findAll } from "@/util/dbUtil"
 
 const GET = async (req: NextRequest) => {
     try {
         const currentSession = await getCurrentSession()
         const type = req.nextUrl.searchParams.get('type')
 
-        let response
+        const mgmtRole = await luckTayaAxios.get(`/api/v1/User/MgmtRole`, {
+            headers: {
+                'Authorization': `Bearer ${currentSession.token}`,
+            },
+        })
+
+        const playerRole = await luckTayaAxios.get(`/api/v1/User/PlayerRole`, {
+            headers: {
+                'Authorization': `Bearer ${currentSession.token}`,
+            },
+        })
+
+        const response = mgmtRole.data.concat(playerRole.data)
+        let customResponse = []
         if (type === USER_TYPE.MANAGEMENT) {
-            response = await luckTayaAxios.get(`/api/v1/User/MgmtRole`, {
-                headers: {
-                    'Authorization': `Bearer ${currentSession.token}`,
+            const accountType = [
+                {
+                    "accountType": 1,
+                    "description": "Finance"
                 },
-            })
+                {
+                    "accountType": 4,
+                    "description": "Event Manager"
+                },
+                {
+                    "accountType": 5,
+                    "description": "Declarator"
+                },
+                {
+                    "accountType": 9,
+                    "description": "Admin"
+                },
+            ]
+
+
+
+            customResponse = response.filter((combinedUser: any) => accountType.some((acctType: any) => {
+                return acctType.accountType === combinedUser.accountType
+            }))
         } else {
-            response = await luckTayaAxios.get(`/api/v1/User/PlayerRole`, {
-                headers: {
-                    'Authorization': `Bearer ${currentSession.token}`,
+
+            const accountType = [
+                {
+                    "accountType": 3,
+                    "description": "Master Agent"
                 },
-            })
+                {
+                    "accountType": 6,
+                    "description": "Agent"
+                },
+                {
+                    "accountType": 7,
+                    "description": "Agent Player"
+                },
+                {
+                    "accountType": 8,
+                    "description": "Player"
+                },
+            ]
+
+
+
+            customResponse = response.filter((combinedUser: any) => accountType.some((acctType: any) => {
+                return acctType.accountType === combinedUser.accountType
+            }))
+
         }
 
-        return NextResponse.json(response.data)
+        return NextResponse.json(customResponse)
     } catch (e) {
         console.error(e)
         return NextResponse.json({

@@ -10,7 +10,7 @@ const POST = async (req: NextRequest) => {
     const currentSession = await getCurrentSession();
 
     request.venueId = parseInt(request.venueId);
-    var response;
+    let response;
     if (!request.eventId) {
       request.eventDate = request.eventDate + ":00.000Z";
       delete request.eventId;

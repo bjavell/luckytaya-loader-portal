@@ -31,7 +31,6 @@ const POST = async (req: NextRequest) => {
         eventId: parseInt(copyRequest.eventId),
         eventStatusCode: parseInt(copyRequest.eventStatusCodeNew),
       };
-      console.log({ request, eventStatusRequest }, "----------- ");
 
       if (request.eventStatusCode == 10)
         response = await luckTayaAxios.put(`/api/v1/SabongEvent/V2`, request, {

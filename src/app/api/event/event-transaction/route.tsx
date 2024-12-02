@@ -16,7 +16,6 @@ const GET = async (req: NextRequest) => {
         },
       }
     );
-    console.log(response.data,eventId)
     const data = response.data;
     let total = 0;
     for (let index = 0; index < data.length; index++) {

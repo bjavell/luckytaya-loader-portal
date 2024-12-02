@@ -70,7 +70,6 @@ const TransactionHistory = () => {
   }, []);
 
   const getTransactions = async (id: any, type: any) => {
-    console.log(type,id)
     setIsLoading(true);
     let params: any;
     let url: any;

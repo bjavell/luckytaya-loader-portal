@@ -11,6 +11,13 @@ import FormField from "@/components/formField"
 import UserData from "@/classes/userData"
 import ConfirmationModal from "@/components/confirmationModal"
 import AccountType from "@/classes/accountTypeData"
+import LoadingSpinner from "@/components/loadingSpinner"
+
+import Image from "next/image";
+import Form from "@/components/form"
+
+
+const playerPortal = process.env.NEXT_PUBLIC_PLAYER_PORTAL
 
 const Players = () => {
     const router = useRouter()
@@ -34,7 +41,8 @@ const Players = () => {
         "facebookAccount": "",
         "referralCode": 0,
         "id": 0,
-        "suspended": 0
+        "suspended": 0,
+        image: ''
         // "roles": []
     })
     const [search, setSearch] = useState('')
@@ -79,32 +87,37 @@ const Players = () => {
     const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
     const [alertMessage, setAlertMessage] = useState('');
     const [searchAccountType, setSearchAccountType] = useState('ALL')
+    const [accountStatus, setAccountStatus] = useState('ALL')
+    const [currDataStatus, setCurrDataStatus] = useState('')
 
 
     const getUserLists = async () => {
-        await axios.get('/api/get-all-users', {
-            params: {
-                type: manageType === 'backoffice' ? USER_TYPE.MANAGEMENT : USER_TYPE.PLAYER
-            }
-        })
-            .then(response => {
-                setPlayers(response.data)
-                setFilterPlayers(response.data)
-            })
-            .catch((e) => {
-                const errorMessages = e.response.data.error
-                if (errorMessages) {
-                    if (errorMessages['Unauthorized']) {
-                        router.push('/login')
-                    }
+        try {
+            setIsLoading(true)
+
+            const response = await axios.get('/api/get-all-users', {
+                params: {
+                    type: manageType === 'backoffice' ? USER_TYPE.MANAGEMENT : USER_TYPE.PLAYER
                 }
-                // const errorMessages = e.response.data.error
-                setPlayers([])
-                setFilterPlayers([])
             })
-            .finally(() => {
-                // setIsLoading(false)
-            })
+
+            setPlayers(response.data)
+            setFilterPlayers(response.data)
+        } catch (e: any) {
+            const errorMessages = e?.response?.data?.error
+            if (errorMessages) {
+                if (errorMessages['Unauthorized']) {
+                    router.push('/login')
+                }
+            }
+            // const errorMessages = e.response.data.error
+            setPlayers([])
+            setFilterPlayers([])
+
+        } finally {
+            setIsLoading(false)
+        }
+
     }
 
     // const getUserType = async () => {
@@ -159,11 +172,12 @@ const Players = () => {
             getUserRole()
         }
 
-        onUserSearch(search, status, searchAccountType)
+        onUserSearch(search, status, searchAccountType, accountStatus)
     }, [players])
 
     const openModal = (data: any) => {
         setModalData(data)
+        setCurrDataStatus(data.status)
         setIsShowModal(true)
     }
 
@@ -186,23 +200,24 @@ const Players = () => {
                 // "roles": []
             })
             setIsShowModal(false)
+            setCurrDataStatus('')
         }
     }
 
-    const onUserSearch = (value: string, status: string, srchAcctType: string) => {
+    const onUserSearch = (value: string, status: string, srchAcctType: string, accountStatus: string) => {
         const filter = players.filter((player: any) => {
             return (`${player?.firstname} ${player?.lastname}`.toUpperCase().includes(value) || String(player?.accountNumber)?.includes(value)
                 || player?.phoneNumber?.toUpperCase().includes(value) ||
                 player?.email?.toUpperCase().includes(value)) &&
                 (status === 'ALL' ? true : Number(status) === player.suspended) &&
-                (srchAcctType === 'ALL' ? true : Number(srchAcctType) === Number(player.accountType))
+                (srchAcctType === 'ALL' ? true : Number(srchAcctType) === Number(player.accountType)) &&
+                (accountStatus === 'ALL' ? true : accountStatus === player.status)
         })
-
-        console.log('srchAcctType', (srchAcctType === 'ALL' ? true : Number(srchAcctType)))
 
         setSearch(value)
         setStatus(status)
         setSearchAccountType(srchAcctType)
+        setAccountStatus(accountStatus)
         setFilterPlayers(filter)
     }
 
@@ -217,6 +232,12 @@ const Players = () => {
         setModalData(prevData => ({
             ...prevData,
             suspended: Number(value)
+        }))
+    }
+    const onApproveChange = (value: string) => {
+        setModalData(prevData => ({
+            ...prevData,
+            status: value
         }))
     }
 
@@ -234,6 +255,7 @@ const Players = () => {
         try {
             setIsConfirmModalOpen(false)
             setIsLoading(true)
+            console.log(modalData)
             await axios.post('/api/update-user-account', modalData)
             setModalData({
                 "accountNumber": 0,
@@ -249,6 +271,7 @@ const Players = () => {
                 "referralCode": 0,
                 "id": 0,
                 "suspended": 0,
+                status: ''
                 // "roles": []
             })
             setIsAlertModalOpen(true)
@@ -279,6 +302,7 @@ const Players = () => {
 
     return (
         <div className="flex flex-col gap-4 w-full">
+            {isLoading ? <LoadingSpinner /> : null}
             <ConfirmationModal
                 isOpen={isAlertModalOpen}
                 onConfirm={() => setIsAlertModalOpen(false)}
@@ -295,7 +319,12 @@ const Players = () => {
             <Modal isOpen={isShowModal} onClose={closeModal} size="medium">
                 <div className="flex flex-col items-end gap-4">
                     <div className="flex w-full gap-4">
-                        <div className="flex flex-col gap-4 p-4 w-full">
+                        <Form className="flex flex-col gap-4 p-4 w-full">
+                            {modalData.image ?
+                                <div className="flex flex-col">
+                                    <Image src={`${playerPortal}${modalData.image}`} alt={"player image"} width={200} height={200} />
+                                </div>
+                                : null}
                             <div className="flex">
                                 <FormField name={"accountNumber"} value={formatDynamicNumber(modalData.accountNumber)} label="Account Number" customLabelClass="text-xs" readonly />
                                 <FormField name={"accountBalance"} value={formatMoney(`${modalData.accountBalance}`)} label="Account Balance" customLabelClass="text-xs" readonly />
@@ -331,25 +360,43 @@ const Players = () => {
 
                                 </div> */}
                                 <div className="flex flex-col flex-1 gap-4">
-                                    <label htmlFor="accountType" className="text-white font-sans font-light text-nowrap text-xs">Account Type</label>
-                                    <select id="accountType" className="rounded-xlg py-4 px-4 bg-semiBlack font-sans font-light text-sm tacking-[5%] text-white" value={modalData.accountType} onChange={(e) => onAccountTypeChange(e.target.value)} required>
-                                        <option value=''>Select Account Type</option>
-                                        {
-                                            accountType ?
-                                                accountType.map((e: any) => {
-                                                    return <option key={e.description} value={e.accountType}>{e.description}</option>
-                                                }) :
-                                                <option></option>
-                                        }
-                                    </select>
+                                    {
+                                        manageType === 'backoffice' ?
+                                            <>
+                                                <label htmlFor="accountType" className="text-white font-sans font-light text-nowrap text-xs">Account Type</label>
+                                                <select id="accountType" className="rounded-xlg py-4 px-4 bg-semiBlack font-sans font-light text-sm tacking-[5%] text-white" value={modalData.accountType} onChange={(e) => onAccountTypeChange(e.target.value)} required>
+                                                    <option value=''>Select Account Type</option>
+                                                    {
+                                                        accountType ?
+                                                            accountType.map((e: any) => {
+                                                                return <option key={e.description} value={e.accountType}>{e.description}</option>
+                                                            }) :
+                                                            <option></option>
+                                                    }
+                                                </select>
+                                            </> :
+                                            null
+                                    }
                                     <label htmlFor="suspend" className="text-white font-sans font-light text-nowrap text-xs">Suspend?</label>
                                     <select id="accountType" className="rounded-xlg py-4 px-4 bg-semiBlack font-sans font-light text-sm tacking-[5%] text-white" value={modalData.suspended} onChange={(e) => onSuspendChange(e.target.value)}>
                                         <option value={0}>No</option>
                                         <option value={1}>Yes</option>
                                     </select>
+                                    {
+                                        currDataStatus === 'PENDING' ?
+                                            <>
+                                                <label htmlFor="suspend" className="text-white font-sans font-light text-nowrap text-xs">Approve Player?</label>
+                                                <select id="accountType" className="rounded-xlg py-4 px-4 bg-semiBlack font-sans font-light text-sm tacking-[5%] text-white" value={modalData.status} onChange={(e) => onApproveChange(e.target.value)} required>
+                                                    <option value={''}>--</option>
+                                                    <option value={'APPROVED'}>Yes</option>
+                                                    <option value={'REJECTED'}>No</option>
+                                                </select>
+                                            </>
+                                            : null
+                                    }
                                 </div>
                             </div>
-                        </div>
+                        </Form>
                     </div>
                     <div className="flex gap-4">
                         <Button
@@ -373,11 +420,11 @@ const Players = () => {
             <h1 className="text-xl">{manageType === 'backoffice' ? 'Backoffice' : 'Players'}</h1>
             <div className="gap-4 items-center flex w-2/3">
                 <label htmlFor="accountNumber" >Search</label>
-                <FormField name="accountNumber" value={search} onBlur={(e) => { onUserSearch(e.target.value.toUpperCase(), status, searchAccountType) }} />
+                <FormField name="accountNumber" value={search} onBlur={(e) => { onUserSearch(e.target.value.toUpperCase(), status, searchAccountType, accountStatus) }} />
                 <div className="flex flex-row">
                     <div className="gap-2 flex">
                         <label htmlFor="status" className="flex items-center">Status</label>
-                        <select id="status" className="rounded-xlg py-4 px-4 bg-semiBlack font-sans font-light text-sm tacking-[5%] text-white" value={status} onChange={(e) => onUserSearch(search, e.target.value, searchAccountType)}>
+                        <select id="status" className="rounded-xlg py-4 px-4 bg-semiBlack font-sans font-light text-sm tacking-[5%] text-white" value={status} onChange={(e) => onUserSearch(search, e.target.value, searchAccountType, accountStatus)}>
                             <option value="ALL">ALL</option>
                             <option value="0">Active</option>
                             <option value="1">Suspended</option>
@@ -388,7 +435,7 @@ const Players = () => {
                     <div className="flex flex-row">
                         <div className="gap-2 flex">
                             <label htmlFor="searchAccountType" className="flex items-center">Account Type</label>
-                            <select id="searchAccountType" className="rounded-xlg py-4 px-4 bg-semiBlack font-sans font-light text-sm tacking-[5%] text-white" value={searchAccountType} onChange={(e) => onUserSearch(search, status, e.target.value)}>
+                            <select id="searchAccountType" className="rounded-xlg py-4 px-4 bg-semiBlack font-sans font-light text-sm tacking-[5%] text-white" value={searchAccountType} onChange={(e) => onUserSearch(search, status, e.target.value, accountStatus)}>
                                 <option value="ALL">ALL</option>
                                 <option value="9">Admin</option>
                                 <option value="5">Declarator</option>
@@ -397,7 +444,18 @@ const Players = () => {
                             </select>
                         </div>
                     </div>
-                    : null}
+                    :
+                    <div className="flex flex-row">
+                        <div className="gap-2 flex">
+                            <label htmlFor="searchAccountType" className="flex items-center">Account Status</label>
+                            <select id="searchAccountType" className="rounded-xlg py-4 px-4 bg-semiBlack font-sans font-light text-sm tacking-[5%] text-white" value={accountStatus} onChange={(e) => onUserSearch(search, status, searchAccountType, e.target.value)}>
+                                <option value="ALL">ALL</option>
+                                <option value="PENDING">Pending</option>
+                                <option value="APPROVED">Approved</option>
+                                <option value="REJECTED">Rejected</option>
+                            </select>
+                        </div>
+                    </div>}
             </div>
             <div className="flex flex-col">
                 <Tables
@@ -430,10 +488,6 @@ const Players = () => {
                             format: (val: string) => {
 
                                 const accountTp = accountType.find((item: any) => {
-
-                                    console.log(item)
-                                    console.log(val)
-
                                     return Number(item.accountType) === Number(val)
                                 })
                                 if (accountTp) {

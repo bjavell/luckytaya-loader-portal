@@ -70,9 +70,28 @@ const GET = async (req: NextRequest) => {
                 },
             ]
 
+            const getAllAgentPlayers = await findAll(DB_COLLECTIONS.TAYA_USERS, {})
 
 
-            customResponse = response.filter((combinedUser: any) => accountType.some((acctType: any) => {
+
+            customResponse = response.map((player: any) => {
+
+                const matchItem = getAllAgentPlayers.find((agentPlayer: any) => {
+                    return Number(agentPlayer.accountNumber) === Number(player.accountNumber)
+                })
+                if (matchItem) {
+                    return {
+                        ...player,
+                        image: matchItem.id,
+                        status: matchItem.status
+                    }
+                }
+                return {
+                    ...player,
+                    image: '',
+                    status: ''
+                }
+            }).filter((combinedUser: any) => accountType.some((acctType: any) => {
                 return acctType.accountType === combinedUser.accountType
             }))
 

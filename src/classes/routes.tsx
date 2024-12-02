@@ -32,7 +32,7 @@ const sideBarAgentRoutes = [{
 {
     module: 'LOADING STATION',
     item: [
-            {
+        {
             module: 'Self Cash-In',
             ico: LoadStation,
             link: '/loading-station/cash-in/self'
@@ -122,16 +122,16 @@ const sideBarMasterRoutes = [{
 {
     module: 'LOADING STATION',
     item: [
-    //     {
-    //     module: 'Self Cash-In',
-    //     ico: LoadStation,
-    //     link: '/loading-station/cash-in/self'
-    // },
-    {
-        module: 'Agent Cash-In',
-        ico: LoadStation,
-        link: '/loading-station/cash-in/agent'
-    }]
+        //     {
+        //     module: 'Self Cash-In',
+        //     ico: LoadStation,
+        //     link: '/loading-station/cash-in/self'
+        // },
+        {
+            module: 'Agent Cash-In',
+            ico: LoadStation,
+            link: '/loading-station/cash-in/agent'
+        }]
 
 },
 {
@@ -173,7 +173,13 @@ const sideBarMainMasterRoutes = [{
             module: 'Master Agent Cash-In',
             ico: LoadStation,
             link: '/loading-station/cash-in/masterAgent'
-        }]
+        },
+        {
+            module: 'Funding Request',
+            ico: LoadStation,
+            link: '/master/approve-funding-request'
+        },
+    ]
 
 },
 {
@@ -220,6 +226,15 @@ const sideBarAdminRoutes = [{
     }]
 
 },
+{
+    module: 'REPORTS',
+    item: [{
+        module: 'Generate Report',
+        ico: Transfer,
+        link: '/finance/reports/all'
+    }]
+
+}
     // {
     //     module: 'NOTIFY',
     //     item: [{

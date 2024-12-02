@@ -9,7 +9,8 @@ const protectedRoutes = {
     "/admin/user/manage/backoffice",
     "/admin/user/manage/players",
     "/notify",
-    "/profile"
+    "/profile",
+    "/finance/reports",
   ],
   eventmgr: [
     "/event",
@@ -27,6 +28,7 @@ const protectedRoutes = {
     "/master/dashboard",
     "/master/agent-list",
     "/master/master-agent-list",
+    "/master/approve-funding-request",
     "/dashboard",
     "/players",
     "/loading-station",

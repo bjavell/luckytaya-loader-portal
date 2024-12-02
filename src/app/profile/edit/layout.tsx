@@ -4,7 +4,7 @@ import CommonLayout from "@/app/layout/commonLayout"
 
 const DashboardLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
     return (
-        <CommonLayout slug="MAIN DASHBOARD">
+        <CommonLayout slug="USER PROFILE">
             {children}
         </CommonLayout>
     )
@@ -13,5 +13,5 @@ const DashboardLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
 export default DashboardLayout
 
 export const metadata: Metadata = {
-    title: 'Dashboard'
+    title: 'Profle'
 }

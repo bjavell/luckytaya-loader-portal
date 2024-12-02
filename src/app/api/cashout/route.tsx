@@ -18,8 +18,8 @@ const POST = async (req: NextRequest) => {
             headers: {
                 'Authorization': `Bearer ${currentSession.token}`,
             },
-        })
-        return NextResponse.json(response.data)
+            })
+            return NextResponse.json(response.data)
     } catch (e) {
         return NextResponse.json({
             error: formatGenericErrorResponse(e)

@@ -7,7 +7,6 @@ import axios from "axios";
 const GET = async (req: NextRequest) => {
   try {
     const currentSession = await getCurrentSession();
-    console.log(req.headers);
     const eventId = req.nextUrl.searchParams.get("eventId");
     const response = await luckTayaAxios.get(
       `/api/v1/SabongBet/GetByEventId?eventId=${eventId}`,
@@ -17,7 +16,6 @@ const GET = async (req: NextRequest) => {
         },
       }
     );
-
     const data = response.data;
     let total = 0;
     for (let index = 0; index < data.length; index++) {

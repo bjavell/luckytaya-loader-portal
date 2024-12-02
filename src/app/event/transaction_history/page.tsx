@@ -91,7 +91,6 @@ const TransactionHistory = () => {
         params,
       })
       .then((response) => {
-        console.log(response.data.list)
         setTotal(response.data.summary);
         setTransactions(response.data.list);
       })
@@ -115,7 +114,7 @@ const TransactionHistory = () => {
   const handleEventChange = (e: any) => {
     setIsLoading(true);
     setSelectedEvent(events[e.target.value]);
-    setFight({});
+    setFight(null);
     setFights([]);
   };
 
@@ -196,7 +195,7 @@ const TransactionHistory = () => {
               // },
               {
                 key: "transactionNumber",
-                label: "transaction number",
+                label: "Transaction Id",
               },
               {
                 key: "accountNumber",
@@ -211,11 +210,11 @@ const TransactionHistory = () => {
               },
               {
                 key: "meron",
-                label: "Meron",
+                label: "Pula",
               },
               {
                 key: "wala",
-                label: "Wala",
+                label: "Asul",
               },
 
               // {
@@ -241,12 +240,12 @@ const TransactionHistory = () => {
                 key: "side",
                 label: "Bet On",
                 format: (val: number) => {
-                  return val == 1 ? "Meron" : "Wala";
+                  return val == 1 ? "Pula" : "Asul";
                 },
               },
               {
                 key: "amount",
-                label: "AMOUNT",
+                label: "Amount",
                 customValueClass: "text-semiYellow",
                 format: (val: string) => {
                   return formatMoney(val);

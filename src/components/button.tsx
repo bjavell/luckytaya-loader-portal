@@ -10,11 +10,12 @@ interface ButtonProps {
     customCss?: string,
     type: 'button' | 'submit',
     size?: string,
-    textColor?: string
+    textColor?: string,
+    isGrouped?: boolean
 }
 
 const Button: NextPage<ButtonProps> = (props) => {
-    const { children, customCss, textColor, size, type, onClick } = props
+    const { children, customCss, textColor, size, type, isGrouped, onClick } = props
 
     let customSize = 'text-base'
     if (size) {
@@ -28,8 +29,17 @@ const Button: NextPage<ButtonProps> = (props) => {
         customTextColor = textColor
     }
 
+    let classNameIsGrouped
+
+    if (isGrouped === undefined || isGrouped) {
+        classNameIsGrouped = 'group-invalid:pointer-events-none group-invalid:opacity-50'
+    } else if (!isGrouped) {
+        classNameIsGrouped = ''
+    }
+
+    console.log('isGrouped', isGrouped)
     return (
-        <button type={type} className={`justify-center inline-block py-3 px-6 rounded-xlg bg-yellow-green text-base ${customTextColor} ${customSize} group-invalid:pointer-events-none group-invalid:opacity-50 ${customCss ?? ''}`} onClick={onClick} disabled={props.disabled || props.isLoading}>{props.isLoading ? props.loadingText : children}</button>
+        <button type={type} className={`justify-center inline-block py-3 px-6 rounded-xlg bg-yellow-green text-base ${customTextColor} ${classNameIsGrouped} ${customSize}  ${customCss ?? ''}`} onClick={onClick} disabled={props.disabled || props.isLoading}>{props.isLoading ? props.loadingText : children}</button>
     )
 }
 

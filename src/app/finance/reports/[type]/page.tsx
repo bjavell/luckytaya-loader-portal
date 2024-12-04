@@ -108,7 +108,7 @@ const Reports = () => {
                 const formattedDate = format(new Date(transaction.transactionDateTime), 'yyyy-MM-dd hh:mm:ss a');
                 const sender = transaction.fromFullName + ' | ' + transaction.fromAccountNumber;
                 const receiver = transaction.toFullName + ' | ' + transaction.toAccountNumber;
-                const amount = formatMoney(transaction.amount);
+                const amount = transaction.amount;
                 return [
                     formattedDate,
                     transaction.transactionNumber,

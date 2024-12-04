@@ -13,7 +13,7 @@ const formatMoney = (value: string) => {
 }
 
 const formatNumber = (input: number | string): string => {
-    let num = typeof input === "string" ? parseInt(input.replace(/,/g, "")) : input
+    const num = typeof input === "string" ? parseInt(input.replace(/,/g, "")) : input
     return num.toLocaleString()
 }
 

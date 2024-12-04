@@ -1,6 +1,7 @@
 'use client'
 
 import LoadingSpinner from "@/components/loadingSpinner"
+import { formatNumber } from "@/util/textUtil"
 import axios from "axios"
 import Link from "next/link"
 import router from "next/router"
@@ -36,10 +37,6 @@ const Home = () => {
         getRekycCount()
     }, [])
 
-    function formatMoney(pendingKyc: number): import("react").ReactNode {
-        throw new Error("Function not implemented.")
-    }
-
     return (
         <div className="flex flex-col gap-4">
             {isLoading ? <LoadingSpinner /> : null}
@@ -50,7 +47,7 @@ const Home = () => {
                 <span>
                     Pending KYC:
                 </span>
-                <Link href={"/admin/user/manage/players?accountStatus=PENDING"} className="underline">{formatMoney(pendingKyc)}</Link>
+                <Link href={"/admin/user/manage/players?accountStatus=PENDING"} className="underline">{formatNumber(pendingKyc)}</Link>
             </div>
         </div>
     )

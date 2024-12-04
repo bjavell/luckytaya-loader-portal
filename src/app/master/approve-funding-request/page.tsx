@@ -149,6 +149,12 @@ const FundingRequest = () => {
                                     }
                                 },
                                 {
+                                    key: 'firstname',
+                                    label: 'complete name',
+                                    concatKey: ['lastname'],
+                                    concatSeparator: ' '
+                                },
+                                {
                                     key: 'accountNumber',
                                     label: 'account number',
                                     format: (val: string) => {

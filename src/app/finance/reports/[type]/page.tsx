@@ -87,9 +87,7 @@ const Reports = () => {
         setIsLoading(false)
     }
 
-
     const exportToCSV = () => {
-
         const year = currDate.getFullYear();
         const month = currDate.getMonth() + 1; // getMonth() is 0-based, so add 1
         const day = currDate.getDate();
@@ -130,6 +128,57 @@ const Reports = () => {
         window.URL.revokeObjectURL(url);
     };
 
+
+    const exportSummaryToCSV = () => {
+        const year = currDate.getFullYear();
+        const month = currDate.getMonth() + 1; // getMonth() is 0-based, so add 1
+        const day = currDate.getDate();
+        const hours = currDate.getHours();
+        const minutes = currDate.getMinutes();
+        const seconds = currDate.getSeconds();
+        const milliseconds = currDate.getMilliseconds();
+
+        const headers = [
+            "TYPE", "TOTAL AMOUNT"
+        ];
+
+        // Step 1: Group transactions by description and calculate the total amount for each group
+        const summary = transactions.reduce((acc: any, transaction: any) => {
+            const description = transaction.transactionDesc;
+            const amount = transaction.amount;
+
+            // If the description already exists in the accumulator, add the amount to the total
+            if (acc[description]) {
+                acc[description] += amount;
+            } else {
+                // Otherwise, create a new entry for this description with the amount
+                acc[description] = amount;
+            }
+
+            return acc;
+        }, {});
+
+        // Step 2: Prepare CSV rows with grouped data
+        const csvRows = [
+            headers.join(','), // Add header row
+            ...Object.entries(summary).map(([description, totalAmount]) => {
+                return [
+                    description,
+                    Number(totalAmount).toFixed(2)  // Format the amount to 2 decimal places
+                ].join(',');
+            })
+        ];
+
+        // Create a Blob from the CSV rows
+        const blob = new Blob([csvRows.join('\n')], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `LuckyTaya-Report-${year}${month.toString().padStart(2, '0')}${day.toString().padStart(2, '0')}${hours.toString().padStart(2, '0')}${minutes.toString().padStart(2, '0')}${seconds.toString().padStart(2, '0')}${milliseconds.toString().padStart(3, '0')}.csv`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+    };
+
     return (
         <div className="flex flex-col gap-4 w-full">
             <h1 className="text-xl">Transfer</h1>
@@ -152,7 +201,10 @@ const Reports = () => {
                         <Button onClick={onHandleSubmit} isLoading={isLoading} loadingText="Loading..." type={'submit'}>Search</Button>
                     </div>
                 </Form>
-                <Button onClick={exportToCSV} isLoading={isLoading} loadingText="Loading..." type={'button'}>Export</Button>
+                <div className="flex flex-row gap-4">
+                    <Button onClick={exportToCSV} isLoading={isLoading} loadingText="Loading..." type={'button'}>Export</Button>
+                    <Button onClick={exportSummaryToCSV} isLoading={isLoading} loadingText="Loading..." type={'button'}>Export Summary</Button>
+                </div>
             </div>
             <div className="flex flex-col">
                 {isLoading ? <LoadingSpinner /> :

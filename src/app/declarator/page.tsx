@@ -100,7 +100,7 @@ const Fight = () => {
   };
   const getEvents = async () => {
     await axios
-      .get("/api/event/list")
+      .get("/api/event/list-open")
       .then((response) => {
         const data = response.data;
         setEvents(data);
@@ -420,11 +420,6 @@ const Fight = () => {
         <div className="bg-cursedBlack text-center p-3 rounded-xl">Result</div>
       );
   };
-  useEffect(() => {
-    console.log(webRtcStream, "----------");
-
-    return () => {};
-  }, [webRtcStream]);
 
   const onHandleLogout = async () => {
     await axios

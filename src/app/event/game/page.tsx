@@ -43,7 +43,7 @@ const Fight = () => {
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [isModalSendMessageOpen, setIsModalSendMessageOpen] = useState(false);
   const [duration, setDuration] = useState(0);
-  const [isTimer, setIsTimer] = useState(true);
+  const [isTimer, setIsTimer] = useState(false);
   const [confirmTitle, setConfirmTitle] = useState<string>();
   const [betDetails, setBetDetails] = useState({
     fId: 0,
@@ -99,7 +99,7 @@ const Fight = () => {
   };
   const getEvents = async () => {
     await axios
-      .get("/api/event/list")
+      .get("/api/event/list-open")
       .then((response) => {
         const data = response.data;
         setEvents(data);

@@ -45,7 +45,7 @@ const Home = () => {
 
         return <div className="flex gap-4 flex-row">
             <div className="flex bg-codGray p-4 rounded text-neutralGray gap-2 items-center">
-                <Image src={AgentIco} alt="" /> <span className="text-semiYellow font-semibold text-2xl">{directMember.length}</span>{data.accountType === 2 ? 'Total Master Agents' : 'Total Agents'}
+                <Image src={AgentIco} alt="" /> <span className="text-semiYellow font-semibold text-2xl">{directMember.length}</span>{data?.accountType === 2 ? 'Total Master Agents' : 'Total Agents'}
             </div>
             {/* <div className="flex bg-codGray p-4 rounded text-neutralGray gap-2 items-center">
                 <Image src={UserIco} alt="" /> <span className="text-semiYellow font-semibold text-2xl">{indirectMember.length }</span>Total Players

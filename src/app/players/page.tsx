@@ -129,20 +129,20 @@ const Players = () => {
                         //     key: 'principalAccountNumber',
                         //     label: 'PRINCIPAL ACCOUNT NUMBER'
                         // },
-                        {
-                            key: '',
-                            label: 'action',
-                            customValue: (item: any) => <div className="flex gap-2 items-center justify-center">
-                                <Button
-                                    onClick={() => onCashin(item)}
-                                    type={"button"}
-                                    size="text-xs"
-                                >
-                                    Cash In
-                                </Button>
-                            </div>  
+                        // {
+                        //     key: '',
+                        //     label: 'action',
+                        //     customValue: (item: any) => <div className="flex gap-2 items-center justify-center">
+                        //         <Button
+                        //             onClick={() => onCashin(item)}
+                        //             type={"button"}
+                        //             size="text-xs"
+                        //         >
+                        //             Cash In
+                        //         </Button>
+                        //     </div>  
 
-                        }
+                        // }
                     ]}
                     items={filterPlayers}
                     isCentered={true}

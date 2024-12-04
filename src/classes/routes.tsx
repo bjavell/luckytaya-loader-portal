@@ -29,27 +29,28 @@ const sideBarAgentRoutes = [{
     }]
 
 },
-{
-    module: 'LOADING STATION',
-    item: [
-        {
-            module: 'Self Cash-In',
-            ico: LoadStation,
-            link: '/loading-station/cash-in/self'
-        },
-        {
-            module: 'Player Cash-In',
-            ico: LoadStation,
-            link: '/loading-station/cash-in/player'
-        },
-        // {
-        //     module: 'Cash-Out',
-        //     ico: CashOut,
-        //     link: '/loading-station/cash-out'
-        // }
-    ]
+// {
+//     module: 'LOADING STATION',
+//     item: [
+//         {
+//             module: 'Self Cash-In',
+//             ico: LoadStation,
+//             link: '/loading-station/cash-in/self'
+//         },
+//         {
+//             module: 'Player Cash-In',
+//             ico: LoadStation,
+//             link: '/loading-station/cash-in/player'
+//         },
+//         // {
+//         //     module: 'Cash-Out',
+//         //     ico: CashOut,
+//         //     link: '/loading-station/cash-out'
+//         // }
+//     ]
 
-}, {
+// }, 
+{
     module: 'HISTORY',
     item: [{
         module: 'Transfer',

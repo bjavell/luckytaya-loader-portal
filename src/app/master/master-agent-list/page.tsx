@@ -40,7 +40,7 @@ const Players = () => {
     const getMembers = async (_isMasterAgent: boolean) => {
         await axios.get('/api/get-user-members', {
             params: {
-                type: _isMasterAgent ? 'masterAgents' : 'agents'
+                type: _isMasterAgent ? 'masterAgent' : 'agent'
             }
         })
             .then(response => {
@@ -82,8 +82,8 @@ const Players = () => {
         if (data) {
             setIsMainMasterAgent(data.roles.includes('master'))
             setBalance(data.balance)
-            setIsLoading(false)
             getMembers(data.roles.includes('master'))
+            setIsLoading(false)
         }
     }, [data])
 
@@ -163,7 +163,7 @@ const Players = () => {
                 onConfirm={onConfirmAction}
                 message="Proceed with the changes?"
             />
-            {isLoading ? <LoadingSpinner /> :
+            {isLoading ? <LoadingSpinner /> : <></> }
                 <div className="flex flex-col gap-4 w-full overflow-auto pr-4">
                     <BalanceBar balance={balance} />
                     <div className="flex gap-4 flex-col">
@@ -350,7 +350,6 @@ const Players = () => {
                         </div>
                     </div>
                 </div>
-            }
         </div>
 
     )

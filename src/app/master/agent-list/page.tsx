@@ -40,7 +40,7 @@ const Players = () => {
     const getMembers = async (_isMasterAgent: boolean) => {
         await axios.get('/api/get-user-members', {
             params: {
-                type: _isMasterAgent ? 'masterAgents' : 'agents'
+                type: _isMasterAgent ? 'masterAgent' : 'agent'
             }
         })
             .then(response => {

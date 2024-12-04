@@ -18,8 +18,10 @@ const NavBar: NextPage<NavBarProps> = (props) => {
                 setTitle("Event Manager Portal")
             else if (data.accountType == 9 && data.roles?.includes('admin'))
                 setTitle("Admin Portal")
-            else if (data.accountType === 2 && data.roles?.includes('acctmgr'))
+            else if (data.accountType === 3 && data.roles?.includes('acctmgr'))
                 setTitle("Master Agent Portal")
+            else if (data.accountType === 2 && data.roles?.includes('acctmgr'))
+                setTitle("Main Master Agent Portal")
         }
     }, [data])
     return (

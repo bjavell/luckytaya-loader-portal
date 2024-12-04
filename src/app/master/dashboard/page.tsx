@@ -20,7 +20,7 @@ const Home = () => {
     const getMembers = async () => {
         await axios.get('/api/get-user-members', {
             params: {
-                type:'agents'
+                type: 'agent'
             }
         })
             .then(response => {
@@ -36,8 +36,8 @@ const Home = () => {
     useEffect(() => {
         if (data) {
             setBalance(data.balance)
+            getMembers()
         }
-        getMembers()
     }, [data])
 
 
@@ -45,11 +45,11 @@ const Home = () => {
 
         return <div className="flex gap-4 flex-row">
             <div className="flex bg-codGray p-4 rounded text-neutralGray gap-2 items-center">
-                <Image src={AgentIco} alt="" /> <span className="text-semiYellow font-semibold text-2xl">{directMember.length}</span> Total Agents
+                <Image src={AgentIco} alt="" /> <span className="text-semiYellow font-semibold text-2xl">{directMember.length}</span> Total Master Agents
             </div>
-            <div className="flex bg-codGray p-4 rounded text-neutralGray gap-2 items-center">
+            {/* <div className="flex bg-codGray p-4 rounded text-neutralGray gap-2 items-center">
                 <Image src={UserIco} alt="" /> <span className="text-semiYellow font-semibold text-2xl">{indirectMember.length }</span>Total Players
-            </div>
+            </div> */}
         </div>
     }
 

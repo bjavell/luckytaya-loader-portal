@@ -169,7 +169,7 @@ const PlayerCashin = () => {
         setIsLoading(true)
         await axios.get('/api/get-user-members', {
             params: {
-                type: 'agents'
+                type: cashinType
             }
         })
             .then((response) => {

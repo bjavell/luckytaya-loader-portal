@@ -12,7 +12,7 @@ const GET = async (req: NextRequest) => {
 
         const type = req.nextUrl.searchParams.get('type')
 
-        if (type === 'agents' || type === 'masterAgents') {
+        if (type === 'agent' || type === 'masterAgent') {
 
             const directMemberResponse = await luckTayaAxios.get(`/api/v1/AccountMember/Direct`, {
                 headers: {
@@ -33,14 +33,14 @@ const GET = async (req: NextRequest) => {
 
             let filteredOrphanAccounts
             let filteredDirectMemberResponse
-            if (type === 'masterAgents') {
+            if (type === 'masterAgent') {
 
                 console.log(directMemberResponse.data)
                 const getAllAgentOfMasterAgents = await findAll(DB_COLLECTIONS.TAYA_AGENTS, {})
 
                 filteredDirectMemberResponse = directMemberResponse.data.map((member: any) => {
-
-                    const matchItem = getAllAgentOfMasterAgents.find((agent: any) => agent.response.accountNumber === member.accountNumber)
+                    const matchItem = getAllAgentOfMasterAgents.find((agent: any) => Number(agent.response.accountNumber) === Number(member.accountNumber))
+                    console.log(matchItem)
                     if (matchItem) {
                         return {
                             ...member,
@@ -149,8 +149,9 @@ const GET = async (req: NextRequest) => {
 
             return NextResponse.json(customPlayerResponse)
         }
-    } catch (e) {
-
+    } catch (e: any) {
+        console.error(e?.response?.data)
+        console.error(e?.response)
         return NextResponse.json({
             error: formatGenericErrorResponse(e)
         },

@@ -36,8 +36,7 @@ const Button: NextPage<ButtonProps> = (props) => {
     } else if (!isGrouped) {
         classNameIsGrouped = ''
     }
-
-    console.log('isGrouped', isGrouped)
+    
     return (
         <button type={type} className={`justify-center inline-block py-3 px-6 rounded-xlg bg-yellow-green text-base ${customTextColor} ${classNameIsGrouped} ${customSize}  ${customCss ?? ''}`} onClick={onClick} disabled={props.disabled || props.isLoading}>{props.isLoading ? props.loadingText : children}</button>
     )

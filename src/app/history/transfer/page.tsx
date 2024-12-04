@@ -100,24 +100,28 @@ const Commisson = () => {
                         }, {
                             key: 'fromFullName',
                             concatKey: ['fromAccountNumber'],
-                            concatSeparator: ' | ',
-                            label: 'sender',
-                            format: (val: string) => {
-
-                                const spliitedVal = val.split(' | ')
-                                const formatAccountNumber = formatDynamicNumber(spliitedVal[1])
-                                return spliitedVal[0] + ' | ' + formatAccountNumber
+                            customValue: (item) => {
+                                return (
+                                    <>
+                                        {item.fromFullName}
+                                        <br />
+                                        {formatDynamicNumber(item.fromAccountNumber)}
+                                    </>
+                                )
+                                // spliitedVal[0] + ' | ' + formatAccountNumber
                             }
                         }, {
                             key: 'toFullName',
-                            concatKey: ['toAccountNumber'],
-                            concatSeparator: ' | ',
                             label: 'receiver',
-                            format: (val: string) => {
-
-                                const spliitedVal = val.split(' | ')
-                                const formatAccountNumber = formatDynamicNumber(spliitedVal[1])
-                                return spliitedVal[0] + ' | ' + formatAccountNumber
+                            customValue: (item) => {
+                                return (
+                                    <>
+                                        {item.toFullName}
+                                        <br />
+                                        {formatDynamicNumber(item.toAccountNumber)}
+                                    </>
+                                )
+                                // spliitedVal[0] + ' | ' + formatAccountNumber
                             }
                         }, {
                             key: 'amount',

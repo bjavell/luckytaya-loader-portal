@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react"
 import axios from "axios"
 import Tables from "@/components/tables"
-import { useParams, useRouter } from "next/navigation"
+import { useParams, useRouter, useSearchParams } from "next/navigation"
 import { formatDynamicNumber, formatMoney } from "@/util/textUtil"
 import { USER_TYPE } from "@/classes/constants"
 import Button from "@/components/button"
@@ -24,6 +24,7 @@ const Players = () => {
     const params = useParams()
 
     const manageType = params?.type
+    const accountStatusPending = useSearchParams()?.get('accountStatus')
     const [players, setPlayers] = useState([])
     const [filterPlayers, setFilterPlayers] = useState([])
     const [status, setStatus] = useState('ALL')
@@ -172,7 +173,12 @@ const Players = () => {
             getUserRole()
         }
 
-        onUserSearch(search, status, searchAccountType, accountStatus)
+        if (accountStatusPending) {
+            onUserSearch(search, status, searchAccountType, accountStatusPending)
+        } else {
+            onUserSearch(search, status, searchAccountType, accountStatus)
+        }
+
     }, [players])
 
     const openModal = (data: any) => {

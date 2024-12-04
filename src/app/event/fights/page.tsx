@@ -3,7 +3,7 @@
 import Tables from "@/components/tables";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { format, getDate } from "date-fns";
+import { format, formatDate, getDate } from "date-fns";
 import FormField from "@/components/formField";
 import Form from "@/components/form";
 import Button from "@/components/button";
@@ -438,7 +438,7 @@ const Fight = () => {
           {events.map((item, index): any => {
             return (
               <option key={`option-${index}`} value={item.eventId}>
-                {item.eventName}
+                {item.eventName} - {formatDate(item.eventDate, "MM/dd/yyyy")}
               </option>
             );
           })}

@@ -260,7 +260,6 @@ const Fight = () => {
       .then(() => {
         setErrorMessage("");
         setIsModalSendMessageOpen(false);
-         setIsTimer(true);
         // alert("Successfully Saved");
       })
       .catch((e) => {
@@ -400,6 +399,7 @@ const Fight = () => {
         // alert("Last Call!!");
         setIsLoadingWithScreen(false);
         setDuration(60000);
+        setIsTimer(true);
     
       });
   };

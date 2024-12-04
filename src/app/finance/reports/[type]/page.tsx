@@ -17,12 +17,14 @@ const Reports = () => {
     const reportType = params?.type
 
     const currDate = new Date()
+    const defaultStartDate = new Date(currDate)
+    defaultStartDate.setHours(0, 0, 0, 0)
     const defaultEndDate = new Date(currDate)
     defaultEndDate.setHours(23, 59, 59, 999)
 
     const [transactions, setTransactions] = useState([])
-    const [startDate, setStartDate] = useState(format(new Date(currDate.getTime()), 'yyyy-MM-dd'))
-    const [endDate, setEndDate] = useState(format(defaultEndDate, 'yyyy-MM-dd'))
+    const [startDate, setStartDate] = useState(format(defaultStartDate, "yyyy-MM-dd'T'HH:mm"))
+    const [endDate, setEndDate] = useState(format(defaultEndDate, "yyyy-MM-dd'T'HH:mm"))
     const [isLoading, setIsLoading] = useState(false)
     const [filteredTransactions, setFilteredTransactions] = useState([])
     const [transactionType, setTransactionType] = useState('ALL')
@@ -76,10 +78,10 @@ const Reports = () => {
     const onHandleSubmit = async () => {
         setIsLoading(true)
         if (!startDate) {
-            setStartDate(format(getStartOfWeek(currDate), 'yyyy-MM-dd'))
+            setStartDate(format(currDate, 'yyyy-MM-ddTHH:mm:ss'))
         }
         if (!endDate) {
-            setEndDate(format(defaultEndDate, 'yyyy-MM-dd'))
+            setEndDate(format(defaultEndDate, 'yyyy-MM-ddTHH:mm:ss'))
         }
         await getTransaction()
         setIsLoading(false)
@@ -145,8 +147,8 @@ const Reports = () => {
                                 <option value='204'>Cancelled</option>
                             </select>
                         </div>
-                        <FormField name="startDate" label="Start Date" placeholder="Enter Load To" value={startDate} onChange={(e) => setStartDate(e.target.value)} type="date" />
-                        <FormField name="endDate" label="End Date" placeholder="Enter Load To" value={endDate} onChange={(e) => setEndDate(e.target.value)} type="date" />
+                        <FormField name="startDate" label="Start Date" placeholder="Enter Load To" value={startDate} onChange={(e) => setStartDate(e.target.value)} type="datetime-local" />
+                        <FormField name="endDate" label="End Date" placeholder="Enter Load To" value={endDate} onChange={(e) => setEndDate(e.target.value)} type="datetime-local" />
                         <Button onClick={onHandleSubmit} isLoading={isLoading} loadingText="Loading..." type={'submit'}>Search</Button>
                     </div>
                 </Form>
@@ -167,30 +169,34 @@ const Reports = () => {
                             }, {
                                 key: 'transactionNumber',
                                 label: 'transaction number',
-                                format: (val:string) => {
+                                format: (val: string) => {
                                     return formatDynamicNumber(val)
                                 }
                             }, {
                                 key: 'fromFullName',
                                 concatKey: ['fromAccountNumber'],
-                                concatSeparator: ' | ',
-                                label: 'sender',
-                                format: (val: string) => {
-
-                                    const spliitedVal = val.split(' | ')
-                                    const formatAccountNumber = formatDynamicNumber(spliitedVal[1])
-                                    return spliitedVal[0] + ' | ' + formatAccountNumber
+                                customValue: (item) => {
+                                    return (
+                                        <>
+                                            {item.fromFullName}
+                                            <br />
+                                            {formatDynamicNumber(item.fromAccountNumber)}
+                                        </>
+                                    )
+                                    // spliitedVal[0] + ' | ' + formatAccountNumber
                                 }
                             }, {
                                 key: 'toFullName',
                                 concatKey: ['toAccountNumber'],
-                                concatSeparator: ' | ',
-                                label: 'receiver',
-                                format: (val: string) => {
-
-                                    const spliitedVal = val.split(' | ')
-                                    const formatAccountNumber = formatDynamicNumber(spliitedVal[1])
-                                    return spliitedVal[0] + ' | ' + formatAccountNumber
+                                customValue: (item) => {
+                                    return (
+                                        <>
+                                            {item.toFullName}
+                                            <br />
+                                            {formatDynamicNumber(item.toAccountNumber)}
+                                        </>
+                                    )
+                                    // spliitedVal[0] + ' | ' + formatAccountNumber
                                 }
                             }, {
                                 key: 'amount',

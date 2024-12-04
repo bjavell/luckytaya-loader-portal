@@ -4,6 +4,7 @@ import * as crypto from 'crypto'
 const SECRET_PASSKEY = 'B3t@pploader123'
 
 const encrypt = (message: string) => {
+    console.log(message)
     return CryptoJS.AES.encrypt(message, SECRET_PASSKEY).toString()
 }
 

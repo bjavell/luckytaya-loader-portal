@@ -5,34 +5,20 @@ import { getCurrentSession } from "@/context/auth"
 import axios from "axios"
 import { useRouter } from "next/navigation"
 import { encrypt } from "@/util/cryptoUtil"
+import { useApiData } from "../context/apiContext"
 
 
 const playerPortal = process.env.NEXT_PUBLIC_PLAYER_PORTAL
 const Home = () => {
     const router = useRouter()
     const [referralLink, setReferralLink] = useState<string>('')
-
-    const getUserDetails = async () => {
-        await axios.get('/api/get-user-details')
-            .then(response => {
-                setReferralLink(`${playerPortal}/register/${encrypt(response.data?.referralCode)}`)
-            })
-            .catch((e) => {
-                const errorMessages = e.response.data.error
-                if (errorMessages) {
-                    if (errorMessages['Unauthorized']) {
-                        router.push('/login')
-                    }
-                }
-
-            })
-            .finally(() => {
-            })
-    }
+    const { data } = useApiData()
 
     useEffect(() => {
-        getUserDetails()
-    }, [])
+        if (data) {
+            setReferralLink(`${playerPortal}/register/${encrypt(data.referralCode.toString())}`)
+        }
+    }, [data])
 
     const onCopyReferralLink = async () => {
         if (navigator.clipboard && window.isSecureContext) {

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { getCurrentSession } from "@/context/auth"
 import axios from "axios"
 import { useRouter } from "next/navigation"
+import { encrypt } from "@/util/cryptoUtil"
 
 
 const playerPortal = process.env.NEXT_PUBLIC_PLAYER_PORTAL
@@ -14,7 +15,7 @@ const Home = () => {
     const getUserDetails = async () => {
         await axios.get('/api/get-user-details')
             .then(response => {
-                setReferralLink(`${playerPortal}/register/${response.data?.referralCode}`)
+                setReferralLink(`${playerPortal}/register/${encrypt(response.data?.referralCode)}`)
             })
             .catch((e) => {
                 const errorMessages = e.response.data.error

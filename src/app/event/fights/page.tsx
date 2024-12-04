@@ -438,7 +438,7 @@ const Fight = () => {
           {events.map((item, index): any => {
             return (
               <option key={`option-${index}`} value={item.eventId}>
-                {item.eventName} - {formatDate(item.eventDate, "MM/dd/yyyy")}
+                 {formatDate(item.eventDate, "MM/dd/yyyy")} - {item.eventName}
               </option>
             );
           })}

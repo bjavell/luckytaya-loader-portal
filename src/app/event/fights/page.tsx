@@ -422,7 +422,7 @@ const Fight = () => {
   };
   return (
     <div className="flex flex-col gap-4 w-full">
-      <h1 className="text-xl">Event Fights</h1>
+      <h1 className="text-xl">Event Games</h1>
       <div>
         <label
           htmlFor="venueId"

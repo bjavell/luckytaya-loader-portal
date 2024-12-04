@@ -35,7 +35,7 @@ const POST = async (req: NextRequest) => {
 
         if (accountExists) {
             throw new CustomError('Bad request', {
-                'Bad request': [`Account already exists`]
+                'Bad request': [`Email or Mobile already exists`]
             })
         }
 

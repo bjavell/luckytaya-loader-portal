@@ -83,7 +83,7 @@ const SideBar: React.FC<{ isOpen: boolean, toggleSideBar: () => void }> = (props
             if (data.accountType == 9 && data.roles?.includes('admin')) {
                 setSideBarSlug('Admin Portal')
                 setRoutes(sideBarAdminRoutes)
-            } else if (data.accountType == 9 && data.roles?.includes('eventmgr')) {
+            } else if ((data.accountType == 4 || data.accountType == 9) && data.roles?.includes('eventmgr')) {
                 setSideBarSlug('Event Manager')
                 setRoutes(sideBarEventRoutes)
             } else if (data.accountType === 2 && data.roles?.includes('master')) {

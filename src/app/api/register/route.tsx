@@ -90,9 +90,9 @@ const POST = async (req: NextRequest) => {
 
             const accountExists = await findOne(DB_COLLECTIONS.TAYA_AGENTS, {
                 $or: [
-                    { 'request.email': request.email },
-                    { 'request.phoneNumber': request.phoneNumber },
-                    { 'request.username': request.username }
+                    { 'response.email': request.email },
+                    { 'response.phoneNumber': request.phoneNumber },
+                    { 'response.username': request.username }
                 ]
             })
 

@@ -1,7 +1,7 @@
 module.exports = {
     apps: [
         {
-            name: 'luckytaya-backoffice-staging',        // Name of your application
+            name: 'luckytaya-backoffice-prod',        // Name of your application
             script: 'npm',             // PM2 will run npm directly
             args: 'run start:agent',   // The script to run (npm run start:admin)
             instances: 3,              // Number of clusters (can be increased dynamically)
@@ -10,7 +10,7 @@ module.exports = {
             watch: false,              // Optionally enable file watching (for development)
             max_memory_restart: '200M',  // Optionally restart app if it exceeds 1 GB of memory
             env: {
-                NODE_ENV: 'development'  // Environment variables, you can add more here
+                NODE_ENV: 'prod'  // Environment variables, you can add more here
             }
         }
     ]

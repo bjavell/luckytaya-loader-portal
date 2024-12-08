@@ -6,8 +6,7 @@ const MONGODB_DB = process.env.MONGODB_DB;
 
 
 
-console.log(encrypt("mongodb://lucky_taya:Luck_taya123@136.158.92.54:27017/lucky_taya?retryWrites=true&loadBalanced=false&serverSelectionTimeoutMS=2000&connectTimeoutMS=10000&authSource=lucky_taya&authMechanism=SCRAM-SHA-256"))
-console.log(decrypt(MONGODB_URI))
+console.log(encrypt("mongodb://lucky_taya_stg:Luck_taya_stg_123@136.158.92.54:27017/lucky_taya_stg?retryWrites=true&loadBalanced=false&serverSelectionTimeoutMS=2000&connectTimeoutMS=10000&authSource=lucky_taya_stg&authMechanism=SCRAM-SHA-256"))
 
 const client = MongoClient.connect(decrypt(MONGODB_URI), {
     ssl: false,

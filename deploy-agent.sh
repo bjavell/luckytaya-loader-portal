@@ -4,7 +4,7 @@
 git fetch
 
 # Pull the latest code from the 'dev' branch
-git pull origin dev
+git pull origin staging
 
 # Install dependencies
 npm install
@@ -13,4 +13,4 @@ npm install
 npm run build:agent
 
 # Restart the PM2 application (replace with your app name)
-pm2 restart luckytaya-backoffice
+pm2 restart luckytaya-backoffice-staging

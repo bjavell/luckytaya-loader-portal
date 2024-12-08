@@ -18,26 +18,26 @@ const GET = async (req: NextRequest) => {
             //     "accountType": 0,
             //     "description": "Operator"
             // },
-            // {
-            //     "accountType": 1,
-            //     "description": "Finance"
-            // },
             {
-                "accountType": 2,
-                "description": "Master"
+                "accountType": 1,
+                "description": "Finance"
+            },
+            {
+                "accountType": 3,
+                "description": "Master Agent"
             },
             // {
             //     "accountType": 3,
             //     "description": "National"
             // },
-            // {
-            //     "accountType": 4,
-            //     "description": "Dealer"
-            // },
-            // {
-            //     "accountType": 5,
-            //     "description": "DealerAgent"
-            // },
+            {
+                "accountType": 4,
+                "description": "Event Manager"
+            },
+            {
+                "accountType": 5,
+                "description": "Declarator"
+            },
             {
                 "accountType": 6,
                 "description": "Agent"
@@ -52,7 +52,7 @@ const GET = async (req: NextRequest) => {
             // },
             {
                 "accountType": 9,
-                "description": "System"
+                "description": "Admin"
             },
             // {
             //     "accountType": 10,
@@ -60,7 +60,13 @@ const GET = async (req: NextRequest) => {
             // }
         ]
 
-        return NextResponse.json(accountType)
+        const sortedAccountType = accountType.toSorted((a: any, b: any) => {
+            if (a.description < b.description) return -1
+            if (a.description > b.description) return 1
+            return 0
+        })
+
+        return NextResponse.json(sortedAccountType)
     } catch (e) {
         console.error(e)
         return NextResponse.json({

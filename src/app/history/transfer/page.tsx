@@ -8,7 +8,7 @@ import { format } from 'date-fns'
 import FormField from "@/components/formField"
 import Form from "@/components/form"
 import Button from "@/components/button"
-import { formatMoney } from "@/util/textUtil"
+import { formatDynamicNumber, formatMoney } from "@/util/textUtil"
 
 const Commisson = () => {
 
@@ -86,27 +86,46 @@ const Commisson = () => {
                     headers={[
                         {
                             key: 'transactionDateTime',
-                            label: 'DATE',
+                            label: 'date',
                             format: (val: string) => {
                                 const formatDate = new Date(val)
                                 return format(formatDate, 'yyyy-MM-dd hh:mm:ss a')
                             }
                         }, {
                             key: 'transactionNumber',
-                            label: 'TXN ID'
+                            label: 'txn id',
+                            format: (val: string) => {
+                                return formatDynamicNumber(val)
+                            }
                         }, {
                             key: 'fromFullName',
                             concatKey: ['fromAccountNumber'],
-                            concatSeparator: ' | ',
-                            label: 'SENDER'
+                            customValue: (item) => {
+                                return (
+                                    <>
+                                        {item.fromFullName}
+                                        <br />
+                                        {formatDynamicNumber(item.fromAccountNumber)}
+                                    </>
+                                )
+                                // spliitedVal[0] + ' | ' + formatAccountNumber
+                            }
                         }, {
                             key: 'toFullName',
-                            concatKey: ['toAccountNumber'],
-                            concatSeparator: ' | ',
-                            label: 'RECEIVER'
+                            label: 'receiver',
+                            customValue: (item) => {
+                                return (
+                                    <>
+                                        {item.toFullName}
+                                        <br />
+                                        {formatDynamicNumber(item.toAccountNumber)}
+                                    </>
+                                )
+                                // spliitedVal[0] + ' | ' + formatAccountNumber
+                            }
                         }, {
                             key: 'amount',
-                            label: 'AMOUNT',
+                            label: 'amount',
                             customValueClass: 'text-semiYellow',
                             format: (val: string) => {
                                 return formatMoney(val)
@@ -115,7 +134,7 @@ const Commisson = () => {
                             key: 'transactionDesc',
                             concatKey: ['transCategoryDesc'],
                             concatSeparator: ' ',
-                            label: 'TYPE'
+                            label: 'type'
                         },
                     ]}
                     items={transactions}

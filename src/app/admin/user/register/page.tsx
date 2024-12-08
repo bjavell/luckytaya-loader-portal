@@ -7,6 +7,7 @@ import Button from "@/components/button"
 import FormField from "@/components/formField"
 import Form from "@/components/form"
 import ConfirmationModal from "@/components/confirmationModal"
+import { formatDynamicNumber, guidToNumber } from "@/util/textUtil"
 
 
 interface UserRegistrationProps {
@@ -18,11 +19,13 @@ interface UserRegistrationProps {
     facebookAccount: string;
     referralCode: number;
     accountType: number;
-    roles: string[];
+    // roles: string[];
     masterAgentAccountNumber: number;
 }
 
-const Players = () => {
+const Register = () => {
+
+
     const router = useRouter()
     const [isLoading, setIsLoading] = useState(false)
     const [userType, setUserType] = useState([])
@@ -34,9 +37,9 @@ const Players = () => {
         phoneNumber: '',
         email: '',
         facebookAccount: '',
-        referralCode: 0,
-        accountType: 8,
-        roles: [],
+        referralCode: guidToNumber(),
+        accountType: 0,
+        // roles: [],
         masterAgentAccountNumber: 0
     })
     const [index, setIndex] = useState(0)
@@ -95,14 +98,24 @@ const Players = () => {
             getUserRole()
         }
 
+        setUserRegistration(prevState => ({
+            ...prevState,
+            referralCode: guidToNumber()
+        }))
+
     }, [])
 
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target
+
+        let updateVal = value
+        if (name === 'masterAgentAccountNumber') {
+            updateVal = value.replaceAll('-', '')
+        }
         setUserRegistration(prevState => ({
             ...prevState,
-            [name]: value,
+            [name]: updateVal,
         }))
     }
 
@@ -122,15 +135,15 @@ const Players = () => {
     }
 
 
-    const onHandleCheckBox = (role: string, checked: boolean) => {
-        setUserRegistration((prevState) => {
-            if (checked) {
-                return { ...prevState, roles: [...prevState.roles, role] };
-            } else {
-                return { ...prevState, roles: prevState.roles.filter((r) => r !== role) };
-            }
-        })
-    }
+    // const onHandleCheckBox = (role: string, checked: boolean) => {
+    //     setUserRegistration((prevState) => {
+    //         if (checked) {
+    //             return { ...prevState, roles: [...prevState.roles, role] };
+    //         } else {
+    //             return { ...prevState, roles: prevState.roles.filter((r) => r !== role) };
+    //         }
+    //     })
+    // }
 
     const onFormSubmit = async () => {
         try {
@@ -144,14 +157,15 @@ const Players = () => {
                 phoneNumber: '',
                 email: '',
                 facebookAccount: '',
-                referralCode: 0,
-                accountType: 8,
-                roles: [],
+                referralCode: guidToNumber(),
+                accountType: 0,
+                // roles: [],
                 masterAgentAccountNumber: 0
             })
             setIndex(index + 1)
             setIsAlertModalOpen(true)
             setAlertMessage(response.data.message)
+            setIsShowMasterAgenctAccountField(false)
         } catch (e: any) {
             const errorMessages = e?.response?.data?.error
             if (errorMessages) {
@@ -175,10 +189,6 @@ const Players = () => {
         setIsConfirmModalOpen(!isConfirmModalOpen)
     }
 
-    const onCloseAlertModal = () => {
-        setIsAlertModalOpen(false)
-        setAlertMessage('')
-    }
 
     return (
         <div className="flex w-full">
@@ -205,9 +215,8 @@ const Players = () => {
                         <FormField name={"phoneNumber"} label="Phone Number" customLabelClass="text-xs" onBlur={handleChange} value={userRegistration.phoneNumber} required />
                         <FormField name={"email"} label="Email" customLabelClass="text-xs" type="email" pattern={PATTERNS.EMAIL} errorMessage="Invalid Email Address" onBlur={handleChange} value={userRegistration.email} required />
 
-                        <FormField name={"referralCode"} label="Referral Code" customLabelClass="text-xs" onBlur={handleChange} value={userRegistration.referralCode} required />
-                        <div className="flex flex-col flex-1 gap-4">
-                            <label htmlFor="roles" className="text-white font-sans font-light text-nowrap text-xs">Roles</label>
+                        <div className="flex flex-col flex-1 gap-4 col-end-3">
+                            {/* <label htmlFor="roles" className="text-white font-sans font-light text-nowrap text-xs">Roles</label>
                             <div className="grid grid-cols-2 gap-4">
                                 {userRole.map((e: any) => {
                                     return <div key={e.key} className="flex gap-4 items-center">
@@ -220,11 +229,13 @@ const Players = () => {
                                         <label>{e.description}</label>
                                     </div>
                                 })}
-                            </div>
+                            </div> */}
 
                             <div className="flex flex-col flex-1 gap-4">
                                 <label htmlFor="accountType" className="text-white font-sans font-light text-nowrap text-xs">Account Type</label>
-                                <select id="accountType" name='accountType' className="rounded-xlg py-4 px-4 bg-semiBlack font-sans font-light text-[13px] tacking-[5%] text-white" value={userRegistration.accountType} onChange={onDropDownChange}>
+                                <select id="accountType" name='accountType' className="rounded-xlg py-4 px-4 bg-semiBlack font-sans font-light tacking-[5%] text-white" value={userRegistration.accountType} onChange={onDropDownChange} required>
+
+                                    <option value=''>Select Account Type</option>
                                     {
                                         userType ?
                                             userType.map((e: any) => {
@@ -233,11 +244,11 @@ const Players = () => {
                                             <option></option>
                                     }
                                 </select>
-
+                                {isShowMasterAgenctAccountField ? <FormField name={"masterAgentAccountNumber"} label="Master Agent Account Number" customLabelClass="text-xs" onBlur={handleChange} value={formatDynamicNumber(userRegistration.masterAgentAccountNumber)} required /> : ''}
+                                {isShowMasterAgenctAccountField ? <FormField name={"referralCode"} label="Referral Code" customLabelClass="text-xs" value={formatDynamicNumber(userRegistration.referralCode)} readonly /> : null}
                             </div>
                         </div>
 
-                        {isShowMasterAgenctAccountField ? <FormField name={"masterAgentAccountNumber"} label="Master Agent Account Number" customLabelClass="text-xs" onBlur={handleChange} value={userRegistration.masterAgentAccountNumber} required /> : ''}
                     </div>
                     <Button isLoading={isLoading} loadingText="Loading..." onClick={onToggleConfirmModal} type={"button"}>Submit</Button>
                 </div>
@@ -247,4 +258,4 @@ const Players = () => {
     )
 }
 
-export default Players
+export default Register

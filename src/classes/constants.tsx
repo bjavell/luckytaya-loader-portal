@@ -15,7 +15,8 @@ const DB_COLLECTIONS = {
     CONFIG: 'config',
     QR_TRANSACITON: 'qr_transactions',
     TAYA_USERS: 'taya_user',
-    TAYA_AGENTS: 'taya_agent'
+    TAYA_AGENTS: 'taya_agent',
+    FUNDING_REQUESTS: 'taya_request_fund'
 }
 
 const TRAN_TYPE = {

@@ -54,12 +54,12 @@ const FormField: NextPage<FormFieldProps> = (props) => {
         return (
             <div className="flex flex-col flex-1 gap-4">
                 <label htmlFor={name} className={labelClassName}>{label}</label>
-                <textarea cols={45} rows={4} value={value} id={name} name={name} onChange={onChangeTextArea} className="rounded-xlg py-4 px-4 bg-semiBlack font-sans font-light text-[13px] tacking-[5%] text-white invalid:border-red-500" style={{ resize: 'none' }} />
+                <textarea cols={45} rows={4} value={value} id={name} name={name} onChange={onChangeTextArea} className="rounded-xlg py-4 px-4 bg-semiBlack font-sans font-light tacking-[5%] text-white invalid:border-red-500" style={{ resize: 'none' }} />
             </div>
         )
     }
 
-    let formField = <input {...inputProps} type={type} id={name} name={name} className={`peer rounded-xlg py-4 px-4 bg-semiBlack shadow-sm font-sans font-light text-[13px] tacking-[5%] text-white invalid:border-red-500 invalid:[&.visited]:border invalid:[&.visited]:border-[#E74C3C] ${isVisited ? 'visited' : ''} `} onBlur={handleOnBlur} onKeyDown={handleOnKeyDown} defaultValue={value} />
+    let formField = <input {...inputProps} type={type} id={name} name={name} className={`peer rounded-xlg py-4 px-4 bg-semiBlack shadow-sm font-sans font-light tacking-[5%] text-white invalid:border-red-500 invalid:[&.visited]:border invalid:[&.visited]:border-[#E74C3C] ${isVisited ? 'visited' : ''} `} onBlur={handleOnBlur} onKeyDown={handleOnKeyDown} defaultValue={value} />
 
     if (readonly) {
         formField = <>

@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react"
 import gcashLoad from '@/assets/images/GcashLoad.png'
 import Image from "next/image"
-import { formatDate, formatMoney, removeDecimalPlaces } from "@/util/textUtil"
+import { formatDate, formatDynamicNumber, formatMoney, removeDecimalPlaces } from "@/util/textUtil"
 import BalanceBar from "@/components/balanceBar"
 import axios from "axios"
 import { useParams, useRouter, useSearchParams } from "next/navigation"
@@ -11,6 +11,9 @@ import LoadForm from "@/components/loadForm"
 import ConfirmationModal from "@/components/confirmationModal"
 import { TRAN_TYPE } from "@/classes/constants"
 import QrCode from "@/components/qrCode"
+import Modal from "@/components/modal"
+import LoadingSpinner from "@/components/loadingSpinner"
+import Button from "@/components/button"
 
 const PlayerCashin = () => {
     const router = useRouter()
@@ -99,7 +102,7 @@ const PlayerCashin = () => {
                     amount: parseFloat(amount),
                     convFee,
                     comFee,
-                    toAccountNumber: loadTo
+                    toAccountNumber: loadTo.replaceAll('-', '')
                 })
                 setReload(true)
                 setAlertMessage(response.data.message)
@@ -131,7 +134,7 @@ const PlayerCashin = () => {
         setIsLoading(true)
         await axios.get('/api/get-user', {
             params: {
-                accountNumber
+                accountNumber: accountNumber.replaceAll('-', '')
             }
         })
             .then((response) => {
@@ -164,21 +167,25 @@ const PlayerCashin = () => {
 
     const searchAgent = async (accountNumber: string) => {
         setIsLoading(true)
-        await axios.get('/api/get-user-members')
+        await axios.get('/api/get-user-members', {
+            params: {
+                type: cashinType
+            }
+        })
             .then((response) => {
                 const responseData = response.data
 
                 const filteredAgent = responseData.direct.filter((e: any) => {
-                    return Number(e.accountNumber) === Number(accountNumber)
+                    return Number(e.accountNumber) === Number(accountNumber.replaceAll('-', ''))
                 })
-                console.log(filteredAgent)
 
                 if (filteredAgent.length > 0) {
                     setCompleteName(`${filteredAgent[0].fistname} ${filteredAgent[0].lastname}`)
+                    setEmail(filteredAgent[0].email)
                 } else {
                     setCompleteName('No user found!')
+                    setEmail('-')
                 }
-                setEmail('-')
             })
             .catch((e) => {
                 const errorMessages = e?.response?.data?.error
@@ -235,13 +242,17 @@ const PlayerCashin = () => {
         setIsConfirmModalOpen(!isConfirmModalOpen)
     }
 
+    const formatLoadTo = (val: string) => {
+        setLoadTo(formatDynamicNumber(val))
+    }
+
 
     useEffect(() => {
         if (data) {
             getLoadStationConfig()
             setBalance(data.balance)
             if (cashinType === 'self') {
-                setLoadTo(data.accountNumber)
+                formatLoadTo(data.accountNumber)
                 setCompleteName(`${data.fistname} ${data.lastname}`)
                 setEmail(data.email)
             }
@@ -263,38 +274,62 @@ const PlayerCashin = () => {
             case 'player':
                 if (accountNumber) {
                     setIsLoadToReadOnly(true)
-                    setLoadTo(accountNumber)
-                    searchAgent(accountNumber)
+                    formatLoadTo(accountNumber)
+                    searchPlayer(accountNumber)
                 }
-                setBalanceBarTitle('Player Cash-In')
+                setBalanceBarTitle('Player Cash-In Menu')
                 break;
             case 'self':
                 setIsLoadToReadOnly(true)
-                setBalanceBarTitle('Self Cash-In')
+                setBalanceBarTitle('Self Cash-In Menu')
                 break;
             case 'agent':
                 if (accountNumber) {
                     setIsLoadToReadOnly(true)
-                    setLoadTo(accountNumber)
+                    formatLoadTo(accountNumber)
                     searchAgent(accountNumber)
                 }
-                setBalanceBarTitle('Agent Cash-In')
+                setBalanceBarTitle('Agent Cash-In Menu')
+                break;
+            case 'masterAgent':
+                if (accountNumber) {
+                    setIsLoadToReadOnly(true)
+                    formatLoadTo(accountNumber)
+                    searchAgent(accountNumber)
+                }
+                setBalanceBarTitle('Master Agent Cash-In Menu')
                 break;
             default:
-                setBalanceBarTitle('Cash-In')
+                setBalanceBarTitle('Cash-In Menu')
         }
 
     }, [data, reload])
 
     return (
         <div className="flex flex-col w-full gap-4">
-            <ConfirmationModal
-                isOpen={isAlertModalOpen}
-                onConfirm={() => setIsAlertModalOpen(false)}
-                isOkOnly={true}
-                onCancel={() => { }}
-                message={alertMessage}
-            ></ConfirmationModal>
+            {cashinType === 'self' ?
+                <Modal
+                    isOpen={isAlertModalOpen}
+                    // onConfirm={() => setIsAlertModalOpen(false)}
+                    // isOkOnly={true}
+                    onClose={() => setIsAlertModalOpen(false)}
+                    size="small"
+                >
+                    <div className="items-center flex flex-col justify-center gap-4">
+                        <h1>Scan QR Code</h1>
+                        <QrCode data={qrData} className='m-auto' />
+                        <Button onClick={() => setIsAlertModalOpen(false)} type={"button"} >Close</Button>
+                    </div>
+                </Modal>
+                :
+                <ConfirmationModal
+                    isOpen={isAlertModalOpen}
+                    onConfirm={() => setIsAlertModalOpen(false)}
+                    isOkOnly={true}
+                    onCancel={() => { }}
+                    message={alertMessage}
+                ></ConfirmationModal>
+            }
             <ConfirmationModal
                 isOpen={isConfirmModalOpen}
                 onCancel={onCancel}
@@ -303,40 +338,42 @@ const PlayerCashin = () => {
             ></ConfirmationModal>
             <BalanceBar rigthElement={balanceBarTitle} balance={balance} />
             <div className="flex flex-row gap-4">
-                <div className="flex hidden lg:block lg:w-1/2 bg-[#005BAA] rounded-xl p-4">
+                {/* <div className="flex hidden lg:block lg:w-1/2 bg-[#005BAA] rounded-xl p-4">
                     {showQr ? <QrCode data={qrData} className='m-auto' /> : <Image src={gcashLoad} alt="gcash load background" className="m-auto" />}
-                </div>
-                <LoadForm
-                    key={`load-form-${index}`}
-                    loadTo={{
-                        value: loadTo,
-                        onChange: setLoadTo,
-                        onBlur: (val: string) => {
-                            if (cashinType === 'player') {
-                                searchPlayer(val)
-                            } else {
-                                searchAgent(val)
+                </div> */}
+                {isLoading ? <LoadingSpinner /> :
+                    <LoadForm
+                        key={`load-form-${index}`}
+                        loadTo={{
+                            value: loadTo,
+                            onChange: formatLoadTo,
+                            onBlur: (val: string) => {
+                                if (cashinType === 'player') {
+                                    searchPlayer(val)
+                                } else {
+                                    searchAgent(val)
+                                }
+                            },
+                            isReadOnly: isLoadToReadOnly
+                        }}
+                        completeName={completeName}
+                        email={email}
+                        amount={{
+                            value: amount,
+                            onBlur: (val: string) => {
+                                onAmountChange(val)
                             }
-                        },
-                        isReadOnly: isLoadToReadOnly
-                    }}
-                    completeName={completeName}
-                    email={email}
-                    amount={{
-                        value: amount,
-                        onBlur: (val: string) => {
-                            onAmountChange(val)
-                        }
-                    }}
-                    fee={fee}
-                    totalAmount={totalAmount}
-                    comment={{
-                        value: comment,
-                        onChage: setComment
-                    }}
-                    isLoading={isLoading}
-                    onHandleSubmit={toggelConfirmationModal}
-                />
+                        }}
+                        fee={fee}
+                        totalAmount={totalAmount}
+                        comment={{
+                            value: comment,
+                            onChage: setComment
+                        }}
+                        isLoading={isLoading}
+                        onHandleSubmit={toggelConfirmationModal}
+                    />
+                }
             </div>
         </div>
     )

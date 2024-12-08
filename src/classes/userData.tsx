@@ -1,4 +1,4 @@
-interface UserData  {
+interface UserData {
     accountNumber: number,
     accountType: number,
     accountStatus: number,
@@ -12,7 +12,9 @@ interface UserData  {
     referralCode: number,
     id: number,
     suspended: number,
-    roles: string[]
+    image?: string,
+    status?: string
+    // roles: string[]
 }
 
 export default UserData

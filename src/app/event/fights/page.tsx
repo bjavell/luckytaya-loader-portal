@@ -3,7 +3,7 @@
 import Tables from "@/components/tables";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { format, getDate } from "date-fns";
+import { format, formatDate, getDate } from "date-fns";
 import FormField from "@/components/formField";
 import Form from "@/components/form";
 import Button from "@/components/button";
@@ -201,7 +201,7 @@ const Fight = () => {
   };
 
   const getFightDetailValue = (side: any, property: any) => {
-    if (selectedFight && selectedFight.fightDetails.length > 0) {
+    if (selectedFight && Object.keys(selectedFight).length > 0 && selectedFight.fightDetails.length > 0) {
       const { fightDetails } = selectedFight;
 
       const fightSide = fightDetails.find((x: any) => x.side == side);
@@ -219,7 +219,7 @@ const Fight = () => {
 
     const form = e.target;
     if (!form["fightNum"].value) {
-      setErrorMessage("Please Enter Fight Number");
+      setErrorMessage("Please Enter Game Number");
       return;
     }
     if (!form["meron-owner"].value) {
@@ -286,7 +286,6 @@ const Fight = () => {
         },
       ],
     };
-    setSelectedFight(request);
     setIsLoading(true);
 
     await axios
@@ -314,6 +313,7 @@ const Fight = () => {
         }
       })
       .finally(() => {
+        setSelectedFight({});
         refreshFields();
       });
   };
@@ -324,8 +324,8 @@ const Fight = () => {
         <div className="col-span-4 grid grid-cols-5 grid-rows-1 gap-2">
           <FormField
             name="fightNum"
-            label="Fight Number"
-            placeholder="Enter Fight Number"
+            label="Game Number"
+            placeholder="Enter Game Number"
             type="number"
             value={selectedFight?.fightNum}
           />
@@ -413,7 +413,7 @@ const Fight = () => {
               loadingText="Loading..."
               type={"submit"}
             >
-              Add Fight
+              Add Game
             </Button>
           </div>
         </div>
@@ -422,7 +422,7 @@ const Fight = () => {
   };
   return (
     <div className="flex flex-col gap-4 w-full">
-      <h1 className="text-xl">Event Fights</h1>
+      <h1 className="text-xl">Event Games</h1>
       <div>
         <label
           htmlFor="venueId"
@@ -433,12 +433,12 @@ const Fight = () => {
         <select
           onChange={handleEventChange}
           name="venueId"
-          className="peer rounded-xlg py-4 px-4 bg-semiBlack shadow-sm font-sans font-light text-[13px] tacking-[5%] text-white invalid:border-red-500 invalid:[&.visited]:border invalid:[&.visited]:border-[#E74C3C]"
+          className="peer rounded-xlg py-4 px-4 bg-semiBlack shadow-sm font-sans font-light tacking-[5%] text-white invalid:border-red-500 invalid:[&.visited]:border invalid:[&.visited]:border-[#E74C3C]"
         >
           {events.map((item, index): any => {
             return (
               <option key={`option-${index}`} value={item.eventId}>
-                {item.eventName}
+                 {formatDate(item.eventDate, "MM/dd/yyyy")} - {item.eventName}
               </option>
             );
           })}
@@ -451,7 +451,7 @@ const Fight = () => {
           loadingText="Loading..."
           type={"button"}
         >
-          + New Fight
+          + New Game
         </Button>
       </div> */}
       {!isLoading && renderBody()}
@@ -470,21 +470,21 @@ const Fight = () => {
             },
             {
               key: "fightId",
-              label: "Fight Id",
+              label: "Game Id",
             },
             {
               key: "fightNum",
-              label: "Fight Number",
+              label: "Game Number",
             },
             
             {
               key: "meron",
-              label: "Meron",
+              label: "Pula",
             },
             
             {
               key: "wala",
-              label: "Wala",
+              label: "Asul",
             },
             
             {

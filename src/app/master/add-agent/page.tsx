@@ -205,7 +205,7 @@ const Players = () => {
                         </div>
                         <div className="flex flex-col flex-1 gap-4">
                             <label htmlFor="accountType" className="text-white font-sans font-light text-nowrap text-xs">Account Type</label>
-                            <select id="accountType" name='accountType' className="rounded-xlg py-4 px-4 bg-semiBlack font-sans font-light text-[13px] tacking-[5%] text-white" value={userRegistration.accountType} onChange={onDropDownChange}>
+                            <select id="accountType" name='accountType' className="rounded-xlg py-4 px-4 bg-semiBlack font-sans font-light tacking-[5%] text-white" value={userRegistration.accountType} onChange={onDropDownChange}>
                                 {
                                     userType ?
                                         userType.map((e: any) => {

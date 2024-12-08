@@ -8,7 +8,7 @@ import Button from "./button"
 interface LoadFormProps {
     loadTo: {
         value: string,
-        onChange?: Dispatch<SetStateAction<string>>,
+        onChange?: (val: string) => void,
         onBlur?: (val: string) => void,
         isReadOnly: boolean
     },
@@ -33,7 +33,7 @@ const LoadForm: NextPage<LoadFormProps> = (props) => {
     const { loadTo, completeName, email, amount, fee, totalAmount, comment, isLoading, onHandleSubmit } = props
 
 
-    return <div className="flex w-full lg:w-1/2 bg-gray13 rounded-xl">
+    return <div className="flex w-full bg-gray13 rounded-xl">
         <Form className="flex flex-row gap-2 w-full">
             <div className="flex flex-col p-4 gap-4 w-full">
                 <FormField

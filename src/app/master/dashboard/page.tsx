@@ -18,7 +18,11 @@ const Home = () => {
 
 
     const getMembers = async () => {
-        await axios.get('/api/get-user-members')
+        await axios.get('/api/get-user-members', {
+            params: {
+                type: 'agent'
+            }
+        })
             .then(response => {
                 const responseData = response.data
                 setDirectMember(responseData.direct)
@@ -32,8 +36,8 @@ const Home = () => {
     useEffect(() => {
         if (data) {
             setBalance(data.balance)
+            getMembers()
         }
-        getMembers()
     }, [data])
 
 
@@ -41,18 +45,18 @@ const Home = () => {
 
         return <div className="flex gap-4 flex-row">
             <div className="flex bg-codGray p-4 rounded text-neutralGray gap-2 items-center">
-                <Image src={AgentIco} alt="" /> <span className="text-semiYellow font-semibold text-2xl">{directMember.length}</span> Total Agents
+                <Image src={AgentIco} alt="" /> <span className="text-semiYellow font-semibold text-2xl">{directMember.length}</span>{data?.accountType === 2 ? 'Total Master Agents' : 'Total Agents'}
             </div>
-            <div className="flex bg-codGray p-4 rounded text-neutralGray gap-2 items-center">
+            {/* <div className="flex bg-codGray p-4 rounded text-neutralGray gap-2 items-center">
                 <Image src={UserIco} alt="" /> <span className="text-semiYellow font-semibold text-2xl">{indirectMember.length }</span>Total Players
-            </div>
+            </div> */}
         </div>
     }
 
     return (
         <div className="flex flex-col w-full gap-4">
             <BalanceBar rigthElement={rightElement()} balance={balance} />
-            <div className="text-bold text-2xl text-lightGreen">GOOD DAY, <br />E-BILLIARD AGENTS</div>
+            <div className="text-bold text-2xl text-lightGreen">GOOD DAY, <br />E-BILLIARD MASTER AGENTS</div>
         </div>
     )
 }

@@ -20,20 +20,16 @@ const POST = async (req: NextRequest) => {
         const response = await luckTayaAxios.post(`/api/v1/User/Login`, request)
         const responseData = response.data
 
-
         if (portalType === 'ADMIN') {
             if (!responseData.roles.includes('admin')) {
                 throw new CustomError('Invalid Account Type', {
                     'Not found': [`User '${request.username}' not found.`]
                 })
             }
-        } else {
-            if (!responseData.roles.includes('acctmgr') && !responseData.roles.includes('eventmgr') && !responseData.roles.includes('master')) {
-                throw new CustomError('Invalid Account Type', {
-                    'Not found': [`User '${request.username}' not found.`]
-                })
-            }
-
+        } else if (!responseData.roles.includes('acctmgr') && !responseData.roles.includes('eventmgr') && !responseData.roles.includes('master') && !responseData.roles.includes('finance')) {
+            throw new CustomError('Invalid Account Type', {
+                'Not found': [`User '${request.username}' not found.`]
+            })
         }
 
         await setSession(responseData)

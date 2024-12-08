@@ -3,46 +3,155 @@ import { getCurrentSession } from "@/context/auth"
 import { luckTayaAxios } from "@/util/axiosUtil"
 import { formatGenericErrorResponse } from "@/util/commonResponse"
 import { findAll } from "@/util/dbUtil"
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 
 
-const GET = async () => {
+const GET = async (req: NextRequest) => {
     try {
         const currentSession = await getCurrentSession()
 
-        const directMemberResponse = await luckTayaAxios.get(`/api/v1/AccountMember/Direct`, {
-            headers: {
-                'Authorization': `Bearer ${currentSession.token}`,
-            },
-        })
-        const indirectMemberResponse = await luckTayaAxios.get(`/api/v1/AccountMember/Indirect`, {
-            headers: {
-                'Authorization': `Bearer ${currentSession.token}`,
-            },
-        })
+        const type = req.nextUrl.searchParams.get('type')
 
-        const orphanMemberResponse = await luckTayaAxios.get(`/api/v1/AccountMember/OrphanAccount`, {
-            headers: {
-                'Authorization': `Bearer ${currentSession.token}`,
-            },
-        })
+        if (type === 'agent' || type === 'masterAgent') {
 
-        const getAllAgentOfMasterAgents = await findAll(DB_COLLECTIONS.TAYA_AGENTS, { 'request.masterAgentAccountNumber': String(currentSession.accountNumber) })
+            const directMemberResponse = await luckTayaAxios.get(`/api/v1/AccountMember/Direct`, {
+                headers: {
+                    'Authorization': `Bearer ${currentSession.token}`,
+                },
+            })
+            const indirectMemberResponse = await luckTayaAxios.get(`/api/v1/AccountMember/Indirect`, {
+                headers: {
+                    'Authorization': `Bearer ${currentSession.token}`,
+                },
+            })
+
+            const orphanMemberResponse = await luckTayaAxios.get(`/api/v1/AccountMember/OrphanAccount`, {
+                headers: {
+                    'Authorization': `Bearer ${currentSession.token}`,
+                },
+            })
+
+            let filteredOrphanAccounts
+            let filteredDirectMemberResponse
+            if (type === 'masterAgent') {
+
+                console.log(directMemberResponse.data)
+                const getAllAgentOfMasterAgents = await findAll(DB_COLLECTIONS.TAYA_AGENTS, {})
+
+                filteredDirectMemberResponse = directMemberResponse.data.map((member: any) => {
+                    const matchItem = getAllAgentOfMasterAgents.find((agent: any) => Number(agent.response.accountNumber) === Number(member.accountNumber))
+                    console.log(matchItem)
+                    if (matchItem) {
+                        return {
+                            ...member,
+                            email: matchItem.response.email || '-'
+                        }
+                    }
+                    return {
+                        ...member,
+                        email: '-'
+                    }
+                })
+
+                filteredOrphanAccounts = orphanMemberResponse.data.filter((orphanAccount: any) => orphanAccount.accountType === 3)
+            } else {
+                const getAllAgentOfMasterAgents = await findAll(DB_COLLECTIONS.TAYA_AGENTS, { 'request.masterAgentAccountNumber': String(currentSession.accountNumber) })
+
+                filteredDirectMemberResponse = directMemberResponse.data.map((member: any) => {
+
+                    const matchItem = getAllAgentOfMasterAgents.find((agent: any) => agent.response.accountNumber === member.accountNumber)
+                    if (matchItem) {
+                        return {
+                            ...member,
+                            email: matchItem.response.email || '-'
+                        }
+                    }
+                    return {
+                        ...member,
+                        email: '-'
+                    }
+                })
+
+                filteredOrphanAccounts = orphanMemberResponse.data.map((orphan: any) => {
+
+                    const matchItem = getAllAgentOfMasterAgents.find((agent: any) => agent.response.accountNumber === orphan.accountNumber)
+                    if (matchItem) {
+                        return {
+                            ...orphan,
+                            email: matchItem.response.email || '-'
+                        }
+                    }
+                    return {
+                        ...orphan,
+                        email: '-'
+                    }
+                })
+                    .filter((orphan: any) =>
+                        getAllAgentOfMasterAgents.some((agent: any) => {
+                            console.log(orphan, agent, orphan.accountNumber === agent.response.accountNumber)
+                            return orphan.accountNumber === agent.response.accountNumber
+                        })
+                    )
+            }
 
 
-        const filteredOrphanAccounts = orphanMemberResponse.data.filter((orphanAccount: any) =>
-            getAllAgentOfMasterAgents.some((agent: any) => Number(orphanAccount.accountNumber) === Number(agent.response.accountNumber))
-        )
+            const response = {
+                direct: filteredDirectMemberResponse,
+                indirect: indirectMemberResponse.data,
+                orphan: filteredOrphanAccounts
+            }
 
-        const response = {
-            direct: directMemberResponse.data,
-            indirect: indirectMemberResponse.data,
-            orphan: filteredOrphanAccounts
+            return NextResponse.json(response)
+        } else {
+            const playerResponse = await luckTayaAxios.get(`/api/v1/UserAccount/AllPlayerAccount`, {
+                headers: {
+                    'Authorization': `Bearer ${currentSession.token}`,
+                },
+            })
+            const getAllAgentPlayers = await findAll(DB_COLLECTIONS.TAYA_USERS, { agentReferralCode: String(currentSession.referralCode) })
+
+
+            console.log(getAllAgentPlayers)
+
+            const filteredPlayerAccounts = playerResponse.data.map((player: any) => {
+
+                const matchItem = getAllAgentPlayers.find((agentPlayer: any) => agentPlayer.accountNumber === player.accountNumber)
+                if (matchItem) {
+                    return {
+                        ...player,
+                        email: matchItem.email || '-',
+                        firstname: matchItem.firstname || '-',
+                        lastname: matchItem.lastname || '-'
+                    }
+                }
+                return {
+                    ...player,
+                    email: '-',
+                    firstname: '',
+                    lastname: ''
+                }
+            })
+                .filter((player: any) =>
+                    getAllAgentPlayers.some((agentPlayer: any) => {
+                        console.log(player, agentPlayer, player.accountNumber === agentPlayer.accountNumber)
+                        return player.accountNumber === agentPlayer.accountNumber
+                    })
+                )
+
+
+
+            const customPlayerResponse = filteredPlayerAccounts.map((customPlayer: any) => {
+                delete customPlayer._id
+                delete customPlayer.pin
+                return customPlayer
+            })
+
+
+            return NextResponse.json(customPlayerResponse)
         }
-
-        return NextResponse.json(response)
-    } catch (e) {
-
+    } catch (e: any) {
+        console.error(e?.response?.data)
+        console.error(e?.response)
         return NextResponse.json({
             error: formatGenericErrorResponse(e)
         },

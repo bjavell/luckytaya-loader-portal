@@ -12,6 +12,7 @@ import ConfirmationModal from "@/components/confirmationModal";
 import LoadingSpinner from "@/components/loadingSpinner";
 import Form from "@/components/form";
 import FormField from "@/components/formField";
+import Timer from "@/components/timer";
 
 type SabongEvent = {
   entryDateTime: string;
@@ -41,6 +42,9 @@ const Fight = () => {
   const [winningSide, setWinningSide] = useState(-1);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [isModalSendMessageOpen, setIsModalSendMessageOpen] = useState(false);
+  const [duration, setDuration] = useState(0);
+  const [isTimer, setIsTimer] = useState(false);
+  const [confirmTitle, setConfirmTitle] = useState<string>();
   const [betDetails, setBetDetails] = useState({
     fId: 0,
     s0c: 0,
@@ -95,7 +99,7 @@ const Fight = () => {
   };
   const getEvents = async () => {
     await axios
-      .get("/api/event/list")
+      .get("/api/event/list-open")
       .then((response) => {
         const data = response.data;
         setEvents(data);
@@ -394,10 +398,27 @@ const Fight = () => {
       .then((response) => {
         // alert("Last Call!!");
         setIsLoadingWithScreen(false);
+        setDuration(60000);
+        setIsTimer(true);
+    
       });
   };
 
   const setFightStatus = async (status: any) => {
+    switch (status) {
+      case 11:
+        setConfirmTitle("Open Betting");
+        break;
+      case 12:
+        setConfirmTitle("Close Betting");
+        break;
+
+      case 21:
+        setConfirmTitle("Cancel Fight");
+        break;
+      default:
+        break;
+    }
     setFightStatusCode(status);
     setIsFightStatusModalOpen(true);
   };
@@ -464,7 +485,7 @@ const Fight = () => {
             loadingText="Loading..."
             type={"button"}
           >
-            Cancel Fight
+            Cancel Game
           </Button>
         );
       }
@@ -559,12 +580,13 @@ const Fight = () => {
         </button>
       );
   };
-  useEffect(() => {
-    console.log(webRtcStream, "----------");
 
-    return () => {};
-  }, [webRtcStream]);
-
+  const onEndTimer = () => {
+    setTimeout(() => {
+      setFightStatus(12);
+      setIsTimer(false);
+    }, 1000);
+  };
   return (
     <div className="flex flex-col gap-4 w-full">
       <h1 className="text-xl">Gaming Control</h1>
@@ -578,7 +600,7 @@ const Fight = () => {
         <select
           onChange={handleEventChange}
           name="venueId"
-          className="peer rounded-xlg py-4 px-4 bg-semiBlack shadow-sm font-sans font-light text-[13px] tacking-[5%] text-white invalid:border-red-500 invalid:[&.visited]:border invalid:[&.visited]:border-[#E74C3C]"
+          className="peer rounded-xlg py-4 px-4 bg-semiBlack shadow-sm font-sans font-light tacking-[5%] text-white invalid:border-red-500 invalid:[&.visited]:border invalid:[&.visited]:border-[#E74C3C]"
         >
           {events.map((item, index): any => {
             return (
@@ -593,12 +615,12 @@ const Fight = () => {
           htmlFor="venueId"
           className="text-white font-sans font-light text-nowrap "
         >
-          Select Fight
+          Select Game
         </label>
         <select
           onChange={handleFightChange}
           name="venueId"
-          className="peer rounded-xlg py-4 px-4 bg-semiBlack shadow-sm font-sans font-light text-[13px] tacking-[5%] text-white invalid:border-red-500 invalid:[&.visited]:border invalid:[&.visited]:border-[#E74C3C]"
+          className="peer rounded-xlg py-4 px-4 bg-semiBlack shadow-sm font-sans font-light tacking-[5%] text-white invalid:border-red-500 invalid:[&.visited]:border invalid:[&.visited]:border-[#E74C3C]"
         >
           {fights.map((item: any, index: any) => {
             return (
@@ -611,7 +633,7 @@ const Fight = () => {
       </div>
       <h1>{isLoading && <label>{"   "}Loading ...</label>}</h1>
 
-      <Modal isOpen={isModalOpen} onClose={closeModal}>
+      <Modal size="medium" isOpen={isModalOpen} onClose={closeModal}>
         <label className="text-[20px]">Select Winner Side</label>
         <br />
         <br />
@@ -621,7 +643,11 @@ const Fight = () => {
         </div>
       </Modal>
 
-      <Modal isOpen={isModalSendMessageOpen} onClose={closeSendModal}>
+      <Modal
+        size="medium"
+        isOpen={isModalSendMessageOpen}
+        onClose={closeSendModal}
+      >
         <div className="w-full p-4">
           {errorMessage !== "" ? (
             <div className="flex gap-2 text-white bg-red p-4 rounded-xlg">
@@ -666,6 +692,7 @@ const Fight = () => {
 
       <ConfirmationModal
         isOpen={isFightStatusModalOpen}
+        title={confirmTitle}
         onCancel={onCancelSetFight}
         onConfirm={onConfirmSetFightStatus}
         message="Are you sure you want proceed with this action?"
@@ -692,18 +719,24 @@ const Fight = () => {
                     </label>
                   </div>
                   <div>
-                    <label>Total Fights {gameData.totalFight}</label>
+                    <label>Total Games {gameData.totalFight}</label>
                   </div>
                   <div>
-                    <label>Fight # {gameData.fight.fightNum}</label>
+                    <label>Game # {gameData.fight.fightNum}</label>
                   </div>
                 </div>
 
                 <div>
-                  {renderEventStatusButton()}
+                  {!isTimer && renderEventStatusButton()}
+                  {isTimer && (
+                    <Timer
+                      duration={duration}
+                      onEndTimer={() => onEndTimer()}
+                    ></Timer>
+                  )}
                   <br />
                   <div className="bg-cursedBlack text-center p-3 rounded-xl">
-                    Fight : {gameData.fight.fightStatusName}
+                    Game : {gameData.fight.fightStatusName}
                   </div>
                 </div>
               </div>
@@ -723,11 +756,11 @@ const Fight = () => {
             </div>
             <br />
             {gameData && (
-              <div className="grid grid-cols-4 grid-rows-1 gap-4">
+              <div className="grid grid-cols-3 grid-rows-1 gap-4">
                 {renderOpenBetting()}
                 {renderLastCall()}
                 {renderCloseBetting()}
-                {renderResultButton()}
+                {/* {renderResultButton()} */}
               </div>
             )}
 

@@ -13,7 +13,7 @@ import LoadingSpinner from "@/components/loadingSpinner";
 import Form from "@/components/form";
 import FormField from "@/components/formField";
 import Tables from "@/components/tables";
-import { formatMoney } from "@/util/textUtil";
+import { formatDynamicNumber, formatMoney } from "@/util/textUtil";
 
 type SabongEvent = {
   entryDateTime: string;
@@ -26,7 +26,7 @@ type SabongEvent = {
   webRtcStream: string;
 };
 
-const Fight = () => {
+const TransactionHistory = () => {
   const { socket, messages } = useWebSocketContext();
   const [events, setEvents] = useState<SabongEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -91,7 +91,6 @@ const Fight = () => {
         params,
       })
       .then((response) => {
-        console.log(response.data.list)
         setTotal(response.data.summary);
         setTransactions(response.data.list);
       })
@@ -115,7 +114,7 @@ const Fight = () => {
   const handleEventChange = (e: any) => {
     setIsLoading(true);
     setSelectedEvent(events[e.target.value]);
-    setFight({});
+    setFight(null);
     setFights([]);
   };
 
@@ -140,7 +139,7 @@ const Fight = () => {
         <select
           onChange={handleEventChange}
           name="venueId"
-          className="peer rounded-xlg py-4 px-4 bg-semiBlack shadow-sm font-sans font-light text-[13px] tacking-[5%] text-white invalid:border-red-500 invalid:[&.visited]:border invalid:[&.visited]:border-[#E74C3C]"
+          className="peer rounded-xlg py-4 px-4 bg-semiBlack shadow-sm font-sans font-light tacking-[5%] text-white invalid:border-red-500 invalid:[&.visited]:border invalid:[&.visited]:border-[#E74C3C]"
         >
           {events.map((item, index): any => {
             return (
@@ -155,14 +154,14 @@ const Fight = () => {
           htmlFor="venueId"
           className="text-white font-sans font-light text-nowrap "
         >
-          Select Fight
+          Select Game
         </label>
         <select
           onChange={handleFightChange}
           name="venueId"
-          className="peer rounded-xlg py-4 px-4 bg-semiBlack shadow-sm font-sans font-light text-[13px] tacking-[5%] text-white invalid:border-red-500 invalid:[&.visited]:border invalid:[&.visited]:border-[#E74C3C]"
+          className="peer rounded-xlg py-4 px-4 bg-semiBlack shadow-sm font-sans font-light tacking-[5%] text-white invalid:border-red-500 invalid:[&.visited]:border invalid:[&.visited]:border-[#E74C3C]"
         >
-          <option>--Select Fight--</option>
+          <option>--Select Game--</option>
           {fights.map((item: any, index: any) => {
             return (
               <option key={`option-${index}`} value={index}>
@@ -196,23 +195,26 @@ const Fight = () => {
               // },
               {
                 key: "transactionNumber",
-                label: "TXN ID",
+                label: "Transaction Id",
               },
               {
                 key: "accountNumber",
                 label: "Account Number",
+                format: (val:string)=> {
+                  return formatDynamicNumber(val)
+                }
               },
               {
                 key: "fightNum",
-                label: "Fight Number",
+                label: "Game Number",
               },
               {
                 key: "meron",
-                label: "Meron",
+                label: "Pula",
               },
               {
                 key: "wala",
-                label: "Wala",
+                label: "Asul",
               },
 
               // {
@@ -238,12 +240,12 @@ const Fight = () => {
                 key: "side",
                 label: "Bet On",
                 format: (val: number) => {
-                  return val == 1 ? "Meron" : "Wala";
+                  return val == 1 ? "Pula" : "Asul";
                 },
               },
               {
                 key: "amount",
-                label: "AMOUNT",
+                label: "Amount",
                 customValueClass: "text-semiYellow",
                 format: (val: string) => {
                   return formatMoney(val);
@@ -259,4 +261,4 @@ const Fight = () => {
   );
 };
 
-export default Fight;
+export default TransactionHistory;

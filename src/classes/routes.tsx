@@ -29,27 +29,28 @@ const sideBarAgentRoutes = [{
     }]
 
 },
-{
-    module: 'LOADING STATION',
-    item: [
-        //     {
-        //     module: 'Self Cash-In',
-        //     ico: LoadStation,
-        //     link: '/loading-station/cash-in/self'
-        // },
-        {
-            module: 'Player Cash-In',
-            ico: LoadStation,
-            link: '/loading-station/cash-in/player'
-        },
-        // {
-        //     module: 'Cash-Out',
-        //     ico: CashOut,
-        //     link: '/loading-station/cash-out'
-        // }
-    ]
+// {
+//     module: 'LOADING STATION',
+//     item: [
+//         {
+//             module: 'Self Cash-In',
+//             ico: LoadStation,
+//             link: '/loading-station/cash-in/self'
+//         },
+//         {
+//             module: 'Player Cash-In',
+//             ico: LoadStation,
+//             link: '/loading-station/cash-in/player'
+//         },
+//         // {
+//         //     module: 'Cash-Out',
+//         //     ico: CashOut,
+//         //     link: '/loading-station/cash-out'
+//         // }
+//     ]
 
-}, {
+// }, 
+{
     module: 'HISTORY',
     item: [{
         module: 'Transfer',
@@ -85,7 +86,7 @@ const sideBarEventRoutes = [{
         link: '/event'
     },
     {
-        module: 'Add Fight',
+        module: 'Add Game',
         ico: Dashboard,
         link: '/event/fights'
     },
@@ -98,6 +99,19 @@ const sideBarEventRoutes = [{
 },
 ]
 
+
+const sideBarDeclaratorRoutes = [{
+    module: 'GENERAL',
+    item: [{
+        module: 'Gaming Control',
+        ico: Game,
+        link: '/declarator'
+    }]
+
+},
+]
+
+
 const sideBarMasterRoutes = [{
     module: 'GENERAL',
     item: [{
@@ -108,16 +122,17 @@ const sideBarMasterRoutes = [{
 },
 {
     module: 'LOADING STATION',
-    item: [{
-        module: 'Self Cash-In',
-        ico: LoadStation,
-        link: '/loading-station/cash-in/self'
-    },
-    {
-        module: 'Agent Cash-In',
-        ico: LoadStation,
-        link: '/loading-station/cash-in/agent'
-    }]
+    item: [
+        //     {
+        //     module: 'Self Cash-In',
+        //     ico: LoadStation,
+        //     link: '/loading-station/cash-in/self'
+        // },
+        {
+            module: 'Agent Cash-In',
+            ico: LoadStation,
+            link: '/loading-station/cash-in/agent'
+        }]
 
 },
 {
@@ -144,6 +159,48 @@ const sideBarMasterRoutes = [{
 }]
 
 
+const sideBarMainMasterRoutes = [{
+    module: 'GENERAL',
+    item: [{
+        module: 'Home',
+        ico: Dashboard,
+        link: '/master/dashboard'
+    }]
+},
+{
+    module: 'LOADING STATION',
+    item: [
+        {
+            module: 'Master Agent Cash-In',
+            ico: LoadStation,
+            link: '/loading-station/cash-in/masterAgent'
+        },
+        {
+            module: 'Funding Request',
+            ico: LoadStation,
+            link: '/master/approve-funding-request'
+        },
+    ]
+
+},
+{
+    module: 'Master Agents',
+    item: [{
+        module: 'Master Agent List',
+        ico: UserList,
+        link: '/master/master-agent-list'
+    }]
+}, {
+    module: 'HISTORY',
+    item: [{
+        module: 'Transfer',
+        ico: Transfer,
+        link: '/history/transfer'
+    }]
+
+}]
+
+
 const sideBarAdminRoutes = [{
     module: 'GENERAL',
     item: [{
@@ -160,13 +217,53 @@ const sideBarAdminRoutes = [{
         ico: User,
         link: '/admin/user/register'
     }, {
-        module: 'Management Users',
+        module: 'Backoffice Users',
         ico: UserList,
-        link: '/admin/user/management'
+        link: '/admin/user/manage/backoffice'
     }, {
         module: 'Player Users',
         ico: UserList,
-        link: '/admin/user/players'
+        link: '/admin/user/manage/players'
+    }]
+
+},
+{
+    module: 'REPORTS',
+    item: [{
+        module: 'Generate Report',
+        ico: Transfer,
+        link: '/finance/reports/all'
+    }]
+
+}
+    // {
+    //     module: 'NOTIFY',
+    //     item: [{
+    //         module: 'Send Message',
+    //         ico: Transfer,
+    //         link: '/notify'
+    //     }]
+
+    // }
+]
+
+
+
+const sideBarFinanceRoutes = [{
+    module: 'GENERAL',
+    item: [{
+        module: 'Dashboard',
+        ico: Dashboard,
+        link: '/finance/dashboard'
+    }]
+
+},
+{
+    module: 'REPORTS',
+    item: [{
+        module: 'Generate Report',
+        ico: Transfer,
+        link: '/finance/reports/all'
     }]
 
 },
@@ -186,5 +283,8 @@ export {
     sideBarAgentRoutes,
     sideBarEventRoutes,
     sideBarMasterRoutes,
-    sideBarAdminRoutes
+    sideBarAdminRoutes,
+    sideBarMainMasterRoutes,
+    sideBarFinanceRoutes,
+    sideBarDeclaratorRoutes
 }

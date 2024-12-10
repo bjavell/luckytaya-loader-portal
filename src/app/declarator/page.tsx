@@ -570,10 +570,10 @@ const Fight = () => {
                     </label>
                   </div>
                   <div>
-                    <label>Total Fights {gameData.totalFight}</label>
+                    <label>Total Games {gameData.totalFight}</label>
                   </div>
                   <div>
-                    <label>Fight # {gameData.fight.fightNum}</label>
+                    <label>Game # {gameData.fight.fightNum}</label>
                   </div>
                 </div>
 

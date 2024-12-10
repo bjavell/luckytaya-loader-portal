@@ -15,6 +15,7 @@ const POST = async (req: NextRequest) => {
       request.eventDate = request.eventDate + ":00.000Z";
       delete request.eventId;
       delete request.eventStatusCode;
+      console.log(request,'Hello000000')
       response = await luckTayaAxios.post(`/api/v1/SabongEvent/V2`, request, {
         headers: {
           Authorization: `Bearer ${currentSession.token}`,

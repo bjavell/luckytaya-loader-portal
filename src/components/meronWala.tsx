@@ -2,7 +2,7 @@ import React from "react";
 
 const MeronWala = ({ type, data }: any) => {
   const color = type == 1 ? "meronColor" : "walaColor";
-  const title = type == 1 ? "Meron" : "Wala";
+  const title = type == 1 ? "Pula" : "Asul";
   const getSafeData = (data: any, field: any) => {
     try {
       return data[field];

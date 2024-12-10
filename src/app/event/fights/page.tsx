@@ -223,36 +223,36 @@ const Fight = () => {
       return;
     }
     if (!form["meron-owner"].value) {
-      setErrorMessage("Please Enter Meron First Name");
+      setErrorMessage("Please Enter Pula First Name");
       return;
     }
     if (!form["meron-breed"].value) {
-      setErrorMessage("Please Enter Meron Last Name");
+      setErrorMessage("Please Enter Pula Last Name");
       return;
     }
     if (!form["meron-weight"].value) {
-      setErrorMessage("Please Enter Meron Age");
+      setErrorMessage("Please Enter Pula Age");
       return;
     }
     if (!form["meron-tag"].value) {
-      setErrorMessage("Please Enter Meron Remarks");
+      setErrorMessage("Please Enter Pula Remarks");
       return;
     }
 
     if (!form["wala-owner"].value) {
-      setErrorMessage("Please Enter Wala First Name");
+      setErrorMessage("Please Enter Asul First Name");
       return;
     }
     if (!form["wala-breed"].value) {
-      setErrorMessage("Please Enter Wala Last Name");
+      setErrorMessage("Please Enter Asul Last Name");
       return;
     }
     if (!form["wala-weight"].value) {
-      setErrorMessage("Please Enter Wala Age");
+      setErrorMessage("Please Enter Asul Age");
       return;
     }
     if (!form["wala-tag"].value) {
-      setErrorMessage("Please Enter Wala Remarks");
+      setErrorMessage("Please Enter Asul Remarks");
       return;
     }
     const request = {

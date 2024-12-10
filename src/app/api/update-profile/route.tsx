@@ -4,7 +4,7 @@ import { getCurrentSession } from "@/context/auth";
 import { luckTayaAxios } from "@/util/axiosUtil";
 import { formatGenericErrorResponse } from "@/util/commonResponse";
 import { decrypt } from "@/util/cryptoUtil";
-import { findOne } from "@/util/dbUtil";
+import { findAll, findOne, update } from "@/util/dbUtil";
 import { NextRequest, NextResponse } from "next/server";
 
 const POST = async (req: NextRequest) => {
@@ -24,28 +24,44 @@ const POST = async (req: NextRequest) => {
             facebookAccount: currentSession.facebookAccount,
             referralCode: currentSession.referralCode
         }
-        
+
         const accountExists = await findOne(DB_COLLECTIONS.TAYA_AGENTS, {
             $or: [
-                { 'request.email': request.email },
-                { 'request.phoneNumber': request.phoneNumber }
+                { 'response.email': request.email },
+                { 'response.phoneNumber': request.phoneNumber }
             ]
         })
 
 
-        if (accountExists) {
+        if (accountExists && currentSession.userId !== accountExists.response.userId) {
             throw new CustomError('Bad request', {
                 'Bad request': [`Email or Mobile already exists`]
             })
         }
 
-
-        
-        await luckTayaAxios.put('/api/v1/User/UpdateV2', decryptedRequest, {
+        const updateResponse = await luckTayaAxios.put('/api/v1/User/UpdateV2', decryptedRequest, {
             headers: {
                 'Authorization': `Bearer ${currentSession.token}`,
             },
         })
+
+        const accountQuery = { 'response.userId': updateResponse.data.userId }
+        console.log(accountQuery)
+
+        const account = await findOne(DB_COLLECTIONS.TAYA_AGENTS, accountQuery)
+        console.log('account', account)
+
+        if(account) {
+            const updatedAccount = {
+                ...account,
+                response: {
+                    ...account?.response,
+                    ...updateResponse.data
+                }
+            }
+            
+            await update(DB_COLLECTIONS.TAYA_AGENTS, accountQuery, updatedAccount)
+        }
 
         if (decryptedRequest.newPassword && decryptedRequest.confirmPassword) {
             await luckTayaAxios.post('/api/v1/User/ChangePasswordV2', decryptedRequest, {

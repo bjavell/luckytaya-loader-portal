@@ -47,40 +47,7 @@ const Players = () => {
         // "roles": []
     })
     const [search, setSearch] = useState('')
-    const [accountType] = useState<AccountType[]>([
-        {
-            "accountType": 1,
-            "description": "Finance"
-        },
-        {
-            "accountType": 4,
-            "description": "Event Manager"
-        },
-        {
-            "accountType": 5,
-            "description": "Declarator"
-        },
-        {
-            "accountType": 9,
-            "description": "Admin"
-        },
-        {
-            "accountType": 3,
-            "description": "Master Agent"
-        },
-        {
-            "accountType": 6,
-            "description": "Agent"
-        },
-        {
-            "accountType": 7,
-            "description": "Agent Player"
-        },
-        {
-            "accountType": 8,
-            "description": "Player"
-        },
-    ])
+    const [accountType, setAccountType] = useState<AccountType[]>([])
     const [accountRole, setAccountRole] = useState([])
     const [isLoading, setIsLoading] = useState(false)
 
@@ -119,6 +86,26 @@ const Players = () => {
             setIsLoading(false)
         }
 
+    }
+
+    const getUserType = async () => {
+        await axios.get('/api/get-account-type')
+            .then(response => {
+                setAccountType(response.data)
+            })
+            .catch((e) => {
+                const errorMessages = e.response.data.error
+                if (errorMessages) {
+                    if (errorMessages['Unauthorized']) {
+                        router.push('/login')
+                    }
+                }
+                // const errorMessages = e.response.data.error
+                setAccountType([])
+            })
+            .finally(() => {
+                // setIsLoading(false)
+            })
     }
 
     // const getUserType = async () => {
@@ -165,9 +152,9 @@ const Players = () => {
         if (players.length === 0)
             getUserLists()
 
-        // if (accountType.length === 0) {
-        //     getUserType()
-        // }
+        if (accountType.length === 0) {
+            getUserType()
+        }
 
         if (accountRole.length === 0) {
             getUserRole()

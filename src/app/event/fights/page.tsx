@@ -7,6 +7,7 @@ import { format, formatDate, getDate } from "date-fns";
 import FormField from "@/components/formField";
 import Form from "@/components/form";
 import Button from "@/components/button";
+import { eventSort, eventStatus } from "@/util/eventSorting";
 
 type SabongEvent = {
   entryDateTime: string;
@@ -98,7 +99,8 @@ const Fight = () => {
     await axios
       .get("/api/event/list")
       .then((response) => {
-        const data = response.data;
+        let data = response.data;
+        data = eventSort("eventStatusCode",data)
         setEvents(data);
         if (data) setSelectedEvent(data[0].eventId);
       })
@@ -438,7 +440,7 @@ const Fight = () => {
           {events.map((item, index): any => {
             return (
               <option key={`option-${index}`} value={item.eventId}>
-                 {formatDate(item.eventDate, "MM/dd/yyyy")} - {item.eventName}
+                 {formatDate(item.eventDate, "MM/dd/yyyy")} - {item.eventName} - {eventStatus(item.eventStatusCode)}
               </option>
             );
           })}

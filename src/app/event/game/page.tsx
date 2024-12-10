@@ -13,6 +13,7 @@ import LoadingSpinner from "@/components/loadingSpinner";
 import Form from "@/components/form";
 import FormField from "@/components/formField";
 import Timer from "@/components/timer";
+import { eventSort, eventStatus } from "@/util/eventSorting";
 
 type SabongEvent = {
   entryDateTime: string;
@@ -101,7 +102,8 @@ const Fight = () => {
     await axios
       .get("/api/event/list-open")
       .then((response) => {
-        const data = response.data;
+        let data = response.data;
+        data = eventSort("eventStatusCode",data)
         setEvents(data);
         if (data) setSelectedEvent(data[0]);
       })
@@ -605,7 +607,7 @@ const Fight = () => {
           {events.map((item, index): any => {
             return (
               <option key={`option-${index}`} value={index}>
-                {item.eventName}
+                   {formatDate(item.eventDate, "MM/dd/yyyy")} - {item.eventName} - {eventStatus(item.eventStatusCode)}
               </option>
             );
           })}

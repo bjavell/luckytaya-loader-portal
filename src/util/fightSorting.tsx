@@ -1,6 +1,12 @@
-const fightSort = (sortBy: string, data: any, isWaitingOpenOnly : boolean = false) => {
-  if(isWaitingOpenOnly)
-    data = data.filter((x : any)=>x.fightStatusCode == 10 || x.fightStatusCode == 11)
+const fightSort = (
+  sortBy: string,
+  data: any,
+  isWaitingOpenOnly: boolean = false
+) => {
+  if (isWaitingOpenOnly)
+    data = data.filter(
+      (x: any) => x.fightStatusCode == 10 || x.fightStatusCode == 11
+    );
   switch (sortBy) {
     case "entryDateTime":
       return data.sort(
@@ -19,10 +25,16 @@ const fightSort = (sortBy: string, data: any, isWaitingOpenOnly : boolean = fals
       return data.sort((a: any, b: any) => a[sortBy] - b[sortBy]);
   }
 };
-const fightSortV2 = (sortBy: string, data: any, isWaitingOpenOnly : boolean = false) => {
-  if(isWaitingOpenOnly)
-    data = data.filter((x : any)=>x.fight.fightStatusCode == 10 || x.fight.fightStatusCode == 11)
- 
+const fightSortV2 = (
+  sortBy: string,
+  data: any,
+  isWaitingOpenOnly: boolean = false
+) => {
+  if (isWaitingOpenOnly)
+    data = data.filter(
+      (x: any) => x.fight.fightStatusCode == 10 || x.fight.fightStatusCode == 11
+    );
+
   switch (sortBy) {
     case "entryDateTime":
       return data.sort(
@@ -36,7 +48,10 @@ const fightSortV2 = (sortBy: string, data: any, isWaitingOpenOnly : boolean = fa
           return a.fight.fightNum - b.fight.fightNum;
         }
 
-        return sortStatusTempCode(a.fight[sortBy]) - sortStatusTempCode(b.fight[sortBy]);
+        return (
+          sortStatusTempCode(a.fight[sortBy]) -
+          sortStatusTempCode(b.fight[sortBy])
+        );
       });
     default:
       return data.sort((a: any, b: any) => a.fight[sortBy] - b.fight[sortBy]);
@@ -77,7 +92,7 @@ const fightStatus = (code: any) => {
     case 21:
       return "Cancelled";
     case 22:
-      "Ended";
+      return "Ended";
     default:
       return "";
   }

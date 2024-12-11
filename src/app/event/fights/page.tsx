@@ -8,6 +8,9 @@ import FormField from "@/components/formField";
 import Form from "@/components/form";
 import Button from "@/components/button";
 import { eventSort, eventStatus } from "@/util/eventSorting";
+import { fightSort, fightSortV2 } from "@/util/fightSorting";
+import Modal from "@/components/modal";
+import GameUpload from "@/components/gameUpload";
 
 type SabongEvent = {
   entryDateTime: string;
@@ -41,6 +44,7 @@ const Fight = () => {
   const [selectedFight, setSelectedFight] = useState<any>();
   const [isModalFightOpen, setIsModalFightOpen] = useState(false);
   const [fightList, setFightList] = useState<any>([]);
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   // const [walaImage, setWalaImage] = useState("");
   // const [meronImage, setMeronImage] = useState("");
   // const handleFileChange = (
@@ -100,7 +104,7 @@ const Fight = () => {
       .get("/api/event/list")
       .then((response) => {
         let data = response.data;
-        data = eventSort("eventStatusCode",data)
+        data = eventSort("eventStatusCode", data);
         setEvents(data);
         if (data) setSelectedEvent(data[0].eventId);
       })
@@ -136,22 +140,26 @@ const Fight = () => {
           };
         });
 
-        const fightlst = data.map((e: any) => {
+        let fightlst = data.map((e: any) => {
           const meron = e.fightDetails.find((x: any) => x.side == 1);
           const wala = e.fightDetails.find((x: any) => x.side == 0);
-        
+
           return {
             ...e.fight,
             fightDetails: e.fightDetails,
-            meron : meron ? `${meron.owner} ${meron.breed}`: "",
-            wala : wala ? `${wala.owner} ${wala.breed}`: "",
+            meron: meron ? `${meron.owner} ${meron.breed}` : "",
+            wala: wala ? `${wala.owner} ${wala.breed}` : "",
             fightStatusName: e.fightStatusName,
           };
         });
+
+        fightlst = fightSort("fightStatusCode", fightlst);
         setFightList(fightlst);
-        setFights(data);
+        setFights(fightSort("fightStatusCode", data));
       })
-      .catch(() => {});
+      .catch((e) => {
+        console.log(e);
+      });
   };
 
   useEffect(() => {
@@ -203,7 +211,11 @@ const Fight = () => {
   };
 
   const getFightDetailValue = (side: any, property: any) => {
-    if (selectedFight && Object.keys(selectedFight).length > 0 && selectedFight.fightDetails.length > 0) {
+    if (
+      selectedFight &&
+      Object.keys(selectedFight).length > 0 &&
+      selectedFight.fightDetails.length > 0
+    ) {
       const { fightDetails } = selectedFight;
 
       const fightSide = fightDetails.find((x: any) => x.side == side);
@@ -320,6 +332,66 @@ const Fight = () => {
       });
   };
 
+  const batchUpload = (items: any) => {
+    console.log(items);
+    const requests = [];
+    for (let index = 0; index < items.length; index++) {
+      const element = items[index];
+      requests.push(fightRequest(element));
+    }
+    setIsLoading(true);
+    Promise.all(requests)
+      .then((results: any) => {
+        setIsUploadModalOpen(false)
+        alert("Successfully Uploaded");
+      })
+      .catch((error) => {
+        // This runs if any of the promises reject
+        alert("Error in uploading the file.");
+        console.error(error);
+      });
+  };
+  const fightRequest = (request: any) => {
+    return axios.post("/api/event/fight", request);
+  };
+  const onUpload = (csvData: any) => {
+    const items = csvData.map((x: any) => {
+      return {
+        fight: {
+          fightId: 0,
+          fightNum: x["Game Number"],
+          eventId: selectedEvent,
+        },
+        fightDetails: [
+          {
+            fightId: 0,
+            id: 0,
+            side: 1,
+            owner: x["Pula"],
+            breed: "",
+            weight: "",
+            tag: "",
+            imageBase64: "",
+            operatorId: 0,
+          },
+          {
+            fightId: 0,
+            id: 0,
+            side: 0,
+            owner: x["Asul"],
+            breed: "",
+            weight: "",
+            tag: "",
+            imageBase64: "",
+            operatorId: 0,
+          },
+        ],
+      };
+    });
+
+    batchUpload(items);
+  };
+
   const renderBody = () => {
     return (
       <Form onSubmit={onFightDetailsSubmit} className="">
@@ -332,7 +404,23 @@ const Fight = () => {
             value={selectedFight?.fightNum}
           />
         </div>
-
+        <Button
+          onClick={() => {
+            setIsUploadModalOpen(true);
+          }}
+          isLoading={false}
+          loadingText="Loading..."
+          type={"button"}
+        >
+          Upload Game
+        </Button>
+        <Modal
+          size="medium"
+          isOpen={isUploadModalOpen}
+          onClose={() => setIsUploadModalOpen(false)}
+        >
+          <GameUpload onUpload={onUpload} />
+        </Modal>
         <div className="col-span-4 grid grid-cols-5 grid-rows-1 gap-2">
           <label>First Name</label>
           <label>Last Name</label>
@@ -440,7 +528,8 @@ const Fight = () => {
           {events.map((item, index): any => {
             return (
               <option key={`option-${index}`} value={item.eventId}>
-                 {formatDate(item.eventDate, "MM/dd/yyyy")} - {item.eventName} - {eventStatus(item.eventStatusCode)}
+                {formatDate(item.eventDate, "MM/dd/yyyy")} - {item.eventName} -{" "}
+                {eventStatus(item.eventStatusCode)}
               </option>
             );
           })}
@@ -478,17 +567,17 @@ const Fight = () => {
               key: "fightNum",
               label: "Game Number",
             },
-            
+
             {
               key: "meron",
               label: "Pula",
             },
-            
+
             {
               key: "wala",
               label: "Asul",
             },
-            
+
             {
               key: "fightStatusName",
               label: "Status",

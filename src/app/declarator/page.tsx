@@ -16,6 +16,7 @@ import Image from "next/image";
 import Logout from "@/assets/images/Logout.svg";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { useRouter } from "next/navigation";
+import { fightSortV2, fightStatus } from "@/util/fightSorting";
 
 type SabongEvent = {
   entryDateTime: string;
@@ -77,10 +78,13 @@ const Fight = () => {
           case 22:
             break;
           // result
+          case 30:
+            refreshFight(true);
+            break;
           case 50:
             break;
           default:
-            // refreshFight();
+            refreshFight();
             break;
         }
       }
@@ -130,8 +134,7 @@ const Fight = () => {
         },
       })
       .then((response) => {
-        const data = response.data;
-
+        const data = fightSortV2("fightStatusCode", response.data, true);
         setFights(data);
         if (data.length > 0) setFight(getFightWithStatus(data[0].fight));
       })
@@ -197,10 +200,12 @@ const Fight = () => {
     setGameData(game);
     setIsLoading(false);
   };
-  
-  const refreshFight = async () => {
+
+  const refreshFight = async (isRefreshFight : boolean = false) => {
     if (!gameData) return;
     setIsLoadingWithScreen(true);
+    if (isRefreshFight) await getFights(selectedEvent.eventId);
+  
     const bet = await axios
       .get("/api/event/fight/byId", {
         params: {
@@ -328,7 +333,7 @@ const Fight = () => {
       })
       .finally(() => {
         onCancel();
-        refreshFight();
+        refreshFight(true);
         setIsLoadingWithScreen(false);
       });
   };
@@ -581,7 +586,7 @@ const Fight = () => {
                   {renderEventStatusButton()}
                   <br />
                   <div className="bg-cursedBlack text-center p-3 rounded-xl">
-                    Game : {gameData.fight.fightStatusName}
+                    Game : {fightStatus(gameData.fight.fightStatusCode)}
                   </div>
                 </div>
               </div>

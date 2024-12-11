@@ -112,8 +112,7 @@ const Event = () => {
 
   useEffect(() => {
     if(events){
-      console.log(sortBy,'hello')
-      var data = Object.assign([],events)
+      const data = Object.assign([],events)
       setEvents(eventSort(sortBy,data))
     }
   }, [sortBy])

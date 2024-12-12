@@ -153,9 +153,9 @@ const Fight = () => {
           };
         });
 
-        fightlst = fightSort("fightStatusCode", fightlst);
+        fightlst = fightSort("fightNum", fightlst);
         setFightList(fightlst);
-        setFights(fightSort("fightStatusCode", data));
+        setFights(fightSort("fightNum", data));
       })
       .catch((e) => {
         console.log(e);
@@ -342,7 +342,7 @@ const Fight = () => {
     setIsLoading(true);
     Promise.all(requests)
       .then((results: any) => {
-        setIsUploadModalOpen(false)
+        setIsUploadModalOpen(false);
         alert("Successfully Uploaded");
       })
       .catch((error) => {
@@ -404,16 +404,7 @@ const Fight = () => {
             value={selectedFight?.fightNum}
           />
         </div>
-        <Button
-          onClick={() => {
-            setIsUploadModalOpen(true);
-          }}
-          isLoading={false}
-          loadingText="Loading..."
-          type={"button"}
-        >
-          Upload Game
-        </Button>
+
         <Modal
           size="medium"
           isOpen={isUploadModalOpen}
@@ -513,27 +504,39 @@ const Fight = () => {
   return (
     <div className="flex flex-col gap-4 w-full">
       <h1 className="text-xl">Event Games</h1>
-      <div>
-        <label
-          htmlFor="venueId"
-          className="px-2 text-white font-sans font-light text-nowrap "
+      <div className="inline-flex gap-3 items-center">
+        <div>
+          <label
+            htmlFor="venueId"
+            className="px-2 text-white font-sans font-light text-nowrap "
+          >
+            Select Event
+          </label>
+          <select
+            onChange={handleEventChange}
+            name="venueId"
+            className="peer rounded-xlg py-4 px-4 bg-semiBlack shadow-sm font-sans font-light tacking-[5%] text-white invalid:border-red-500 invalid:[&.visited]:border invalid:[&.visited]:border-[#E74C3C]"
+          >
+            {events.map((item, index): any => {
+              return (
+                <option key={`option-${index}`} value={item.eventId}>
+                  {formatDate(item.eventDate, "MM/dd/yyyy")} - {item.eventName}{" "}
+                  - {eventStatus(item.eventStatusCode)}
+                </option>
+              );
+            })}
+          </select>
+        </div>
+        <Button
+          onClick={() => {
+            setIsUploadModalOpen(true);
+          }}
+          isLoading={false}
+          loadingText="Loading..."
+          type={"button"}
         >
-          Select Event
-        </label>
-        <select
-          onChange={handleEventChange}
-          name="venueId"
-          className="peer rounded-xlg py-4 px-4 bg-semiBlack shadow-sm font-sans font-light tacking-[5%] text-white invalid:border-red-500 invalid:[&.visited]:border invalid:[&.visited]:border-[#E74C3C]"
-        >
-          {events.map((item, index): any => {
-            return (
-              <option key={`option-${index}`} value={item.eventId}>
-                {formatDate(item.eventDate, "MM/dd/yyyy")} - {item.eventName} -{" "}
-                {eventStatus(item.eventStatusCode)}
-              </option>
-            );
-          })}
-        </select>
+          Upload Game
+        </Button>
       </div>
       {/* <div className="w-sm">
         <Button

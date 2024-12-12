@@ -5,7 +5,10 @@ const fightSort = (
 ) => {
   if (isWaitingOpenOnly)
     data = data.filter(
-      (x: any) => x.fightStatusCode == 10 || x.fightStatusCode == 11
+      (x: any) =>
+        x.fightStatusCode == 10 ||
+        x.fightStatusCode == 11 ||
+        x.fightStatusCode == 12
     );
   switch (sortBy) {
     case "entryDateTime":
@@ -18,8 +21,13 @@ const fightSort = (
         if (a.fightStatusCode == b.fightStatusCode) {
           return a.fightNum - b.fightNum;
         }
-
-        return sortStatusTempCode(a[sortBy]) - sortStatusTempCode(b[sortBy]);
+        if (isWaitingOpenOnly)
+          return (
+            sortStatusTempCode(b[sortBy]) -
+            sortStatusTempCode(a[sortBy])
+          );
+        else
+          return sortStatusTempCode(a[sortBy]) - sortStatusTempCode(b[sortBy]);
       });
     default:
       return data.sort((a: any, b: any) => a[sortBy] - b[sortBy]);
@@ -32,7 +40,10 @@ const fightSortV2 = (
 ) => {
   if (isWaitingOpenOnly)
     data = data.filter(
-      (x: any) => x.fight.fightStatusCode == 10 || x.fight.fightStatusCode == 11
+      (x: any) =>
+        x.fight.fightStatusCode == 10 ||
+        x.fight.fightStatusCode == 11 ||
+        x.fight.fightStatusCode == 12
     );
 
   switch (sortBy) {
@@ -48,10 +59,16 @@ const fightSortV2 = (
           return a.fight.fightNum - b.fight.fightNum;
         }
 
-        return (
-          sortStatusTempCode(a.fight[sortBy]) -
-          sortStatusTempCode(b.fight[sortBy])
-        );
+        if (isWaitingOpenOnly)
+          return (
+            sortStatusTempCode(b.fight[sortBy]) -
+            sortStatusTempCode(a.fight[sortBy])
+          );
+        else
+          return (
+            sortStatusTempCode(a.fight[sortBy]) -
+            sortStatusTempCode(b.fight[sortBy])
+          );
       });
     default:
       return data.sort((a: any, b: any) => a.fight[sortBy] - b.fight[sortBy]);

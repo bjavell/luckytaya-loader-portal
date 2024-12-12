@@ -11,6 +11,7 @@ import { eventSort, eventStatus } from "@/util/eventSorting";
 import { fightSort, fightSortV2 } from "@/util/fightSorting";
 import Modal from "@/components/modal";
 import GameUpload from "@/components/gameUpload";
+import ConfirmationModal from "@/components/confirmationModal";
 
 type SabongEvent = {
   entryDateTime: string;
@@ -39,6 +40,7 @@ const Fight = () => {
   const [statuses, setStatuses] = useState([]);
   const [fights, setFights] = useState<any>([]);
   const [errorMessage, setErrorMessage] = useState("");
+  const [isErrorMessageOpen, setIsErrorMessageOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(0);
   const [selectedFight, setSelectedFight] = useState<any>();
@@ -171,15 +173,6 @@ const Fight = () => {
   }, []);
 
   useEffect(() => {
-    if (errorMessage) {
-      alert(errorMessage);
-    }
-    return () => {
-      setErrorMessage("");
-    };
-  }, [errorMessage]);
-
-  useEffect(() => {
     if (statuses) {
       getEvents();
     }
@@ -306,9 +299,8 @@ const Fight = () => {
       .post("/api/event/fight", request)
       .then(() => {
         getFights(selectedEvent);
-        setErrorMessage("");
         setIsModalFightOpen(false);
-        alert("Successfully Saved");
+        setErrorMessage("Successfully Saved");
       })
       .catch((e) => {
         const errorMessages = e.response.data.error;
@@ -343,12 +335,12 @@ const Fight = () => {
     Promise.all(requests)
       .then((results: any) => {
         setIsUploadModalOpen(false);
-        alert("Successfully Uploaded");
+        setErrorMessage("Successfully Uploaded");
+        getFights(selectedEvent);
       })
       .catch((error) => {
         // This runs if any of the promises reject
-        alert("Error in uploading the file.");
-        console.error(error);
+        setErrorMessage("Error in uploading the file.");
       });
   };
   const fightRequest = (request: any) => {
@@ -501,9 +493,25 @@ const Fight = () => {
       </Form>
     );
   };
+  
+  useEffect(() => {
+    if (errorMessage != "") setIsErrorMessageOpen(true);
+  }, [errorMessage]);
+  const onCloseErrorMessage = () => {
+    setIsErrorMessageOpen(false);
+    setErrorMessage("");
+  };
+
   return (
     <div className="flex flex-col gap-4 w-full">
       <h1 className="text-xl">Event Games</h1>
+      <ConfirmationModal
+        isOpen={isErrorMessageOpen}
+        isOkOnly={true}
+        onCancel={() => onCloseErrorMessage()}
+        onConfirm={() => onCloseErrorMessage()}
+        message={errorMessage}
+      ></ConfirmationModal>
       <div className="inline-flex gap-3 items-center">
         <div>
           <label

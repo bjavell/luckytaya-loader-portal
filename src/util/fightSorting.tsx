@@ -23,8 +23,8 @@ const fightSort = (
         }
         if (isWaitingOpenOnly)
           return (
-            sortStatusTempCode(b[sortBy]) -
-            sortStatusTempCode(a[sortBy])
+            (b[sortBy]) -
+            (a[sortBy])
           );
         else
           return sortStatusTempCode(a[sortBy]) - sortStatusTempCode(b[sortBy]);
@@ -61,8 +61,8 @@ const fightSortV2 = (
 
         if (isWaitingOpenOnly)
           return (
-            sortStatusTempCode(b.fight[sortBy]) -
-            sortStatusTempCode(a.fight[sortBy])
+            (b.fight[sortBy]) -
+            (a.fight[sortBy])
           );
         else
           return (

@@ -17,6 +17,7 @@ import Logout from "@/assets/images/Logout.svg";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { useRouter } from "next/navigation";
 import { fightSortV2, fightStatus } from "@/util/fightSorting";
+import isJsonObjectEmpty from "@/util/isJsonObjectEmpty";
 
 type SabongEvent = {
   entryDateTime: string;
@@ -46,6 +47,7 @@ const Fight = () => {
   const [gameData, setGameData] = useState<any>({});
   const [winningSide, setWinningSide] = useState(-1);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [isErrorMessageOpen, setIsErrorMessageOpen] = useState(false);
   const [isModalSendMessageOpen, setIsModalSendMessageOpen] = useState(false);
   const [betDetails, setBetDetails] = useState({
     fId: 0,
@@ -91,13 +93,22 @@ const Fight = () => {
     } catch (error) {}
   }, [messages]);
 
-  useEffect(() => {
-    if (errorMessage) alert(errorMessage);
 
-    return () => {
-      setErrorMessage("");
-    };
+  useEffect(() => {
+    if (errorMessage != "") setIsErrorMessageOpen(true);
   }, [errorMessage]);
+  const onCloseErrorMessage = () => {
+    setIsErrorMessageOpen(false);
+    setErrorMessage("");
+  };
+  useEffect(() => {
+    if (isErrorMessageOpen) {
+      setIsConfirmModalOpen(false);
+      setIsFightStatusModalOpen(false);
+    }
+
+    return () => {};
+  }, [isErrorMessageOpen]);
 
   const getEventStatus = (code: number): any => {
     return statuses.find((x: any) => x.code == code);
@@ -452,6 +463,15 @@ const Fight = () => {
         </button>
       </div>
 
+      <ConfirmationModal
+        isOpen={isErrorMessageOpen}
+        isOkOnly={true}
+        onCancel={() => onCloseErrorMessage()}
+        onConfirm={() => onCloseErrorMessage()}
+        message={errorMessage}
+      ></ConfirmationModal>
+
+
       <div className="flex gap-3 items-center">
         <label
           htmlFor="venueId"
@@ -557,7 +577,7 @@ const Fight = () => {
       {isLoadingWithScreen && (
         <LoadingSpinner size="w-20 h-20" color="border-blue" />
       )}
-      {!isLoading && gameData && (
+      {!isJsonObjectEmpty (gameData) && (
         <div className="grid grid-cols-4 grid-rows-1 gap-4">
           <div className="col-span-3">
             <div className="flex bg-gray13 rounded-xl w-full p-5 capitalize">

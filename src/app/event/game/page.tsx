@@ -15,6 +15,7 @@ import FormField from "@/components/formField";
 import Timer from "@/components/timer";
 import { eventSort, eventStatus } from "@/util/eventSorting";
 import { fightSortV2, fightStatus } from "@/util/fightSorting";
+import isJsonObjectEmpty from "@/util/isJsonObjectEmpty";
 
 type SabongEvent = {
   entryDateTime: string;
@@ -434,6 +435,41 @@ const Fight = () => {
     setIsFightStatusModalOpen(true);
   };
 
+  
+  const onDirectSetFightStatus = async (status : number) => {
+    setIsLoadingWithScreen(true);
+    const request = {
+      fightId: gameData.fight.fightId,
+      fightStatusCode: status,
+    };
+    await axios
+      .post("/api/event/fight/setStatus", request)
+      .then(() => {
+        // alert("Successfully Saved");
+        refreshFight(status == 21);
+        setIsFightStatusModalOpen(false);
+      })
+      .catch((e) => {
+        const errorMessages = e.response.data.error;
+        if (errorMessages) {
+          if (errorMessages["Not found"]) {
+            setErrorMessage(errorMessages["Not found"][0]);
+          } else if (errorMessages["Bad request"]) {
+            setErrorMessage(errorMessages["Bad request"][0]);
+          } else if (errorMessages["Unexpexted Error"]) {
+            setErrorMessage(errorMessages["Unexpexted Error"][0]);
+          } else {
+            setErrorMessage("Oops! something went wrong");
+          }
+        } else {
+          setErrorMessage("Oops! something went wrong");
+        }
+      })
+      .finally(() => {
+        setIsLoadingWithScreen(false);
+      });
+  };
+
   const onConfirmSetFightStatus = async () => {
     setIsLoadingWithScreen(true);
     const request = {
@@ -477,7 +513,7 @@ const Fight = () => {
       )
         return (
           <Button
-            onClick={() => setFightStatus(11)}
+            onClick={() => onDirectSetFightStatus(11)}
             isLoading={isLoading}
             loadingText="Loading..."
             type={"button"}
@@ -491,7 +527,7 @@ const Fight = () => {
       ) {
         return (
           <Button
-            onClick={() => setFightStatus(21)}
+            onClick={() => onDirectSetFightStatus(21)}
             isLoading={isLoading}
             loadingText="Loading..."
             type={"button"}
@@ -519,7 +555,7 @@ const Fight = () => {
       )
         return (
           <Button
-            onClick={() => setFightStatus(12)}
+            onClick={() => onDirectSetFightStatus(12)}
             isLoading={isLoading}
             loadingText="Loading..."
             type={"button"}
@@ -594,7 +630,7 @@ const Fight = () => {
 
   const onEndTimer = () => {
     setTimeout(() => {
-      setFightStatus(12);
+      onDirectSetFightStatus(12);
       setIsTimer(false);
     }, 1000);
   };
@@ -722,7 +758,7 @@ const Fight = () => {
       {isLoadingWithScreen && (
         <LoadingSpinner size="w-20 h-20" color="border-blue" />
       )}
-      {!isLoading && gameData && (
+      {!isJsonObjectEmpty(gameData) && (
         <div className="grid grid-cols-4 grid-rows-1 gap-4">
           <div className="col-span-3">
             <div className="flex bg-gray13 rounded-xl w-full p-5 capitalize">

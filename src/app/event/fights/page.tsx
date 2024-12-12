@@ -240,35 +240,35 @@ const Fight = () => {
       setErrorMessage("Please Enter Pula First Name");
       return;
     }
-    if (!form["meron-breed"].value) {
-      setErrorMessage("Please Enter Pula Last Name");
-      return;
-    }
-    if (!form["meron-weight"].value) {
-      setErrorMessage("Please Enter Pula Age");
-      return;
-    }
-    if (!form["meron-tag"].value) {
-      setErrorMessage("Please Enter Pula Remarks");
-      return;
-    }
+    // if (!form["meron-breed"].value) {
+    //   setErrorMessage("Please Enter Pula Last Name");
+    //   return;
+    // }
+    // if (!form["meron-weight"].value) {
+    //   setErrorMessage("Please Enter Pula Age");
+    //   return;
+    // }
+    // if (!form["meron-tag"].value) {
+    //   setErrorMessage("Please Enter Pula Remarks");
+    //   return;
+    // }
 
     if (!form["wala-owner"].value) {
       setErrorMessage("Please Enter Asul First Name");
       return;
     }
-    if (!form["wala-breed"].value) {
-      setErrorMessage("Please Enter Asul Last Name");
-      return;
-    }
-    if (!form["wala-weight"].value) {
-      setErrorMessage("Please Enter Asul Age");
-      return;
-    }
-    if (!form["wala-tag"].value) {
-      setErrorMessage("Please Enter Asul Remarks");
-      return;
-    }
+    // if (!form["wala-breed"].value) {
+    //   setErrorMessage("Please Enter Asul Last Name");
+    //   return;
+    // }
+    // if (!form["wala-weight"].value) {
+    //   setErrorMessage("Please Enter Asul Age");
+    //   return;
+    // }
+    // if (!form["wala-tag"].value) {
+    //   setErrorMessage("Please Enter Asul Remarks");
+    //   return;
+    // }
     const request = {
       fight: {
         fightId: selectedFight?.fightId,
@@ -280,10 +280,10 @@ const Fight = () => {
           fightId: selectedFight?.fightId,
           id: form["meron-id"]?.value,
           side: 1,
-          owner: form["meron-owner"].value,
-          breed: form["meron-breed"].value,
-          weight: form["meron-weight"].value,
-          tag: form["meron-tag"].value,
+          owner: form["meron-owner"].value ?? "",
+          breed: form["meron-breed"].value?? "",
+          weight: form["meron-weight"].value ?? "",
+          tag: form["meron-tag"].value?? "",
           imageBase64: "",
           operatorId: 0,
         },
@@ -291,10 +291,10 @@ const Fight = () => {
           fightId: selectedFight?.fightId,
           id: form["wala-id"]?.value,
           side: 0,
-          owner: form["wala-owner"].value,
-          breed: form["wala-breed"].value,
-          weight: form["wala-weight"].value,
-          tag: form["wala-tag"].value,
+          owner: form["wala-owner"].value?? "",
+          breed: form["wala-breed"].value?? "",
+          weight: form["wala-weight"].value?? "",
+          tag: form["wala-tag"].value?? "",
           imageBase64: "",
           operatorId: 0,
         },

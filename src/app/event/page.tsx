@@ -144,12 +144,11 @@ const Event = () => {
       setErrorMessage("Please Select Date");
       return;
     }
-
     const request = {
       eventId: form.eventId.value,
       venueId: form.venueId.value,
       eventName: form.eventName.value,
-      eventDate: selectedEvent ? selectedEvent.eventDate : form.eventDate.value,
+      eventDate: selectedEvent ? selectedEvent.eventDate : `${form.eventDate.value}T00:00:00.008Z`,
       webRtcStream: form.webRtcStream.value,
       eventStatusCode:
         selectedEvent != null ? selectedEvent.eventStatusCode : 0,
@@ -261,7 +260,7 @@ const Event = () => {
                 //   onChange={(e) => {
                 //     setEndDate(e.target.value);
                 //   }}
-                type="datetime-local"
+                type="date"
               />
               <FormField
                 name="webRtcStream"
@@ -340,7 +339,7 @@ const Event = () => {
               label: "Event Date",
               format: (val: string) => {
                 const formatDate = new Date(val);
-                return format(formatDate, "yyyy-MM-dd hh:mm:ss a");
+                return format(formatDate, "yyyy-MM-dd");
               },
             },
             {

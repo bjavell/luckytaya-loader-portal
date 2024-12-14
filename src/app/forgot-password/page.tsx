@@ -77,7 +77,7 @@ const ForgotPassword = () => {
             <Form className="w-96 flex flex-col gap-4 justify-center" onSubmit={onToggleConfirmModal} key={`form-${index}`}>
                 {isLoading ? <LoadingSpinner /> : null}
                 <Image src={logo} alt="" className="block lg:hidden m-auto" priority={false} />
-                <FormField name="userId" label="Email Address" placeholder="Enter your username" value={username} onChange={(e) => { setUsername(e.target.value) }} required />
+                <FormField name="userId" label="Username" placeholder="Enter your username" value={username} onChange={(e) => { setUsername(e.target.value) }} required />
                 <Button onClick={onToggleConfirmModal} isLoading={isLoading} loadingText="Loading..." type={'button'}>Submit</Button>
                 {
                     errorMessage !== '' ?

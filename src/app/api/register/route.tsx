@@ -12,7 +12,7 @@ import { type } from "os";
 import { comment } from "postcss";
 
 const tempPassword = process.env.TEMP_PASSWORD
-
+const backofficeUrl = process.env.NEXT_PUBLIC_BACKOFFICE_BASEURL
 
 const sendEmail = async (recipient: string, username: string, password: string) => {
     const transporter = nodemailer.createTransport({
@@ -27,7 +27,7 @@ const sendEmail = async (recipient: string, username: string, password: string) 
         from: process.env.GMAIL_USER,  // Sender's email
         to: recipient,  // Receiver's email
         subject: 'LuckyTaya Registration!',  // Subject
-        text: `Please use this credential for your login. [URL: http://136.158.92.61:6001/login ] [ USERNAME: ${username} ] [ PASSWORD: ${password} ]`
+        text: `Please use this credential for your login. [URL: ${backofficeUrl}/login ] [ USERNAME: ${username} ] [ PASSWORD: ${password} ]`
     }
 
     transporter.sendMail(mailOptions, (error, info) => {
@@ -64,6 +64,21 @@ const POST = async (req: NextRequest) => {
         }
 
         if ((hasMasterAccount?.length > 0 && Number(request.accountType) === Number(6)) || Number(request.accountType) !== Number(6)) {
+
+            const accountExists = await findOne(DB_COLLECTIONS.TAYA_AGENTS, {
+                $or: [
+                    { 'response.email': request.email },
+                    { 'response.phoneNumber': request.phoneNumber },
+                    { 'response.username': request.username }
+                ]
+            })
+
+            if (accountExists) {
+                throw new CustomError('Bad request', {
+                    'Bad request': [`Account already exists`]
+                })
+            }
+
             const registerResponse = await luckTayaAxios.post('/api/v1/User/Register', { ...request, password: generatedPassword })
 
             const { accountNumber, userId } = registerResponse.data
@@ -88,20 +103,6 @@ const POST = async (req: NextRequest) => {
                 accountType: request.accountType
             }
 
-            const accountExists = await findOne(DB_COLLECTIONS.TAYA_AGENTS, {
-                $or: [
-                    { 'response.email': request.email },
-                    { 'response.phoneNumber': request.phoneNumber },
-                    { 'response.username': request.username }
-                ]
-            })
-
-
-            if (accountExists) {
-                throw new CustomError('Bad request', {
-                    'Bad request': [`Account already exists`]
-                })
-            }
 
 
             await luckTayaAxios.put('/api/v1/User/UserRoleAccountTypeUpdate', updateAccount, {

@@ -567,7 +567,7 @@ const Fight = () => {
               label: "Entry Date Time",
               format: (val: string) => {
                 const formatDate = new Date(val);
-                return format(formatDate, "yyyy-MM-dd hh:mm:ss a");
+                return format(formatDate, "yyyy-MM-dd");
               },
             },
             {

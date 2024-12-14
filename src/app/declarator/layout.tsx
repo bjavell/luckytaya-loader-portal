@@ -1,6 +1,5 @@
 import { ReactNode } from "react";
 import { Metadata } from "next";
-import { WebSocketProvider } from "@/context/webSocketContext";
 import { getCurrentSession } from "@/context/auth";
 import CommonLayout from "../layout/commonLayout";
 
@@ -9,7 +8,7 @@ const GameLayout: React.FC<{ children: ReactNode }> = async ({ children }) => {
   const token = session ? session.token : "";
   return (
     <CommonLayout slug="MAIN DASHBOARD" hasSideBar={false}>
-      <WebSocketProvider token={token}>{children}</WebSocketProvider>
+      {children}
     </CommonLayout>
   );
 };

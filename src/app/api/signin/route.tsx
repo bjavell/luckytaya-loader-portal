@@ -26,11 +26,20 @@ const POST = async (req: NextRequest) => {
                     'Not found': [`User '${request.username}' not found.`]
                 })
             }
-        } else if (!responseData.roles.includes('acctmgr') && !responseData.roles.includes('eventmgr') && !responseData.roles.includes('master') && !responseData.roles.includes('finance')) {
-            throw new CustomError('Invalid Account Type', {
-                'Not found': [`User '${request.username}' not found.`]
-            })
+        } else {
+            if (responseData.roles.includes('admin')) {
+                throw new CustomError('Invalid Account Type', {
+                    'Not found': [`User '${request.username}' not found.`]
+                })
+            }
+
+            if (!responseData.roles.includes('acctmgr') && !responseData.roles.includes('eventmgr') && !responseData.roles.includes('master') && !responseData.roles.includes('finance')) {
+                throw new CustomError('Invalid Account Type', {
+                    'Not found': [`User '${request.username}' not found.`]
+                })
+            }
         }
+
 
         await setSession(responseData)
         return NextResponse.json({ 'message': 'Successfully Logged In!' })

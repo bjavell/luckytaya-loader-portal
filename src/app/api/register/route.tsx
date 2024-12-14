@@ -13,6 +13,7 @@ import { comment } from "postcss";
 
 const tempPassword = process.env.TEMP_PASSWORD
 
+const backofficeUrl = process.env.NEXT_PUBLIC_BACKOFFICE_BASEURL
 
 const sendEmail = async (recipient: string, username: string, password: string) => {
     const transporter = nodemailer.createTransport({
@@ -26,8 +27,8 @@ const sendEmail = async (recipient: string, username: string, password: string) 
     const mailOptions = {
         from: process.env.GMAIL_USER,  // Sender's email
         to: recipient,  // Receiver's email
-        subject: '[DEV] LuckyTaya Registration!',  // Subject
-        text: `Please use this credential for your login. [URL: http://136.158.92.61:6001/login ] [ USERNAME: ${username} ] [ PASSWORD: ${password} ]`
+        subject: 'LuckyTaya Registration!',  // Subject
+        text: `Please use this credential for your login. [URL: ${backofficeUrl}/login ] [ USERNAME: ${username} ] [ PASSWORD: ${password} ]`
     }
 
     transporter.sendMail(mailOptions, (error, info) => {

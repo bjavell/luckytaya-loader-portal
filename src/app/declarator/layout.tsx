@@ -3,9 +3,7 @@ import { Metadata } from "next";
 import { getCurrentSession } from "@/context/auth";
 import CommonLayout from "../layout/commonLayout";
 
-const GameLayout: React.FC<{ children: ReactNode }> = async ({ children }) => {
-  const session = await getCurrentSession();
-  const token = session ? session.token : "";
+const GameLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
   return (
     <CommonLayout slug="MAIN DASHBOARD" hasSideBar={false}>
       {children}

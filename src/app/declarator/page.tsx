@@ -16,6 +16,8 @@ import Image from "next/image";
 import Logout from "@/assets/images/Logout.svg";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { useRouter } from "next/navigation";
+import { fightSortV2, fightStatus } from "@/util/fightSorting";
+import isJsonObjectEmpty from "@/util/isJsonObjectEmpty";
 
 type SabongEvent = {
   entryDateTime: string;
@@ -45,6 +47,7 @@ const Fight = () => {
   const [gameData, setGameData] = useState<any>({});
   const [winningSide, setWinningSide] = useState(-1);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const [isErrorMessageOpen, setIsErrorMessageOpen] = useState(false);
   const [isModalSendMessageOpen, setIsModalSendMessageOpen] = useState(false);
   const [betDetails, setBetDetails] = useState({
     fId: 0,
@@ -77,23 +80,35 @@ const Fight = () => {
           case 22:
             break;
           // result
+          case 30:
+            refreshFight(true);
+            break;
           case 50:
             break;
           default:
-            // refreshFight();
+            refreshFight();
             break;
         }
       }
     } catch (error) {}
   }, [messages]);
 
-  useEffect(() => {
-    if (errorMessage) alert(errorMessage);
 
-    return () => {
-      setErrorMessage("");
-    };
+  useEffect(() => {
+    if (errorMessage != "") setIsErrorMessageOpen(true);
   }, [errorMessage]);
+  const onCloseErrorMessage = () => {
+    setIsErrorMessageOpen(false);
+    setErrorMessage("");
+  };
+  useEffect(() => {
+    if (isErrorMessageOpen) {
+      setIsConfirmModalOpen(false);
+      setIsFightStatusModalOpen(false);
+    }
+
+    return () => {};
+  }, [isErrorMessageOpen]);
 
   const getEventStatus = (code: number): any => {
     return statuses.find((x: any) => x.code == code);
@@ -130,8 +145,7 @@ const Fight = () => {
         },
       })
       .then((response) => {
-        const data = response.data;
-
+        const data = fightSortV2("fightStatusCode", response.data, true);
         setFights(data);
         if (data.length > 0) setFight(getFightWithStatus(data[0].fight));
       })
@@ -197,10 +211,12 @@ const Fight = () => {
     setGameData(game);
     setIsLoading(false);
   };
-  
-  const refreshFight = async () => {
+
+  const refreshFight = async (isRefreshFight : boolean = false) => {
     if (!gameData) return;
     setIsLoadingWithScreen(true);
+    if (isRefreshFight) await getFights(selectedEvent.eventId);
+  
     const bet = await axios
       .get("/api/event/fight/byId", {
         params: {
@@ -328,7 +344,7 @@ const Fight = () => {
       })
       .finally(() => {
         onCancel();
-        refreshFight();
+        refreshFight(true);
         setIsLoadingWithScreen(false);
       });
   };
@@ -447,6 +463,15 @@ const Fight = () => {
         </button>
       </div>
 
+      <ConfirmationModal
+        isOpen={isErrorMessageOpen}
+        isOkOnly={true}
+        onCancel={() => onCloseErrorMessage()}
+        onConfirm={() => onCloseErrorMessage()}
+        message={errorMessage}
+      ></ConfirmationModal>
+
+
       <div className="flex gap-3 items-center">
         <label
           htmlFor="venueId"
@@ -552,7 +577,7 @@ const Fight = () => {
       {isLoadingWithScreen && (
         <LoadingSpinner size="w-20 h-20" color="border-blue" />
       )}
-      {!isLoading && gameData && (
+      {!isJsonObjectEmpty (gameData) && (
         <div className="grid grid-cols-4 grid-rows-1 gap-4">
           <div className="col-span-3">
             <div className="flex bg-gray13 rounded-xl w-full p-5 capitalize">
@@ -570,10 +595,10 @@ const Fight = () => {
                     </label>
                   </div>
                   <div>
-                    <label>Total Fights {gameData.totalFight}</label>
+                    <label>Total Games {gameData.totalFight}</label>
                   </div>
                   <div>
-                    <label>Fight # {gameData.fight.fightNum}</label>
+                    <label>Game # {gameData.fight.fightNum}</label>
                   </div>
                 </div>
 
@@ -581,7 +606,7 @@ const Fight = () => {
                   {renderEventStatusButton()}
                   <br />
                   <div className="bg-cursedBlack text-center p-3 rounded-xl">
-                    Game : {gameData.fight.fightStatusName}
+                    Game : {fightStatus(gameData.fight.fightStatusCode)}
                   </div>
                 </div>
               </div>

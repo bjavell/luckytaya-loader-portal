@@ -2,7 +2,7 @@ import React from "react";
 
 const MeronWalaWin = ({ type, onClick }: any) => {
   const color = type == 1 ? "meronColor" : "walaColor";
-  const title = type == 1 ? "Meron" : "Wala";
+  const title = type == 1 ? "Pula" : "Asul";
 
   return (
     <div className="p-2  rounded-lg bg-cursedBlack cursor-pointer" onClick={onClick}>

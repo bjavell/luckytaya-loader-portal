@@ -7,6 +7,11 @@ import { format, formatDate, getDate } from "date-fns";
 import FormField from "@/components/formField";
 import Form from "@/components/form";
 import Button from "@/components/button";
+import { eventSort, eventStatus } from "@/util/eventSorting";
+import { fightSort, fightSortV2 } from "@/util/fightSorting";
+import Modal from "@/components/modal";
+import GameUpload from "@/components/gameUpload";
+import ConfirmationModal from "@/components/confirmationModal";
 
 type SabongEvent = {
   entryDateTime: string;
@@ -35,11 +40,13 @@ const Fight = () => {
   const [statuses, setStatuses] = useState([]);
   const [fights, setFights] = useState<any>([]);
   const [errorMessage, setErrorMessage] = useState("");
+  const [isErrorMessageOpen, setIsErrorMessageOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(0);
   const [selectedFight, setSelectedFight] = useState<any>();
   const [isModalFightOpen, setIsModalFightOpen] = useState(false);
   const [fightList, setFightList] = useState<any>([]);
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   // const [walaImage, setWalaImage] = useState("");
   // const [meronImage, setMeronImage] = useState("");
   // const handleFileChange = (
@@ -98,7 +105,8 @@ const Fight = () => {
     await axios
       .get("/api/event/list")
       .then((response) => {
-        const data = response.data;
+        let data = response.data;
+        data = eventSort("eventStatusCode", data);
         setEvents(data);
         if (data) setSelectedEvent(data[0].eventId);
       })
@@ -134,22 +142,26 @@ const Fight = () => {
           };
         });
 
-        const fightlst = data.map((e: any) => {
+        let fightlst = data.map((e: any) => {
           const meron = e.fightDetails.find((x: any) => x.side == 1);
           const wala = e.fightDetails.find((x: any) => x.side == 0);
-        
+
           return {
             ...e.fight,
             fightDetails: e.fightDetails,
-            meron : meron ? `${meron.owner} ${meron.breed}`: "",
-            wala : wala ? `${wala.owner} ${wala.breed}`: "",
+            meron: meron ? `${meron.owner} ${meron.breed}` : "",
+            wala: wala ? `${wala.owner} ${wala.breed}` : "",
             fightStatusName: e.fightStatusName,
           };
         });
+
+        fightlst = fightSort("fightNum", fightlst);
         setFightList(fightlst);
-        setFights(data);
+        setFights(fightSort("fightNum", data));
       })
-      .catch(() => {});
+      .catch((e) => {
+        console.log(e);
+      });
   };
 
   useEffect(() => {
@@ -159,15 +171,6 @@ const Fight = () => {
 
     getData();
   }, []);
-
-  useEffect(() => {
-    if (errorMessage) {
-      alert(errorMessage);
-    }
-    return () => {
-      setErrorMessage("");
-    };
-  }, [errorMessage]);
 
   useEffect(() => {
     if (statuses) {
@@ -201,7 +204,11 @@ const Fight = () => {
   };
 
   const getFightDetailValue = (side: any, property: any) => {
-    if (selectedFight && Object.keys(selectedFight).length > 0 && selectedFight.fightDetails.length > 0) {
+    if (
+      selectedFight &&
+      Object.keys(selectedFight).length > 0 &&
+      selectedFight.fightDetails.length > 0
+    ) {
       const { fightDetails } = selectedFight;
 
       const fightSide = fightDetails.find((x: any) => x.side == side);
@@ -223,38 +230,38 @@ const Fight = () => {
       return;
     }
     if (!form["meron-owner"].value) {
-      setErrorMessage("Please Enter Meron First Name");
+      setErrorMessage("Please Enter Pula First Name");
       return;
     }
-    if (!form["meron-breed"].value) {
-      setErrorMessage("Please Enter Meron Last Name");
-      return;
-    }
-    if (!form["meron-weight"].value) {
-      setErrorMessage("Please Enter Meron Age");
-      return;
-    }
-    if (!form["meron-tag"].value) {
-      setErrorMessage("Please Enter Meron Remarks");
-      return;
-    }
+    // if (!form["meron-breed"].value) {
+    //   setErrorMessage("Please Enter Pula Last Name");
+    //   return;
+    // }
+    // if (!form["meron-weight"].value) {
+    //   setErrorMessage("Please Enter Pula Age");
+    //   return;
+    // }
+    // if (!form["meron-tag"].value) {
+    //   setErrorMessage("Please Enter Pula Remarks");
+    //   return;
+    // }
 
     if (!form["wala-owner"].value) {
-      setErrorMessage("Please Enter Wala First Name");
+      setErrorMessage("Please Enter Asul First Name");
       return;
     }
-    if (!form["wala-breed"].value) {
-      setErrorMessage("Please Enter Wala Last Name");
-      return;
-    }
-    if (!form["wala-weight"].value) {
-      setErrorMessage("Please Enter Wala Age");
-      return;
-    }
-    if (!form["wala-tag"].value) {
-      setErrorMessage("Please Enter Wala Remarks");
-      return;
-    }
+    // if (!form["wala-breed"].value) {
+    //   setErrorMessage("Please Enter Asul Last Name");
+    //   return;
+    // }
+    // if (!form["wala-weight"].value) {
+    //   setErrorMessage("Please Enter Asul Age");
+    //   return;
+    // }
+    // if (!form["wala-tag"].value) {
+    //   setErrorMessage("Please Enter Asul Remarks");
+    //   return;
+    // }
     const request = {
       fight: {
         fightId: selectedFight?.fightId,
@@ -266,10 +273,10 @@ const Fight = () => {
           fightId: selectedFight?.fightId,
           id: form["meron-id"]?.value,
           side: 1,
-          owner: form["meron-owner"].value,
-          breed: form["meron-breed"].value,
-          weight: form["meron-weight"].value,
-          tag: form["meron-tag"].value,
+          owner: form["meron-owner"].value ?? "",
+          breed: form["meron-breed"].value?? "",
+          weight: form["meron-weight"].value ?? "",
+          tag: form["meron-tag"].value?? "",
           imageBase64: "",
           operatorId: 0,
         },
@@ -277,10 +284,10 @@ const Fight = () => {
           fightId: selectedFight?.fightId,
           id: form["wala-id"]?.value,
           side: 0,
-          owner: form["wala-owner"].value,
-          breed: form["wala-breed"].value,
-          weight: form["wala-weight"].value,
-          tag: form["wala-tag"].value,
+          owner: form["wala-owner"].value?? "",
+          breed: form["wala-breed"].value?? "",
+          weight: form["wala-weight"].value?? "",
+          tag: form["wala-tag"].value?? "",
           imageBase64: "",
           operatorId: 0,
         },
@@ -292,9 +299,8 @@ const Fight = () => {
       .post("/api/event/fight", request)
       .then(() => {
         getFights(selectedEvent);
-        setErrorMessage("");
         setIsModalFightOpen(false);
-        alert("Successfully Saved");
+        setErrorMessage("Successfully Saved");
       })
       .catch((e) => {
         const errorMessages = e.response.data.error;
@@ -318,6 +324,66 @@ const Fight = () => {
       });
   };
 
+  const batchUpload = (items: any) => {
+    console.log(items);
+    const requests = [];
+    for (let index = 0; index < items.length; index++) {
+      const element = items[index];
+      requests.push(fightRequest(element));
+    }
+    setIsLoading(true);
+    Promise.all(requests)
+      .then((results: any) => {
+        setIsUploadModalOpen(false);
+        setErrorMessage("Successfully Uploaded");
+        getFights(selectedEvent);
+      })
+      .catch((error) => {
+        // This runs if any of the promises reject
+        setErrorMessage("Error in uploading the file.");
+      });
+  };
+  const fightRequest = (request: any) => {
+    return axios.post("/api/event/fight", request);
+  };
+  const onUpload = (csvData: any) => {
+    const items = csvData.map((x: any) => {
+      return {
+        fight: {
+          fightId: 0,
+          fightNum: x["Game Number"],
+          eventId: selectedEvent,
+        },
+        fightDetails: [
+          {
+            fightId: 0,
+            id: 0,
+            side: 1,
+            owner: x["Pula"],
+            breed: "",
+            weight: "",
+            tag: "",
+            imageBase64: "",
+            operatorId: 0,
+          },
+          {
+            fightId: 0,
+            id: 0,
+            side: 0,
+            owner: x["Asul"],
+            breed: "",
+            weight: "",
+            tag: "",
+            imageBase64: "",
+            operatorId: 0,
+          },
+        ],
+      };
+    });
+
+    batchUpload(items);
+  };
+
   const renderBody = () => {
     return (
       <Form onSubmit={onFightDetailsSubmit} className="">
@@ -331,6 +397,13 @@ const Fight = () => {
           />
         </div>
 
+        <Modal
+          size="medium"
+          isOpen={isUploadModalOpen}
+          onClose={() => setIsUploadModalOpen(false)}
+        >
+          <GameUpload onUpload={onUpload} />
+        </Modal>
         <div className="col-span-4 grid grid-cols-5 grid-rows-1 gap-2">
           <label>First Name</label>
           <label>Last Name</label>
@@ -420,29 +493,58 @@ const Fight = () => {
       </Form>
     );
   };
+  
+  useEffect(() => {
+    if (errorMessage != "") setIsErrorMessageOpen(true);
+  }, [errorMessage]);
+  const onCloseErrorMessage = () => {
+    setIsErrorMessageOpen(false);
+    setErrorMessage("");
+  };
+
   return (
     <div className="flex flex-col gap-4 w-full">
       <h1 className="text-xl">Event Games</h1>
-      <div>
-        <label
-          htmlFor="venueId"
-          className="px-2 text-white font-sans font-light text-nowrap "
+      <ConfirmationModal
+        isOpen={isErrorMessageOpen}
+        isOkOnly={true}
+        onCancel={() => onCloseErrorMessage()}
+        onConfirm={() => onCloseErrorMessage()}
+        message={errorMessage}
+      ></ConfirmationModal>
+      <div className="inline-flex gap-3 items-center">
+        <div>
+          <label
+            htmlFor="venueId"
+            className="px-2 text-white font-sans font-light text-nowrap "
+          >
+            Select Event
+          </label>
+          <select
+            onChange={handleEventChange}
+            name="venueId"
+            className="peer rounded-xlg py-4 px-4 bg-semiBlack shadow-sm font-sans font-light tacking-[5%] text-white invalid:border-red-500 invalid:[&.visited]:border invalid:[&.visited]:border-[#E74C3C]"
+          >
+            {events.map((item, index): any => {
+              return (
+                <option key={`option-${index}`} value={item.eventId}>
+                  {formatDate(item.eventDate, "MM/dd/yyyy")} - {item.eventName}{" "}
+                  - {eventStatus(item.eventStatusCode)}
+                </option>
+              );
+            })}
+          </select>
+        </div>
+        <Button
+          onClick={() => {
+            setIsUploadModalOpen(true);
+          }}
+          isLoading={false}
+          loadingText="Loading..."
+          type={"button"}
         >
-          Select Event
-        </label>
-        <select
-          onChange={handleEventChange}
-          name="venueId"
-          className="peer rounded-xlg py-4 px-4 bg-semiBlack shadow-sm font-sans font-light tacking-[5%] text-white invalid:border-red-500 invalid:[&.visited]:border invalid:[&.visited]:border-[#E74C3C]"
-        >
-          {events.map((item, index): any => {
-            return (
-              <option key={`option-${index}`} value={item.eventId}>
-                 {formatDate(item.eventDate, "MM/dd/yyyy")} - {item.eventName}
-              </option>
-            );
-          })}
-        </select>
+          Upload Game
+        </Button>
       </div>
       {/* <div className="w-sm">
         <Button
@@ -476,17 +578,17 @@ const Fight = () => {
               key: "fightNum",
               label: "Game Number",
             },
-            
+
             {
               key: "meron",
               label: "Pula",
             },
-            
+
             {
               key: "wala",
               label: "Asul",
             },
-            
+
             {
               key: "fightStatusName",
               label: "Status",

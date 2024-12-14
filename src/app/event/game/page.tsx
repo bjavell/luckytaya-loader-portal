@@ -13,6 +13,9 @@ import LoadingSpinner from "@/components/loadingSpinner";
 import Form from "@/components/form";
 import FormField from "@/components/formField";
 import Timer from "@/components/timer";
+import { eventSort, eventStatus } from "@/util/eventSorting";
+import { fightSortV2, fightStatus } from "@/util/fightSorting";
+import isJsonObjectEmpty from "@/util/isJsonObjectEmpty";
 
 type SabongEvent = {
   entryDateTime: string;
@@ -36,6 +39,7 @@ const Fight = () => {
   const [fight, setFight] = useState<any>(null);
   const [fights, setFights] = useState<any>([]);
   const [errorMessage, setErrorMessage] = useState("");
+  const [isErrorMessageOpen, setIsErrorMessageOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
   const [gameData, setGameData] = useState<any>({});
@@ -77,9 +81,9 @@ const Fight = () => {
             break;
           // result
           case 50:
+            refreshFight(true);
             break;
           default:
-            // refreshFight();
             break;
         }
       }
@@ -87,12 +91,20 @@ const Fight = () => {
   }, [messages]);
 
   useEffect(() => {
-    if (errorMessage) alert(errorMessage);
-
-    return () => {
-      setErrorMessage("");
-    };
+    if (errorMessage != "") setIsErrorMessageOpen(true);
   }, [errorMessage]);
+  const onCloseErrorMessage = () => {
+    setIsErrorMessageOpen(false);
+    setErrorMessage("");
+  };
+  useEffect(() => {
+    if (isErrorMessageOpen) {
+      setIsConfirmModalOpen(false);
+      setIsFightStatusModalOpen(false);
+    }
+
+    return () => {};
+  }, [isErrorMessageOpen]);
 
   const getEventStatus = (code: number): any => {
     return statuses.find((x: any) => x.code == code);
@@ -101,7 +113,8 @@ const Fight = () => {
     await axios
       .get("/api/event/list-open")
       .then((response) => {
-        const data = response.data;
+        let data = response.data;
+        data = eventSort("eventStatusCode", data);
         setEvents(data);
         if (data) setSelectedEvent(data[0]);
       })
@@ -129,8 +142,7 @@ const Fight = () => {
         },
       })
       .then((response) => {
-        const data = response.data;
-
+        const data = fightSortV2("fightStatusCode", response.data, true);
         setFights(data);
         if (data.length > 0) setFight(getFightWithStatus(data[0].fight));
       })
@@ -197,9 +209,10 @@ const Fight = () => {
     setIsLoading(false);
   };
 
-  const refreshFight = async () => {
+  const refreshFight = async (isRefreshFight: boolean = false) => {
     if (!gameData) return;
     setIsLoadingWithScreen(true);
+    if (isRefreshFight) await getFights(selectedEvent.eventId);
     const bet = await axios
       .get("/api/event/fight/byId", {
         params: {
@@ -324,7 +337,7 @@ const Fight = () => {
       })
       .finally(() => {
         onCancel();
-        refreshFight();
+        refreshFight(true);
         setIsLoadingWithScreen(false);
       });
   };
@@ -400,7 +413,6 @@ const Fight = () => {
         setIsLoadingWithScreen(false);
         setDuration(60000);
         setIsTimer(true);
-    
       });
   };
 
@@ -423,6 +435,41 @@ const Fight = () => {
     setIsFightStatusModalOpen(true);
   };
 
+  
+  const onDirectSetFightStatus = async (status : number) => {
+    setIsLoadingWithScreen(true);
+    const request = {
+      fightId: gameData.fight.fightId,
+      fightStatusCode: status,
+    };
+    await axios
+      .post("/api/event/fight/setStatus", request)
+      .then(() => {
+        // alert("Successfully Saved");
+        refreshFight(status == 21);
+        setIsFightStatusModalOpen(false);
+      })
+      .catch((e) => {
+        const errorMessages = e.response.data.error;
+        if (errorMessages) {
+          if (errorMessages["Not found"]) {
+            setErrorMessage(errorMessages["Not found"][0]);
+          } else if (errorMessages["Bad request"]) {
+            setErrorMessage(errorMessages["Bad request"][0]);
+          } else if (errorMessages["Unexpexted Error"]) {
+            setErrorMessage(errorMessages["Unexpexted Error"][0]);
+          } else {
+            setErrorMessage("Oops! something went wrong");
+          }
+        } else {
+          setErrorMessage("Oops! something went wrong");
+        }
+      })
+      .finally(() => {
+        setIsLoadingWithScreen(false);
+      });
+  };
+
   const onConfirmSetFightStatus = async () => {
     setIsLoadingWithScreen(true);
     const request = {
@@ -433,7 +480,7 @@ const Fight = () => {
       .post("/api/event/fight/setStatus", request)
       .then(() => {
         // alert("Successfully Saved");
-        refreshFight();
+        refreshFight(fightStatusCode == 21);
         setIsFightStatusModalOpen(false);
       })
       .catch((e) => {
@@ -466,7 +513,7 @@ const Fight = () => {
       )
         return (
           <Button
-            onClick={() => setFightStatus(11)}
+            onClick={() => onDirectSetFightStatus(11)}
             isLoading={isLoading}
             loadingText="Loading..."
             type={"button"}
@@ -480,7 +527,7 @@ const Fight = () => {
       ) {
         return (
           <Button
-            onClick={() => setFightStatus(21)}
+            onClick={() => onDirectSetFightStatus(21)}
             isLoading={isLoading}
             loadingText="Loading..."
             type={"button"}
@@ -508,7 +555,7 @@ const Fight = () => {
       )
         return (
           <Button
-            onClick={() => setFightStatus(12)}
+            onClick={() => onDirectSetFightStatus(12)}
             isLoading={isLoading}
             loadingText="Loading..."
             type={"button"}
@@ -583,7 +630,7 @@ const Fight = () => {
 
   const onEndTimer = () => {
     setTimeout(() => {
-      setFightStatus(12);
+      onDirectSetFightStatus(12);
       setIsTimer(false);
     }, 1000);
   };
@@ -605,7 +652,8 @@ const Fight = () => {
           {events.map((item, index): any => {
             return (
               <option key={`option-${index}`} value={index}>
-                {item.eventName}
+                {formatDate(item.eventDate, "MM/dd/yyyy")} - {item.eventName} -{" "}
+                {eventStatus(item.eventStatusCode)}
               </option>
             );
           })}
@@ -630,9 +678,10 @@ const Fight = () => {
             );
           })}
         </select>
+    
       </div>
       <h1>{isLoading && <label>{"   "}Loading ...</label>}</h1>
-
+  
       <Modal size="medium" isOpen={isModalOpen} onClose={closeModal}>
         <label className="text-[20px]">Select Winner Side</label>
         <br />
@@ -691,6 +740,14 @@ const Fight = () => {
       ></ConfirmationModal>
 
       <ConfirmationModal
+        isOpen={isErrorMessageOpen}
+        isOkOnly={true}
+        onCancel={() => onCloseErrorMessage()}
+        onConfirm={() => onCloseErrorMessage()}
+        message={errorMessage}
+      ></ConfirmationModal>
+
+      <ConfirmationModal
         isOpen={isFightStatusModalOpen}
         title={confirmTitle}
         onCancel={onCancelSetFight}
@@ -701,7 +758,7 @@ const Fight = () => {
       {isLoadingWithScreen && (
         <LoadingSpinner size="w-20 h-20" color="border-blue" />
       )}
-      {!isLoading && gameData && (
+      {!isJsonObjectEmpty(gameData) && (
         <div className="grid grid-cols-4 grid-rows-1 gap-4">
           <div className="col-span-3">
             <div className="flex bg-gray13 rounded-xl w-full p-5 capitalize">
@@ -736,7 +793,7 @@ const Fight = () => {
                   )}
                   <br />
                   <div className="bg-cursedBlack text-center p-3 rounded-xl">
-                    Game : {gameData.fight.fightStatusName}
+                    Game : {fightStatus(gameData.fight.fightStatusCode)}
                   </div>
                 </div>
               </div>

@@ -9,6 +9,7 @@ import Form from "@/components/form";
 import Button from "@/components/button";
 import { formatMoney } from "@/util/textUtil";
 import Modal from "@/components/modal";
+import { eventSort } from "@/util/eventSorting";
 
 type SabongEvent = {
   entryDateTime: string;
@@ -25,6 +26,14 @@ type VenueType = {
   venueName: string;
   venueId: number;
 };
+
+const options = [
+  {
+    name: "Status",
+    value: "eventStatusCode",
+  },
+  { name: "Date", value: "eventDate" },
+];
 const Event = () => {
   const [events, setEvents] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -33,6 +42,7 @@ const Event = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
+  const [sortBy, setSortBy] = useState(options[0].value);
 
   const getEventStatus = (code: number): any => {
     return statuses.find((x: any) => x.code == code);
@@ -54,6 +64,8 @@ const Event = () => {
             venueName: location.venueName,
           };
         });
+
+        data = eventSort(sortBy,data)
         setEvents(data);
       })
       .catch(() => {
@@ -97,6 +109,15 @@ const Event = () => {
     getData();
   }, []);
 
+
+  useEffect(() => {
+    if(events){
+      const data = Object.assign([],events)
+      setEvents(eventSort(sortBy,data))
+    }
+  }, [sortBy])
+  
+
   useEffect(() => {
     if (statuses && venues) {
       getEvents();
@@ -130,8 +151,10 @@ const Event = () => {
       eventName: form.eventName.value,
       eventDate: selectedEvent ? selectedEvent.eventDate : form.eventDate.value,
       webRtcStream: form.webRtcStream.value,
-      eventStatusCode: selectedEvent != null ? selectedEvent.eventStatusCode : 0,
-      eventStatusCodeNew: selectedEvent != null ? form.eventStatusCodeNew.value : 0,
+      eventStatusCode:
+        selectedEvent != null ? selectedEvent.eventStatusCode : 0,
+      eventStatusCodeNew:
+        selectedEvent != null ? form.eventStatusCodeNew.value : 0,
     };
 
     await axios
@@ -166,10 +189,10 @@ const Event = () => {
   const closeModal = () => {
     setIsModalOpen(false);
   };
-  const onNewEvent = () =>{
-    setSelectedEvent(null)
-    setIsModalOpen(true)
-  }
+  const onNewEvent = () => {
+    setSelectedEvent(null);
+    setIsModalOpen(true);
+  };
   return (
     <div className="flex flex-col gap-4 w-full">
       <h1 className="text-xl">Events</h1>
@@ -284,6 +307,29 @@ const Event = () => {
           </Form>{" "}
         </div>
       </Modal>
+      <div className="inline-flex items-center gap-2">
+        <label
+          htmlFor="accountType"
+          className="text-white font-sans font-light text-nowrap text-xs"
+        >
+          Sort By:
+        </label>
+        <select
+          id="sortBy"
+          className="rounded-xlg py-4 px-4 bg-semiBlack font-sans font-light text-sm tacking-[5%] text-white"
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value)}
+          required
+        >
+          {options.map((e: any) => {
+            return (
+              <option key={e.value} value={e.value}>
+                {e.name}
+              </option>
+            );
+          })}
+        </select>
+      </div>
       <div className="flex flex-col">
         <Tables
           primaryId="id"

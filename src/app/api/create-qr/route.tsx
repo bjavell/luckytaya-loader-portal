@@ -11,14 +11,15 @@ import { getCurrentSession } from "@/context/auth"
 
 const mchId = process.env.NEXT_PUBLIC_STARPAY_MERCHANT_ID
 const name = process.env.NEXT_PUBLIC_PAYMENT_NAME
+const backofficeUrl = process.env.NEXT_PUBLIC_BACKOFFICE_BASEURL
 
 const createRequest = (req: NextRequest, privateKey: Buffer, type: string) => {
 
     let notifyUrl
     if (type === TRAN_TYPE.CASHIN) {
-        notifyUrl = 'http://136.158.92.61:6001/api/notify/cashin'
+        notifyUrl = `${backofficeUrl}/api/notify/cashin`
     } else {
-        notifyUrl = 'http://136.158.92.61:6001/api/notify/cashout'
+        notifyUrl = `${backofficeUrl}/api/notify/cashout`
     }
 
 

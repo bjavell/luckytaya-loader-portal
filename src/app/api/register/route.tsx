@@ -12,7 +12,6 @@ import { type } from "os";
 import { comment } from "postcss";
 
 const tempPassword = process.env.TEMP_PASSWORD
-
 const backofficeUrl = process.env.NEXT_PUBLIC_BACKOFFICE_BASEURL
 
 const sendEmail = async (recipient: string, username: string, password: string) => {

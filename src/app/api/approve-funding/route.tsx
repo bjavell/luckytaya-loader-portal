@@ -13,11 +13,11 @@ const POST = async (req: NextRequest) => {
         const currentSession = await getCurrentSession()
         const { id } = await req.json()
 
-        console.log('here!')
+        //console.log('here!')
         const query = { _id: new ObjectId(id) }
         const fundingRequests = await findOne(DB_COLLECTIONS.FUNDING_REQUESTS, query)
 
-        console.log(fundingRequests)
+        //console.log(fundingRequests)
         if (fundingRequests) {
 
             await luckTayaAxios.get(`/api/v1/Account/transferV2`, {

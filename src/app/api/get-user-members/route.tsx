@@ -2,7 +2,7 @@ import { DB_COLLECTIONS } from "@/classes/constants"
 import { getCurrentSession } from "@/context/auth"
 import { luckTayaAxios } from "@/util/axiosUtil"
 import { formatGenericErrorResponse } from "@/util/commonResponse"
-import { findAll } from "@/util/dbUtil"
+import { findAll, findOne } from "@/util/dbUtil"
 import { NextRequest, NextResponse } from "next/server"
 
 
@@ -35,12 +35,12 @@ const GET = async (req: NextRequest) => {
             let filteredDirectMemberResponse
             if (type === 'masterAgent') {
 
-                console.log(directMemberResponse.data)
+                //console.log(directMemberResponse.data)
                 const getAllAgentOfMasterAgents = await findAll(DB_COLLECTIONS.TAYA_AGENTS, {})
 
                 filteredDirectMemberResponse = directMemberResponse.data.map((member: any) => {
                     const matchItem = getAllAgentOfMasterAgents.find((agent: any) => Number(agent.response.accountNumber) === Number(member.accountNumber))
-                    console.log(matchItem)
+                    //console.log(matchItem)
                     if (matchItem) {
                         return {
                             ...member,
@@ -88,7 +88,7 @@ const GET = async (req: NextRequest) => {
                 })
                     .filter((orphan: any) =>
                         getAllAgentOfMasterAgents.some((agent: any) => {
-                            console.log(orphan, agent, orphan.accountNumber === agent.response.accountNumber)
+                            //console.log(orphan, agent, orphan.accountNumber === agent.response.accountNumber)
                             return orphan.accountNumber === agent.response.accountNumber
                         })
                     )
@@ -108,10 +108,23 @@ const GET = async (req: NextRequest) => {
                     'Authorization': `Bearer ${currentSession.token}`,
                 },
             })
-            const getAllAgentPlayers = await findAll(DB_COLLECTIONS.TAYA_USERS, { agentReferralCode: String(currentSession.referralCode) })
 
 
-            console.log(getAllAgentPlayers)
+            const config = await findOne(DB_COLLECTIONS.CONFIG, { code: 'CFG0001' })
+
+            let getAllAgentPlayers
+            if (config) {
+                if (config.mainAgentAccount === currentSession.accountNumber) {
+                    getAllAgentPlayers = await findAll(DB_COLLECTIONS.TAYA_USERS, { agentReferralCode: { $exists: false } })
+                } else {
+                    getAllAgentPlayers = await findAll(DB_COLLECTIONS.TAYA_USERS, { agentReferralCode: String(currentSession.referralCode) })
+                }
+            } else {
+                getAllAgentPlayers = await findAll(DB_COLLECTIONS.TAYA_USERS, { agentReferralCode: String(currentSession.referralCode) })
+            }
+
+
+            //console.log(getAllAgentPlayers)
 
             const filteredPlayerAccounts = playerResponse.data.map((player: any) => {
 
@@ -133,7 +146,7 @@ const GET = async (req: NextRequest) => {
             })
                 .filter((player: any) =>
                     getAllAgentPlayers.some((agentPlayer: any) => {
-                        console.log(player, agentPlayer, player.accountNumber === agentPlayer.accountNumber)
+                        //console.log(player, agentPlayer, player.accountNumber === agentPlayer.accountNumber)
                         return player.accountNumber === agentPlayer.accountNumber
                     })
                 )

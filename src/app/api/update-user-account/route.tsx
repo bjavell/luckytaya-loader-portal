@@ -22,7 +22,7 @@ const POST = async (req: NextRequest) => {
         } else if (accountType === 9) {
             roles = ['admin']
         }
-        console.log(typeof accountNumber)
+        //console.log(typeof accountNumber)
 
         const request = {
             roles,
@@ -32,7 +32,7 @@ const POST = async (req: NextRequest) => {
             userId: id
         }
 
-        console.log(request)
+        //console.log(request)
 
 
         if (roles) {
@@ -46,7 +46,7 @@ const POST = async (req: NextRequest) => {
         } else {
 
             if (suspended === 1) {
-                console.log(id)
+                //console.log(id)
 
                 await luckTayaAxios.post('/api/v1/User/SuspendUserId', {
                 }, {
@@ -74,10 +74,10 @@ const POST = async (req: NextRequest) => {
 
         const query = { userId: id }
         const user = await findOne(DB_COLLECTIONS.TAYA_USERS, query)
-        console.log(user)
+        //console.log(user)
         if (user) {
             if (user.status === 'PENDING') {
-                console.log('UPDATING USER STATUS')
+                //console.log('UPDATING USER STATUS')
                 await update(DB_COLLECTIONS.TAYA_USERS, query, { ...user, status })
             }
         }

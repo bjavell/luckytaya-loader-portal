@@ -36,7 +36,7 @@ const POST = async (req: NextRequest) => {
         if (config) {
             const amountToBeCredited = parseFloat(insertDecimalAtThirdToLast(rawRequest.request.trxAmount))
 
-            console.log('Agent To Master Agent Account/Wallet')
+            //console.log('Agent To Master Agent Account/Wallet')
             const agentToMaterWallet = await fundTransferV2(auth, {
                 amount: amountToBeCredited,
                 toAccountNumber: config.commissionAccountNumber
@@ -56,7 +56,7 @@ const POST = async (req: NextRequest) => {
 
 
     } catch (e: any) {
-        console.log(e.response.errors)
+        //console.log(e.response.errors)
     }
 
     return NextResponse.json({ code: "200", message: "success" })

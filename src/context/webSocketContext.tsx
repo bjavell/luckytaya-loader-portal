@@ -51,7 +51,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
 
   // const getSess = async () => {
   //   const session = await getCurrentSession();
-  //   console.log(session,'----session')
+  //   //console.log(session,'----session')
   //   try {
   //     if (session)
   //       if (session !== sessionCookie) {
@@ -78,7 +78,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
         };
 
         socket.onopen = () => {
-          console.log("WebSocket connected");
+          //console.log("WebSocket connected");
         };
 
         socket.onerror = (error) => {

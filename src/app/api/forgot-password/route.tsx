@@ -13,7 +13,7 @@ const POST = async (req: NextRequest) => {
             }
         })
 
-        console.log(response)
+        //console.log(response)
 
         return NextResponse.json({ 'message': 'Password is sent to your email!' })
 

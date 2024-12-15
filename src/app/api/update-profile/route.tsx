@@ -46,10 +46,10 @@ const POST = async (req: NextRequest) => {
         })
 
         const accountQuery = { 'response.userId': updateResponse.data.userId }
-        console.log(accountQuery)
+        //console.log(accountQuery)
 
         const account = await findOne(DB_COLLECTIONS.TAYA_AGENTS, accountQuery)
-        console.log('account', account)
+        //console.log('account', account)
 
         if(account) {
             const updatedAccount = {
@@ -71,7 +71,7 @@ const POST = async (req: NextRequest) => {
             })
         }
 
-        console.log(decryptedRequest)
+        //console.log(decryptedRequest)
 
 
 

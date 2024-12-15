@@ -18,7 +18,7 @@ const GET = async (req: NextRequest) => {
 
             const matchItem = tayaUsers.find((fundRequest: any) => fundRequest.accountNumber === _player.accountNumber)
             if (matchItem) {
-                console.log('matchItem', matchItem)
+                //console.log('matchItem', matchItem)
                 return {
                     ..._player,
                     firstname: matchItem.firstname,
@@ -32,7 +32,7 @@ const GET = async (req: NextRequest) => {
             }
         })
 
-        console.log(player)
+        //console.log(player)
 
         return NextResponse.json(player)
     } catch (e) {

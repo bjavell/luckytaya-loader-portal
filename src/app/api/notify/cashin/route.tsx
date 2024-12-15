@@ -45,22 +45,22 @@ const POST = async (req: NextRequest) => {
                 const amountToBeCredited = parseFloat(insertDecimalAtThirdToLast(rawRequest.request.trxAmount))
 
                 // const masterAgentAccount = await loginAccount(config, ACCOUNT_TYPE.MASTER)
-                console.log('Master Agent to Agent')
+                //console.log('Master Agent to Agent')
                 const masterAgentToAgent = await otherAccountTransfer(amountToBeCredited, transaction.accountNumber, config, ACCOUNT_TYPE.MASTER)
 
-                // console.log('Agent to Commission Account/Wallet')
+                // //console.log('Agent to Commission Account/Wallet')
                 // const agentToCommission = await fundTransferV2(auth, {
                 //     amount: commissionFee,
                 //     toAccountNumber: config.commissionAccountNumber
                 // })
 
-                // console.log('Agent To Incovenience Fee Account/Wallet')
+                // //console.log('Agent To Incovenience Fee Account/Wallet')
                 // const agentToFee = await fundTransferV2(auth, {
                 //     amount: fees,
                 //     toAccountNumber: config.commissionAccountNumber
                 // })
 
-                // console.log('Commission Account/Wallet to Agent')
+                // //console.log('Commission Account/Wallet to Agent')
                 // const commissionToAgent = await otherAccountTransfer(commissionFee, transaction.agentAccountNumber, config, ACCOUNT_TYPE.COMMISSION)
 
 
@@ -86,7 +86,7 @@ const POST = async (req: NextRequest) => {
 
 
     } catch (e: any) {
-        console.log(e.response.errors)
+        //console.log(e.response.errors)
     }
 
     return NextResponse.json({ code: "200", message: "success" })
@@ -101,7 +101,7 @@ const fundTransferV2 = async (auth: string, transferRequest: any) => {
         },
     })
 
-    console.log(response.data)
+    //console.log(response.data)
 
     return response.data
 }
@@ -148,7 +148,7 @@ const loginAccount = async (config: any, accountType: string) => {
             password
         }
 
-        console.log(request)
+        //console.log(request)
 
         const response = await luckTayaAxios.post(`/api/v1/User/Login`, request)
         const responseData = response.data
@@ -171,7 +171,7 @@ const loginAccount = async (config: any, accountType: string) => {
             token: responseData.token
         }
     } catch (e) {
-        console.log(e)
+        //console.log(e)
     }
 
     return {

@@ -12,11 +12,11 @@ const POST = async (req: NextRequest) => {
     try {
         const { id } = await req.json()
 
-        console.log('here!')
+        //console.log('here!')
         const query = { _id: new ObjectId(id) }
         const fundingRequests = await findOne(DB_COLLECTIONS.FUNDING_REQUESTS, query)
 
-        console.log(fundingRequests)
+        //console.log(fundingRequests)
         if (fundingRequests) {
 
 

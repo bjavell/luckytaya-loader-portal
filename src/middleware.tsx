@@ -62,7 +62,7 @@ const middleware = async (request: NextRequest) => {
 
   // Loop through the user roles and check if they have access to the current route
   for (const role of userRoles) {
-    console.log(role)
+    //console.log(role)
     if (protectedRoutes[role as keyof typeof protectedRoutes]?.some((route: string) => pathname.startsWith(route))) {
       hasAccess = true;
       break;

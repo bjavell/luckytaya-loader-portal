@@ -10,7 +10,7 @@ const GET = async (req: NextRequest) => {
     const currentSession = await getCurrentSession();
 
     const eventId = req.nextUrl.searchParams.get("eventId");
-    console.log(eventId,'hello')
+    //console.log(eventId,'hello')
     const response = await luckTayaAxios.get(
       `/api/v1/SabongFight/WithDetailsByEventIdV2/${eventId}`,
       {

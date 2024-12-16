@@ -162,6 +162,14 @@ const FundingRequest = () => {
                                     }
                                 },
                                 {
+                                    key: 'accountName',
+                                    label: 'account name',
+                                },
+                                {
+                                    key: 'accountNumber',
+                                    label: 'bank account number'
+                                },
+                                {
                                     key: 'amount',
                                     label: 'amount',
                                     format(item: any) {

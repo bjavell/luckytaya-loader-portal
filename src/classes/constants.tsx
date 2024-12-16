@@ -16,7 +16,8 @@ const DB_COLLECTIONS = {
     QR_TRANSACITON: 'qr_transactions',
     TAYA_USERS: 'taya_user',
     TAYA_AGENTS: 'taya_agent',
-    FUNDING_REQUESTS: 'taya_request_fund'
+    FUNDING_REQUESTS: 'taya_request_fund',
+    CASHOUT_REQUESTS: 'taya_cashout_request'
 }
 
 const TRAN_TYPE = {

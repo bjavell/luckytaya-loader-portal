@@ -22,6 +22,7 @@ const protectedRoutes = {
   finance: [
     "/finance/dashboard",
     "/finance/reports",
+    "/finance/cashout-request",
     "/profile"
   ],
   acctmgr: [

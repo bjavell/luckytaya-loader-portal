@@ -483,8 +483,11 @@ const Players = () => {
                                 const accountTp = accountType.find((item: any) => {
                                     return Number(item.accountType) === Number(val)
                                 })
+
                                 if (accountTp) {
                                     return accountTp ? accountTp?.description : ''
+                                } else if (val.toString() === '8') {
+                                    return 'Player'
                                 } else {
                                     return val
                                 }

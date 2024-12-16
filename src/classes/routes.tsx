@@ -259,6 +259,17 @@ const sideBarFinanceRoutes = [{
 
 },
 {
+    module: 'LOADING STATION',
+    item: [
+        {
+            module: 'Cashout Request',
+            ico: LoadStation,
+            link: '/finance/cashout-request'
+        },
+    ]
+
+},
+{
     module: 'REPORTS',
     item: [{
         module: 'Generate Report',

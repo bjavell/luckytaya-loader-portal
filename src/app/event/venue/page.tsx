@@ -26,7 +26,10 @@ const Event = () => {
     await axios
       .get("/api/event/locations")
       .then((response) => {
-        setVenues(response.data);
+        const data = response.data.sort(
+          (a: any, b: any) => a.venueName.trim().toLowerCase().localeCompare(b.venueName.trim().toLowerCase())
+        );
+        setVenues(data);
       })
       .catch(() => {
         setVenues([]);

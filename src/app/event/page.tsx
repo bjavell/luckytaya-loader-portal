@@ -124,9 +124,8 @@ const Event = () => {
       .get("/api/event/locations")
       .then((response) => {
         const data = response.data.sort(
-          (a: any, b: any) => a.venueName.toLowerCase().localeCompare(b.venueName.toLowerCase())
+          (a: any, b: any) => a.venueName.trim().toLowerCase().localeCompare(b.venueName.trim().toLowerCase())
         );
-
         setVenues(data);
       })
       .catch(() => {
@@ -216,7 +215,6 @@ const Event = () => {
       })
       .catch((e) => {
         const errorMessages = e.response.data.error;
-        console.log(e.response.data,'hello')
         if (errorMessages) {
           if (errorMessages["Not found"]) {
             setErrorMessage(errorMessages["Not found"][0]);

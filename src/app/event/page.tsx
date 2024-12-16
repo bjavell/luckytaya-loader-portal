@@ -95,9 +95,6 @@ const Event = () => {
     }
     return () => {};
   }, [selectedEvent]);
-  useEffect(() => {
-    console.log(fights, "helo-");
-  }, [fights]);
 
   const getFights = async (eventId: any) => {
     await axios
@@ -126,7 +123,11 @@ const Event = () => {
     await axios
       .get("/api/event/locations")
       .then((response) => {
-        setVenues(response.data);
+        const data = response.data.sort(
+          (a: any, b: any) => a.venueName.toLowerCase().localeCompare(b.venueName.toLowerCase())
+        );
+
+        setVenues(data);
       })
       .catch(() => {
         setVenues([]);
@@ -169,8 +170,7 @@ const Event = () => {
 
     const form = e.target;
 
-    if (form.eventStatusCodeNew.value == 12 && !isForced) {
-      console.log(fights);
+    if (form.eventStatusCodeNew && form.eventStatusCodeNew.value == 12 && !isForced) {
       if (fights.length > 0) {
         // setIsModalOpen(false);
         setIsLoginModalOpen(true);
@@ -203,7 +203,7 @@ const Event = () => {
         selectedEvent != null ? selectedEvent.eventStatusCode : 0,
       eventStatusCodeNew:
         selectedEvent != null ? form.eventStatusCodeNew.value : 0,
-      fights : fights
+      fights: fights,
     };
 
     await axios
@@ -216,6 +216,7 @@ const Event = () => {
       })
       .catch((e) => {
         const errorMessages = e.response.data.error;
+        console.log(e.response.data,'hello')
         if (errorMessages) {
           if (errorMessages["Not found"]) {
             setErrorMessage(errorMessages["Not found"][0]);
@@ -288,7 +289,7 @@ const Event = () => {
           + New Event
         </Button>
       </div>
- 
+
       <Modal size="medium" isOpen={isModalOpen} onClose={closeModal}>
         <div className="w-full p-4">
           {errorMessage !== "" ? (

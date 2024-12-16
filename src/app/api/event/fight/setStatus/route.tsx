@@ -7,16 +7,18 @@ import { getCurrentSession } from "@/context/auth";
 const POST = async (req: NextRequest) => {
   try {
     const request = await req.json();
+    
     const currentSession = await getCurrentSession();
-
     request.fightStatusCode = parseInt(request.fightStatusCode);
     request.fightId = parseInt(request.fightId);
+    
+    const token = currentSession ? `Bearer ${currentSession.token}` : req.headers.get('Authorization')
     const response = await luckTayaAxios.put(
       `/api/v1/SabongFight/UpdateStatus`,
       request,
       {
         headers: {
-          Authorization: `Bearer ${currentSession.token}`,
+          Authorization: token,
         },
       }
     );
@@ -26,7 +28,7 @@ const POST = async (req: NextRequest) => {
         `/api/v1/SabongRemit/Remit?fightId=${request.fightId}`,
         {
           headers: {
-            Authorization: `Bearer ${currentSession.token}`,
+            Authorization: token,
           },
         }
       );
@@ -35,7 +37,7 @@ const POST = async (req: NextRequest) => {
 
     return NextResponse.json({ message: "Successfully Logged In!" });
   } catch (e) {
-    console.error(e);
+    console.log(e,'hello')
     return NextResponse.json(
       {
         error: formatGenericErrorResponse(e),

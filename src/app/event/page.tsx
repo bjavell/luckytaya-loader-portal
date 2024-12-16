@@ -10,6 +10,8 @@ import Button from "@/components/button";
 import { formatMoney } from "@/util/textUtil";
 import Modal from "@/components/modal";
 import { eventSort } from "@/util/eventSorting";
+import LoginModal from "@/components/loginModal";
+import { encrypt } from "@/util/cryptoUtil";
 
 type SabongEvent = {
   entryDateTime: string;
@@ -43,6 +45,9 @@ const Event = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
   const [sortBy, setSortBy] = useState(options[0].value);
+  const [fights, setFights] = useState([]);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [form, setForm] = useState();
 
   const getEventStatus = (code: number): any => {
     return statuses.find((x: any) => x.code == code);
@@ -65,7 +70,7 @@ const Event = () => {
           };
         });
 
-        data = eventSort(sortBy,data)
+        data = eventSort(sortBy, data);
         setEvents(data);
       })
       .catch(() => {
@@ -81,6 +86,40 @@ const Event = () => {
       })
       .catch(() => {
         setStatuses([]);
+      });
+  };
+
+  useEffect(() => {
+    if (selectedEvent) {
+      getFights(selectedEvent.eventId);
+    }
+    return () => {};
+  }, [selectedEvent]);
+  useEffect(() => {
+    console.log(fights, "helo-");
+  }, [fights]);
+
+  const getFights = async (eventId: any) => {
+    await axios
+      .get("/api/event/fight", {
+        params: {
+          eventId,
+        },
+      })
+      .then((response) => {
+        let data = response.data;
+        data = data
+          .filter(
+            (x: any) =>
+              x.fight.fightStatusCode == 10 || x.fight.fightStatusCode == 11
+          )
+          .map((x: any) => {
+            return x.fight;
+          });
+        setFights(data);
+      })
+      .catch((e) => {
+        console.log(e);
       });
   };
   const getVenues = async () => {
@@ -109,14 +148,12 @@ const Event = () => {
     getData();
   }, []);
 
-
   useEffect(() => {
-    if(events){
-      const data = Object.assign([],events)
-      setEvents(eventSort(sortBy,data))
+    if (events) {
+      const data = Object.assign([], events);
+      setEvents(eventSort(sortBy, data));
     }
-  }, [sortBy])
-  
+  }, [sortBy]);
 
   useEffect(() => {
     if (statuses && venues) {
@@ -124,13 +161,23 @@ const Event = () => {
     }
   }, [statuses, venues]);
 
-  const onHandleSubmit = async (e: any) => {
+  const onHandleSubmit = async (e: any, isForced = false) => {
+    setForm(e);
     setIsLoading(true);
     setErrorMessage("");
     e.preventDefault();
 
     const form = e.target;
 
+    if (form.eventStatusCodeNew.value == 12 && !isForced) {
+      console.log(fights);
+      if (fights.length > 0) {
+        // setIsModalOpen(false);
+        setIsLoginModalOpen(true);
+      }
+      setIsLoading(false);
+      return;
+    }
     if (!form.venueId.value) {
       setErrorMessage("Please Select Venue");
       return;
@@ -148,12 +195,15 @@ const Event = () => {
       eventId: form.eventId.value,
       venueId: form.venueId.value,
       eventName: form.eventName.value,
-      eventDate: selectedEvent ? selectedEvent.eventDate : `${form.eventDate.value}T00:00:00.008Z`,
+      eventDate: selectedEvent
+        ? selectedEvent.eventDate
+        : `${form.eventDate.value}T00:00:00.008Z`,
       webRtcStream: form.webRtcStream.value,
       eventStatusCode:
         selectedEvent != null ? selectedEvent.eventStatusCode : 0,
       eventStatusCodeNew:
         selectedEvent != null ? form.eventStatusCodeNew.value : 0,
+      fights : fights
     };
 
     await axios
@@ -192,6 +242,39 @@ const Event = () => {
     setSelectedEvent(null);
     setIsModalOpen(true);
   };
+
+  const onLoginSubmit = async (userId: string, password: string) => {
+    setIsLoading(true);
+    setErrorMessage("");
+    await axios
+      .post("/api/verify-signin", {
+        username: userId,
+        password: encrypt(password),
+      })
+      .then(() => {
+        setIsLoginModalOpen(false);
+        // setIsModalOpen(true)
+        onHandleSubmit(form, true);
+      })
+      .catch((e) => {
+        const errorMessages = e.response.data.error;
+        if (errorMessages) {
+          if (errorMessages["Not found"]) {
+            setErrorMessage(errorMessages["Not found"][0]);
+          } else if (errorMessages["Bad request"]) {
+            setErrorMessage(errorMessages["Bad request"][0]);
+          } else if (errorMessages["Unexpexted Error"]) {
+            setErrorMessage(errorMessages["Unexpexted Error"][0]);
+          } else {
+            setErrorMessage("Oops! something went wrong");
+          }
+        } else {
+          setErrorMessage("Oops! something went wrong");
+        }
+        setIsLoading(false);
+      })
+      .finally(() => {});
+  };
   return (
     <div className="flex flex-col gap-4 w-full">
       <h1 className="text-xl">Events</h1>
@@ -205,6 +288,7 @@ const Event = () => {
           + New Event
         </Button>
       </div>
+ 
       <Modal size="medium" isOpen={isModalOpen} onClose={closeModal}>
         <div className="w-full p-4">
           {errorMessage !== "" ? (
@@ -214,7 +298,7 @@ const Event = () => {
           ) : (
             ""
           )}
-          <Form onSubmit={onHandleSubmit}>
+          <Form onSubmit={(e: any) => onHandleSubmit(e, false)}>
             <input
               hidden
               name="eventId"
@@ -306,6 +390,12 @@ const Event = () => {
           </Form>{" "}
         </div>
       </Modal>
+
+      <LoginModal
+        isModalOpen={isLoginModalOpen}
+        onHandleSubmit={onLoginSubmit}
+        closeModal={() => setIsLoginModalOpen(false)}
+      ></LoginModal>
       <div className="inline-flex items-center gap-2">
         <label
           htmlFor="accountType"

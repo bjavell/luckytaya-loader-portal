@@ -173,20 +173,23 @@ const Event = () => {
       if (fights.length > 0) {
         // setIsModalOpen(false);
         setIsLoginModalOpen(true);
+        setIsLoading(false);
+        return;
       }
-      setIsLoading(false);
-      return;
     }
     if (!form.venueId.value) {
+      setIsLoading(false);
       setErrorMessage("Please Select Venue");
       return;
     }
     if (!form.eventName.value) {
+      setIsLoading(false);
       setErrorMessage("Please Select Name");
       return;
     }
 
     if (!selectedEvent && !form.eventDate.value) {
+      setIsLoading(false);
       setErrorMessage("Please Select Date");
       return;
     }
@@ -242,12 +245,15 @@ const Event = () => {
     setIsModalOpen(true);
   };
 
-  const onLoginSubmit = async (userId: string, password: string) => {
+  const onLoginSubmit = async ( password: string, rePassword : string) => {
+    if(password != rePassword){
+      setErrorMessage("Password does not match");
+      return
+    }
     setIsLoading(true);
     setErrorMessage("");
     await axios
       .post("/api/verify-signin", {
-        username: userId,
         password: encrypt(password),
       })
       .then(() => {

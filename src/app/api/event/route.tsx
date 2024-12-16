@@ -33,7 +33,7 @@ const POST = async (req: NextRequest) => {
         eventId: parseInt(copyRequest.eventId),
         eventStatusCode: parseInt(copyRequest.eventStatusCodeNew),
       };
-      // if (request.eventStatusCode == 10)
+      if (request.eventStatusCode == 10 || request.eventStatusCode == 11)
         response = await luckTayaAxios.put(`/api/v1/SabongEvent/V2`, request, {
           headers: {
             Authorization: `Bearer ${currentSession.token}`,

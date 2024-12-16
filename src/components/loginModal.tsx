@@ -10,7 +10,7 @@ import Button from "./button";
 function LoginModal({ onHandleSubmit ,isModalOpen,closeModal} : any) {
   const [isLoading, setIsLoading] = useState(false);
 
-  const [userId, setUserId] = useState('')
+  const [rePassword, setRePassword] = useState('')
   const [password, setPassword] = useState('')
   const [errorMessage, setErrorMessage] = useState('')
   return (
@@ -27,16 +27,6 @@ function LoginModal({ onHandleSubmit ,isModalOpen,closeModal} : any) {
           priority={false}
         />
         <FormField
-          name="userId"
-          label="User ID"
-          placeholder="Enter User ID"
-          value={userId}
-          onChange={(e) => {
-            setUserId(e.target.value);
-          }}
-          required
-        />
-        <FormField
           name="password"
           label="Password"
           placeholder="******"
@@ -47,13 +37,25 @@ function LoginModal({ onHandleSubmit ,isModalOpen,closeModal} : any) {
           }}
           required
         />
+        
+        <FormField
+          name="password"
+          label="Re-Password"
+          placeholder="******"
+          type="password"
+          value={rePassword}
+          onChange={(e) => {
+            setRePassword(e.target.value);
+          }}
+          required
+        />
         <Button
-          onClick={()=>onHandleSubmit(userId,password)}
+          onClick={()=>onHandleSubmit(password,rePassword)}
           isLoading={isLoading}
           loadingText="Loading..."
           type={"button"}
         >
-          Login
+          Verify
         </Button>
         {errorMessage !== "" ? (
           <div className="flex gap-2 text-white bg-red p-4 rounded-xlg">

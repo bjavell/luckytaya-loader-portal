@@ -122,7 +122,7 @@ const FundingRequest = () => {
                 isOpen={isConfirmModalOpen}
                 onCancel={() => onToggleConfirmModal(null, '')}
                 onConfirm={onConfirmAction}
-                message="Approve cashout request?"
+                message="Confirm transaction?"
             />
             {isLoading ? <LoadingSpinner /> : null}
             <div className="flex flex-col gap-4 w-full overflow-auto pr-4">

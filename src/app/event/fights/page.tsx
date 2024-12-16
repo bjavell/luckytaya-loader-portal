@@ -160,7 +160,7 @@ const Fight = () => {
         setFights(fightSort("fightNum", data));
       })
       .catch((e) => {
-        console.log(e);
+        //console.log(e);
       });
   };
 
@@ -325,7 +325,7 @@ const Fight = () => {
   };
 
   const batchUpload = (items: any) => {
-    console.log(items);
+    //console.log(items);
     const requests = [];
     for (let index = 0; index < items.length; index++) {
       const element = items[index];

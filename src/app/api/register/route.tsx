@@ -26,15 +26,15 @@ const sendEmail = async (recipient: string, username: string, password: string) 
     const mailOptions = {
         from: process.env.GMAIL_USER,  // Sender's email
         to: recipient,  // Receiver's email
-        subject: '[DEV] LuckyTaya Registration!',  // Subject
+        subject: 'LuckyTaya Registration!',  // Subject
         text: `Please use this credential for your login. [URL: ${backofficeUrl}/login ] [ USERNAME: ${username} ] [ PASSWORD: ${password} ]`
     }
 
     transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
-            return console.log('Error occurred: ', error);
+            return //console.log('Error occurred: ', error);
         }
-        console.log('Email sent: ' + info.response);
+        //console.log('Email sent: ' + info.response);
     })
 }
 
@@ -128,7 +128,7 @@ const POST = async (req: NextRequest) => {
         return NextResponse.json({ 'message': 'User succesffully created' })
     } catch (e: any) {
         console.error(e)
-        console.log(e?.response?.data)
+        //console.log(e?.response?.data)
 
         return NextResponse.json({
             error: formatGenericErrorResponse(e)

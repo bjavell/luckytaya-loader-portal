@@ -12,7 +12,7 @@ const POST = async (req: NextRequest) => {
         const currentSession = await getCurrentSession()
         const { amount, toAccountNumber, comFee, convFee } = await req.json()
 
-        console.log('Agent to Player')
+        //console.log('Agent to Player')
         await luckTayaAxios.get(`/api/v1/Account/transferV2`, {
             params: {
                 amount: amount,
@@ -23,7 +23,7 @@ const POST = async (req: NextRequest) => {
             },
         })
 
-        // console.log('Agent to Fee')
+        // //console.log('Agent to Fee')
         // // await otherAccountTransfer(convFee * -1, toAccountNumber, config, ACCOUNT_TYPE.FEE)
         // await luckTayaAxios.get(`/api/v1/Account/transferV2`, {
         //     params: {
@@ -35,7 +35,7 @@ const POST = async (req: NextRequest) => {
         //     },
         // })
 
-        // console.log('Agent to Commission')
+        // //console.log('Agent to Commission')
         // // await otherAccountTransfer(comFee * -1, toAccountNumber, config, ACCOUNT_TYPE.COMMISSION)
         // await luckTayaAxios.get(`/api/v1/Account/transferV2`, {
         //     params: {
@@ -47,7 +47,7 @@ const POST = async (req: NextRequest) => {
         //     },
         // })
 
-        // console.log('Commission to Agent')
+        // //console.log('Commission to Agent')
         // await otherAccountTransfer(comFee, currentSession.accountNumber, config, ACCOUNT_TYPE.COMMISSION)
 
 

@@ -52,7 +52,7 @@ const GET = async (req: NextRequest) => {
     }
     return NextResponse.json({ list: data, summary: total });
   } catch (e) {
-    console.log(e, "hell0");
+    //console.log(e, "hell0");
     return NextResponse.json(
       {
         error: formatGenericErrorResponse(e),

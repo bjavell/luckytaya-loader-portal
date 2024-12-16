@@ -169,7 +169,7 @@ const Fight = () => {
     if (selectedEvent && statuses) getFights(selectedEvent.eventId);
     if (selectedEvent) {
       // const evnt = events[selectedEvent];
-      // console.log({events,selectedEvent}, "-----0");
+      // //console.log({events,selectedEvent}, "-----0");
       setWebRtcStream(
         selectedEvent.webRtcStream == ""
           ? process.env.NEXT_PUBLIC_WEB_RTC_URL

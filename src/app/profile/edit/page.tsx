@@ -37,7 +37,7 @@ const EditProfile = () => {
     const { data, reload, setReload } = useApiData()
 
     useEffect(() => {
-        console.log(data)
+        //console.log(data)
         if (data) {
             setEditProfile({
                 firstname: data.fistname,

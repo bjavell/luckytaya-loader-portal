@@ -248,7 +248,7 @@ const Players = () => {
         try {
             setIsConfirmModalOpen(false)
             setIsLoading(true)
-            console.log(modalData)
+            //console.log(modalData)
             await axios.post('/api/update-user-account', modalData)
             setModalData({
                 "accountNumber": 0,

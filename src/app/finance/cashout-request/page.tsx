@@ -163,11 +163,11 @@ const FundingRequest = () => {
                                 },
                                 {
                                     key: 'accountName',
-                                    label: 'account name',
+                                    label: 'recipient name',
                                 },
                                 {
                                     key: 'accountNumber',
-                                    label: 'bank account number'
+                                    label: 'mobile number'
                                 },
                                 {
                                     key: 'amount',

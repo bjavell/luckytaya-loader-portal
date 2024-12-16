@@ -23,7 +23,7 @@ const POST = async (req: NextRequest) => {
             const config = await findOne(DB_COLLECTIONS.CONFIG, { code: 'CFG0001' })
             // const auth = decrypt(transaction.agentAuth)
             if (config) {
-                await otherAccountTransfer(fundingRequests.amount, fundingRequests.toAccountNumber, config)
+                await otherAccountTransfer(fundingRequests.amount, fundingRequests.fromAccountNumber, config)
 
                 await update(DB_COLLECTIONS.CASHOUT_REQUESTS, query, { ...fundingRequests, status: 'REJECTED' })
             } else {

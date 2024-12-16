@@ -3,7 +3,7 @@
 import Tables from "@/components/tables";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { format, getDate } from "date-fns";
+import { format, formatDate, getDate } from "date-fns";
 import FormField from "@/components/formField";
 import Form from "@/components/form";
 import Button from "@/components/button";
@@ -343,7 +343,7 @@ const Event = () => {
                 name="eventDate"
                 label="Event Date"
                 readonly={selectedEvent != null}
-                value={selectedEvent == null ? "" : selectedEvent.eventDate}
+                value={selectedEvent == null ? "" : formatDate(selectedEvent.eventDate,"yyyy-MM-dd")}
                 placeholder="Enter Event Date"
                 //   value={endDate}
                 //   onChange={(e) => {

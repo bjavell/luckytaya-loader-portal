@@ -82,6 +82,8 @@ const FundingRequest = () => {
             if (errorMessages) {
                 if (errorMessages['Not found']) {
                     setAlertMessage(errorMessages['Not found'][0])
+                }else if (errorMessages['Bad request']) {
+                    setAlertMessage(errorMessages['Bad request'][0])
                 } else {
                     setAlertMessage('An Error occured please try again')
                 }

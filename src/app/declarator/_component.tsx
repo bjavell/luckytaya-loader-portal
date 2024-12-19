@@ -48,6 +48,7 @@ const Fight = () => {
   const [winningSide, setWinningSide] = useState(-1);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
   const [isErrorMessageOpen, setIsErrorMessageOpen] = useState(false);
+  const [fightDetails, setFightDetails] = useState<any>();
   const [isModalSendMessageOpen, setIsModalSendMessageOpen] = useState(false);
   const [betDetails, setBetDetails] = useState({
     fId: 0,
@@ -92,7 +93,6 @@ const Fight = () => {
       }
     } catch (error) {}
   }, [messages]);
-
 
   useEffect(() => {
     if (errorMessage != "") setIsErrorMessageOpen(true);
@@ -147,7 +147,10 @@ const Fight = () => {
       .then((response) => {
         const data = fightSortV2("fightStatusCode", response.data, true);
         setFights(data);
-        if (data.length > 0) setFight(getFightWithStatus(data[0].fight));
+        if (data.length > 0) {
+          setFight(getFightWithStatus(data[0].fight));
+          setFightDetails(data[0].fightDetails);
+        }
       })
       .catch(() => {});
   };
@@ -159,7 +162,15 @@ const Fight = () => {
 
     getData();
   }, []);
-
+  const getPlayer = (side: number) => {
+    if (fightDetails) {
+      const player = fightDetails?.find((x: any) => x.side == side);
+      if (player) {
+        return `${player.owner} ${player.breed}`;
+      }
+    }
+    return "";
+  };
   useEffect(() => {
     if (statuses) {
       getEvents();
@@ -212,11 +223,11 @@ const Fight = () => {
     setIsLoading(false);
   };
 
-  const refreshFight = async (isRefreshFight : boolean = false) => {
+  const refreshFight = async (isRefreshFight: boolean = false) => {
     if (!gameData) return;
     setIsLoadingWithScreen(true);
     if (isRefreshFight) await getFights(selectedEvent.eventId);
-  
+
     const bet = await axios
       .get("/api/event/fight/byId", {
         params: {
@@ -226,7 +237,10 @@ const Fight = () => {
       .then((response) => {
         const data = response.data;
         setGameData(data);
-        if (data.length > 0) setFight(getFightWithStatus(data[0].fight));
+        if (data.length > 0) {
+          setFight(getFightWithStatus(data[0].fight));
+          setFightDetails(data[0].fightDetails);
+        }
         setIsLoadingWithScreen(false);
       })
       .catch(() => {
@@ -353,12 +367,14 @@ const Fight = () => {
     setIsLoading(true);
     setSelectedEvent(events[e.target.value]);
     setFight({});
+    setFightDetails(null);
     setFights([]);
   };
 
   const handleFightChange = (e: any) => {
     setIsLoading(true);
     setFight(getFightWithStatus(fights[e.target.value].fight));
+    setFightDetails(fights[e.target.value].fightDetails);
   };
 
   const renderEventStatusButton = () => {
@@ -471,7 +487,6 @@ const Fight = () => {
         message={errorMessage}
       ></ConfirmationModal>
 
-
       <div className="flex gap-3 items-center">
         <label
           htmlFor="venueId"
@@ -577,7 +592,7 @@ const Fight = () => {
       {isLoadingWithScreen && (
         <LoadingSpinner size="w-20 h-20" color="border-blue" />
       )}
-      {!isJsonObjectEmpty (gameData) && (
+      {!isJsonObjectEmpty(gameData) && (
         <div className="grid grid-cols-4 grid-rows-1 gap-4">
           <div className="col-span-3">
             <div className="flex bg-gray13 rounded-xl w-full p-5 capitalize">
@@ -628,11 +643,11 @@ const Fight = () => {
           </div>
           <div className="flex flex-col gap-5">
             <div className="bg-gray13 rounded-xl w-full p-5 capitalize">
-              <MeronWala type={1} data={betDetails} />
+              <MeronWala player={getPlayer(1)} type={1} data={betDetails} />
             </div>
 
             <div className="bg-gray13 rounded-xl w-full p-5 capitalize">
-              <MeronWala type={0} data={betDetails} />
+              <MeronWala player={getPlayer(0)} type={0} data={betDetails} />
             </div>
             <Button
               onClick={() => {

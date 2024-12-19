@@ -49,6 +49,7 @@ const Fight = () => {
   const [duration, setDuration] = useState(0);
   const [isTimer, setIsTimer] = useState(false);
   const [confirmTitle, setConfirmTitle] = useState<string>();
+  const [fightDetails, setFightDetails] = useState<any>();
   const [betDetails, setBetDetails] = useState({
     fId: 0,
     s0c: 0,
@@ -144,7 +145,10 @@ const Fight = () => {
       .then((response) => {
         const data = fightSortV2("fightStatusCode", response.data, true);
         setFights(data);
-        if (data.length > 0) setFight(getFightWithStatus(data[0].fight));
+        if (data.length > 0) {
+          setFight(getFightWithStatus(data[0].fight));
+          setFightDetails(data[0].fightDetails);
+        }
       })
       .catch(() => {});
   };
@@ -222,7 +226,10 @@ const Fight = () => {
       .then((response) => {
         const data = response.data;
         setGameData(data);
-        if (data.length > 0) setFight(getFightWithStatus(data[0].fight));
+        if (data.length > 0) {
+          setFight(getFightWithStatus(data[0].fight));
+          setFightDetails(data[0].fightDetails)
+        }
         setIsLoadingWithScreen(false);
       })
       .catch(() => {
@@ -353,15 +360,26 @@ const Fight = () => {
   const handleEventChange = (e: any) => {
     setIsLoading(true);
     setSelectedEvent(events[e.target.value]);
-    setFight({});
+    setFight({});  
+    setFightDetails(null);
     setFights([]);
   };
 
   const handleFightChange = (e: any) => {
     setIsLoading(true);
     setFight(getFightWithStatus(fights[e.target.value].fight));
+    setFightDetails(fights[e.target.value].fightDetails);
   };
 
+  const getPlayer = (side: number) => {
+    if (fightDetails) {
+      const player = fightDetails?.find((x: any) => x.side == side);
+      if (player) {
+        return `${player.owner} ${player.breed}`;
+      }
+    }
+    return "";
+  };
   const renderEventStatusButton = () => {
     if (gameData) {
       switch (gameData.event.eventStatusCode) {
@@ -435,8 +453,7 @@ const Fight = () => {
     setIsFightStatusModalOpen(true);
   };
 
-  
-  const onDirectSetFightStatus = async (status : number) => {
+  const onDirectSetFightStatus = async (status: number) => {
     setIsLoadingWithScreen(true);
     const request = {
       fightId: gameData.fight.fightId,
@@ -678,10 +695,9 @@ const Fight = () => {
             );
           })}
         </select>
-    
       </div>
       <h1>{isLoading && <label>{"   "}Loading ...</label>}</h1>
-  
+
       <Modal size="medium" isOpen={isModalOpen} onClose={closeModal}>
         <label className="text-[20px]">Select Winner Side</label>
         <br />
@@ -825,11 +841,11 @@ const Fight = () => {
           </div>
           <div className="flex flex-col gap-5">
             <div className="bg-gray13 rounded-xl w-full p-5 capitalize">
-              <MeronWala type={1} data={betDetails} />
+              <MeronWala player={getPlayer(1)} type={1} data={betDetails} />
             </div>
 
             <div className="bg-gray13 rounded-xl w-full p-5 capitalize">
-              <MeronWala type={0} data={betDetails} />
+              <MeronWala player={getPlayer(0)} type={0} data={betDetails} />
             </div>
             <Button
               onClick={() => {

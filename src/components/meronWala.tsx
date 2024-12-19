@@ -1,8 +1,8 @@
 import React from "react";
 
-const MeronWala = ({ type, data }: any) => {
+const MeronWala = ({player, type, data }: any) => {
   const color = type == 1 ? "meronColor" : "walaColor";
-  const title = type == 1 ? "Pula" : "Asul";
+  const title = player;
   const getSafeData = (data: any, field: any) => {
     try {
       return data[field];

@@ -4,20 +4,36 @@ import { luckTayaAxios } from "@/util/axiosUtil"
 import { formatGenericErrorResponse } from "@/util/commonResponse"
 import { DB_COLLECTIONS, USER_TYPE } from "@/classes/constants"
 import { findAll } from "@/util/dbUtil"
+import logger from "@/lib/logger"
 
 const GET = async (req: NextRequest) => {
+    const api = "GET ALL USERS"
+    let correlationId
+    let logRequest
+    let logResponse
+    let status = 200
     try {
+        correlationId = req.headers.get('x-correlation-id');
         const currentSession = await getCurrentSession()
         const type = req.nextUrl.searchParams.get('type')
 
+        
+        logRequest = {
+            url: {
+                type
+            }
+        }
+
         const mgmtRole = await luckTayaAxios.get(`/api/v1/User/MgmtRole`, {
             headers: {
+                'X-Correlation-ID': correlationId,
                 'Authorization': `Bearer ${currentSession.token}`,
             },
         })
 
         const playerRole = await luckTayaAxios.get(`/api/v1/User/PlayerRole`, {
             headers: {
+                'X-Correlation-ID': correlationId,
                 'Authorization': `Bearer ${currentSession.token}`,
             },
         })
@@ -96,14 +112,34 @@ const GET = async (req: NextRequest) => {
             }))
 
         }
+        logResponse = {
+            ...customResponse
+        }
 
         return NextResponse.json(customResponse)
-    } catch (e) {
-        console.error(e)
+    } catch (e: any) {
+        logger.error(api, {
+            correlationId,
+            error: e.message,
+            errorStack: e.stack
+        })
+
+        status = 500
+        logResponse = formatGenericErrorResponse(e)
         return NextResponse.json({
-            error: formatGenericErrorResponse(e)
+            error: logResponse
         },
             { status: 500 })
+    } finally {
+        logger.info(api, {
+            correlationId,
+            apiLog: {
+                status,
+                request: logRequest,
+                response: logResponse,
+            }
+        })
+
     }
 }
 

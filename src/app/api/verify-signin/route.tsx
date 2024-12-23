@@ -5,19 +5,38 @@ import { getCurrentSession, setSession } from "@/context/auth"
 import { NextRequest, NextResponse } from "next/server"
 import { luckTayaAxios } from "@/util/axiosUtil"
 import { formatGenericErrorResponse } from "@/util/commonResponse"
+import logger from "@/lib/logger"
 
 const portalType = process.env.PORTAL
 
 const POST = async (req: NextRequest) => {
+    const api = "VERIFY SIGN IN"
+    let correlationId
+    let logRequest
+    let logResponse
+    let status = 200
     try {
         const { password } = await req.json()
-        
+        correlationId = req.headers.get('x-correlation-id');
+
         const currentSession = await getCurrentSession()
         const request = {
             username: currentSession.username,
             password: decrypt(password)
         }
-        const response = await luckTayaAxios.post(`/api/v1/User/Login`, request)
+
+        logRequest = {
+            ...request,
+            password: 'XXXXXX'
+        }
+
+        const response = await luckTayaAxios.post(`/api/v1/User/Login`, request,
+            {
+                headers: {
+                    'X-Correlation-ID': correlationId,
+                },
+            }
+        )
         const responseData = response.data
 
         if (portalType === 'ADMIN') {
@@ -40,17 +59,35 @@ const POST = async (req: NextRequest) => {
             }
         }
 
-        console.log(responseData,'hello')
+        console.log(responseData, 'hello')
         await setSession(responseData)
-        return NextResponse.json({ 'message': 'Successfully Verified!' })
+        logResponse = { 'message': 'Successfully Verified!' }
+        return NextResponse.json(logResponse)
 
-    } catch (e) {
-        console.error(e)
+    } catch (e: any) {
+        logger.error(api, {
+            correlationId,
+            error: e.message,
+            errorStack: e.stack
+        })
+
+        status = 500
+        logResponse = formatGenericErrorResponse(e)
         return NextResponse.json({
-            error: formatGenericErrorResponse(e)
+            error: logResponse
         }, {
             status: 500
         })
+    } finally {
+        logger.info(api, {
+            correlationId,
+            apiLog: {
+                status,
+                request: logRequest,
+                response: logResponse,
+            }
+        })
+
     }
 }
 

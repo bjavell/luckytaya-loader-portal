@@ -9,6 +9,7 @@ import Form from "@/components/form";
 import Button from "@/components/button";
 import { formatMoney } from "@/util/textUtil";
 import Modal from "@/components/modal";
+import { localAxios } from "@/util/localAxiosUtil";
 
 
 type VenueType = {
@@ -23,7 +24,7 @@ const Event = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const getVenues = async () => {
-    await axios
+    await localAxios
       .get("/api/event/locations")
       .then((response) => {
         const data = response.data.sort(
@@ -65,7 +66,7 @@ const Event = () => {
       venueId: form.venueId.value,
       venueName: form.venueName.value,
     };
-    await axios
+    await localAxios
       .post("/api/event/locations", request)
       .then(() => {
         getVenues();

@@ -4,12 +4,25 @@ import { luckTayaAxios } from "@/util/axiosUtil";
 import { formatGenericErrorResponse } from "@/util/commonResponse";
 import { getCurrentSession } from "@/context/auth";
 import axios from "axios";
+import logger from "@/lib/logger";
 
 const GET = async (req: NextRequest) => {
+  const api = "GET EVENT FIGHT"
+  let correlationId
+  let logRequest
+  let logResponse
+  let status = 200
   try {
+    correlationId = req.headers.get('x-correlation-id');
     const currentSession = await getCurrentSession();
 
     const eventId = req.nextUrl.searchParams.get("eventId");
+
+    logRequest = {
+      url: {
+        eventId
+      }
+    }
     //console.log(eventId,'hello')
     const response = await luckTayaAxios.get(
       `/api/v1/SabongFight/WithDetailsByEventIdV2/${eventId}`,
@@ -25,14 +38,32 @@ const GET = async (req: NextRequest) => {
       return bDate.getTime() - aDate.getTime();
     });
 
+    logResponse = data
     return NextResponse.json(data);
-  } catch (e) {
-    return NextResponse.json(
-      {
-        error: formatGenericErrorResponse(e),
-      },
-      { status: 500 }
-    );
+  } catch (e: any) {
+    logger.error(api, {
+      correlationId,
+      error: e.message,
+      errorStack: e.stack
+    })
+
+    status = 500
+    logResponse = formatGenericErrorResponse(e)
+    return NextResponse.json({
+      error: logResponse
+    }, {
+      status: 500
+    })
+  } finally {
+    logger.info(api, {
+      correlationId,
+      apiLog: {
+        status,
+        request: logRequest,
+        response: logResponse,
+      }
+    })
+
   }
 };
 const POST = async (req: NextRequest) => {
@@ -42,7 +73,7 @@ const POST = async (req: NextRequest) => {
   let isContinue = true;
   let result: any;
   const currentSession = await getCurrentSession();
- 
+
   try {
     fight.eventId = parseInt(fight.eventId);
     fight.fightNum = parseInt(fight.fightNum);

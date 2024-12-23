@@ -15,6 +15,7 @@ import LoadingSpinner from "@/components/loadingSpinner"
 
 import Image from "next/image";
 import Form from "@/components/form"
+import { localAxios } from "@/util/localAxiosUtil"
 
 
 const playerPortal = process.env.NEXT_PUBLIC_PLAYER_PORTAL
@@ -63,7 +64,7 @@ const Players = () => {
         try {
             setIsLoading(true)
 
-            const response = await axios.get('/api/get-all-users', {
+            const response = await localAxios.get('/api/get-all-users', {
                 params: {
                     type: manageType === 'backoffice' ? USER_TYPE.MANAGEMENT : USER_TYPE.PLAYER
                 }
@@ -89,7 +90,7 @@ const Players = () => {
     }
 
     const getUserType = async () => {
-        await axios.get('/api/get-account-type')
+        await localAxios.get('/api/get-account-type')
             .then(response => {
                 setAccountType(response.data)
             })
@@ -109,7 +110,7 @@ const Players = () => {
     }
 
     // const getUserType = async () => {
-    //     await axios.get('/api/get-account-type')
+    //     await localAxios.get('/api/get-account-type')
     //         .then(response => {
     //             setAccountType(response.data)
     //         })
@@ -129,7 +130,7 @@ const Players = () => {
     // }
 
     const getUserRole = async () => {
-        await axios.get('/api/get-account-roles')
+        await localAxios.get('/api/get-account-roles')
             .then(response => {
                 setAccountRole(response.data)
             })
@@ -249,7 +250,7 @@ const Players = () => {
             setIsConfirmModalOpen(false)
             setIsLoading(true)
             //console.log(modalData)
-            await axios.post('/api/update-user-account', modalData)
+            await localAxios.post('/api/update-user-account', modalData)
             setModalData({
                 "accountNumber": 0,
                 "accountType": 0,

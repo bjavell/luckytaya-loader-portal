@@ -1,6 +1,7 @@
 import { DB_COLLECTIONS, QR_TRANSACTION_STATUS } from "@/classes/constants";
 import CustomError from "@/classes/customError";
 import { getCurrentSession } from "@/context/auth";
+import logger from "@/lib/logger";
 import { luckTayaAxios } from "@/util/axiosUtil";
 import { formatGenericErrorResponse } from "@/util/commonResponse";
 import { decrypt, encrypt } from "@/util/cryptoUtil";
@@ -39,9 +40,19 @@ const sendEmail = async (recipient: string, username: string, password: string) 
 }
 
 const POST = async (req: NextRequest) => {
+    const api = "REGISTER"
+    let correlationId
+    let logRequest
+    let logResponse
+    let status = 200
     try {
 
         const request = await req.json()
+
+        correlationId = req.headers.get('x-correlation-id');
+        logRequest = {
+            ...request
+        }
         const currentSession = await getCurrentSession()
 
         const generatedPassword = getToken(8)
@@ -49,6 +60,7 @@ const POST = async (req: NextRequest) => {
 
         const mgmtUsersResponse = await luckTayaAxios.get(`/api/v1/User/MgmtRole`, {
             headers: {
+                'X-Correlation-ID': correlationId,
                 'Authorization': `Bearer ${currentSession.token}`,
             },
         })
@@ -79,7 +91,14 @@ const POST = async (req: NextRequest) => {
                 })
             }
 
-            const registerResponse = await luckTayaAxios.post('/api/v1/User/Register', { ...request, password: generatedPassword })
+            const registerResponse = await luckTayaAxios.post('/api/v1/User/Register',
+                { ...request, password: generatedPassword },
+                {
+                    headers: {
+                        'X-Correlation-ID': correlationId
+                    },
+                }
+            )
 
             const { accountNumber, userId } = registerResponse.data
 
@@ -107,6 +126,7 @@ const POST = async (req: NextRequest) => {
 
             await luckTayaAxios.put('/api/v1/User/UserRoleAccountTypeUpdate', updateAccount, {
                 headers: {
+                    'X-Correlation-ID': correlationId,
                     'Authorization': `Bearer ${currentSession.token}`,
                 },
             })
@@ -124,16 +144,32 @@ const POST = async (req: NextRequest) => {
         }
 
 
+        logResponse = { 'message': 'User succesffully created' }
 
-        return NextResponse.json({ 'message': 'User succesffully created' })
+        return NextResponse.json(logResponse)
     } catch (e: any) {
-        console.error(e)
-        //console.log(e?.response?.data)
+        logger.error(api, {
+            correlationId,
+            error: e.message,
+            errorStack: e.stack
+        })
 
+        status = 500
+        logResponse = formatGenericErrorResponse(e)
         return NextResponse.json({
-            error: formatGenericErrorResponse(e)
+            error: logResponse
         },
             { status: 500 })
+    } finally {
+        logger.info(api, {
+            correlationId,
+            apiLog: {
+                status,
+                request: logRequest,
+                response: logResponse,
+            }
+        })
+
     }
 }
 

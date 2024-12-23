@@ -5,8 +5,14 @@ import * as fs from 'fs'
 import { decrypt, encrypt, sha256withRSAverify } from "@/util/cryptoUtil";
 import { insertDecimalAtThirdToLast } from "@/util/textUtil";
 import { luckTayaAxios } from "@/util/axiosUtil";
+import logger from "@/lib/logger";
 
 const POST = async (req: NextRequest) => {
+    const api = "NOTIFY CASHIN"
+    let correlationId
+    let logRequest
+    let logResponse = { code: "200", message: "success" }
+    let status = 200
 
     try {
 
@@ -14,19 +20,31 @@ const POST = async (req: NextRequest) => {
         const query = { 'request.msgId': rawRequest.request.originalMsgId }
         const transaction = await findOne(DB_COLLECTIONS.QR_TRANSACITON, query)
 
+
+        logRequest = {
+            ...rawRequest,
+            signature: '----'
+        }
+
         const sppublicKey = fs.readFileSync('./key/SP_Public.key')
 
         const result = sha256withRSAverify(JSON.stringify(rawRequest.request), rawRequest.signature, sppublicKey)
 
         if (!result) {
+
+            logResponse = { code: "401", message: "Unauthorized" }
             return NextResponse.json({ code: "401", message: "Unauthorized" }, { status: 401 })
         }
 
         if (!transaction) {
+
+            logResponse = { code: "500", message: "Transaction Not found" }
             return NextResponse.json({ code: "500", message: "Transaction Not found" })
         }
 
         if (transaction.status === QR_TRANSACTION_STATUS.COMPLETED || transaction.response) {
+
+            logResponse = { code: "500", message: "Transaction already processed" }
             return NextResponse.json({ code: "500", message: "Transaction already processed" })
         }
 
@@ -79,14 +97,32 @@ const POST = async (req: NextRequest) => {
 
         } else {
 
-            return NextResponse.json({ code: "500", message: "Oops! an error occurred" })
+            logResponse = { code: "500", message: "Oops! an error occurred" }
+            return NextResponse.json(logResponse)
         }
 
 
 
 
     } catch (e: any) {
+        logger.error(api, {
+            correlationId,
+            error: e.message,
+            errorStack: e.stack
+        })
+
+        status = 500
         //console.log(e.response.errors)
+    } finally {
+        logger.info(api, {
+            correlationId,
+            apiLog: {
+                status,
+                request: logRequest,
+                response: logResponse,
+            }
+        })
+
     }
 
     return NextResponse.json({ code: "200", message: "success" })

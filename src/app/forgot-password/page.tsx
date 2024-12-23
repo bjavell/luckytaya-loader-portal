@@ -12,6 +12,7 @@ import Image from "next/image"
 import LoadingSpinner from "@/components/loadingSpinner"
 import ConfirmationModal from "@/components/confirmationModal"
 import { PATTERNS } from "@/classes/constants"
+import { localAxios } from "@/util/localAxiosUtil"
 
 const ForgotPassword = () => {
     const router = useRouter()
@@ -29,7 +30,7 @@ const ForgotPassword = () => {
         try {
             setIsConfirmModalOpen(false)
             setIsLoading(true)
-            const response = await axios.post('/api/forgot-password', { username })
+            const response = await localAxios.post('/api/forgot-password', { username })
             setUsername('')
             setErrorMessage('')
             setIsAlertModalOpen(true)

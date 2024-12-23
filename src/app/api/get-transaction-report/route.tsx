@@ -2,8 +2,6 @@ import { getCurrentSession } from "@/context/auth"
 import { NextRequest, NextResponse } from "next/server"
 import { luckTayaAxios } from "@/util/axiosUtil"
 import { formatGenericErrorResponse } from "@/util/commonResponse"
-import { findAll, findOne } from "@/util/dbUtil"
-import { DB_COLLECTIONS } from "@/classes/constants"
 
 const GET = async (req: NextRequest) => {
     try {
@@ -20,20 +18,12 @@ const GET = async (req: NextRequest) => {
             },
         })
 
-
-        const config = await findOne(DB_COLLECTIONS.CONFIG, { code: 'CFG0001' })
-        const getAllUser = await findAll(DB_COLLECTIONS.TAYA_USERS, {})
-        const getAllBackofficeUsers = await findAll(DB_COLLECTIONS.TAYA_AGENTS, {})
-
         const customResponse = response.data.map((e: any) => {
-
-            const fromAccount = getMatchedAccount(e.fromAccountNumber, getAllUser, getAllBackofficeUsers, config)
-            const toAccount = getMatchedAccount(e.toAccountNumber, getAllUser, getAllBackofficeUsers, config)
 
             const transaction = {
                 ...e,
-                fromFullName: fromAccount,
-                toFullName: toAccount
+                fromFullName: `${e.fromFirstname} ${e.fromLastname}`,
+                toFullName: `${e.toFirstname} ${e.toLastname}`
             }
 
 
@@ -55,35 +45,6 @@ const GET = async (req: NextRequest) => {
         },
             { status: 500 })
     }
-}
-
-
-const getMatchedAccount = (accountNumber: number, getAllUser: any, getAllBackofficeUsers: any, config:any) => {
-
-    const matchedPlayer = getAllUser.find((players: any) => {
-        return Number(players.accountNumber) === Number(accountNumber)
-    })
-
-    const matchedBackofficeUser = getAllBackofficeUsers.find((agents: any) => {
-        return Number(agents.response.accountNumber) === Number(accountNumber)
-    })
-
-    if (matchedPlayer) {
-        return `${matchedPlayer.firstname} ${matchedPlayer.lastname}`
-    } else if (matchedBackofficeUser) {
-        return `${matchedBackofficeUser.response.firstname} ${matchedBackofficeUser.response.lastname}`
-    } else {
-        if (config) {
-            if (config.operatorAccountNumber === accountNumber) {
-                return 'Operator'
-            } else if (config.mainAgentAccount === accountNumber) {
-                return 'Starpay Wallet'
-            }
-        }
-
-        return '-'
-    }
-
 }
 
 export { GET }

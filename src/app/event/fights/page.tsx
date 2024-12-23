@@ -12,6 +12,7 @@ import { fightSort, fightSortV2 } from "@/util/fightSorting";
 import Modal from "@/components/modal";
 import GameUpload from "@/components/gameUpload";
 import ConfirmationModal from "@/components/confirmationModal";
+import { localAxios } from "@/util/localAxiosUtil";
 
 type SabongEvent = {
   entryDateTime: string;
@@ -102,7 +103,7 @@ const Fight = () => {
     return statuses.find((x: any) => x.code == code);
   };
   const getEvents = async () => {
-    await axios
+    await localAxios
       .get("/api/event/list")
       .then((response) => {
         let data = response.data;
@@ -116,7 +117,7 @@ const Fight = () => {
   };
 
   const getStatus = async () => {
-    await axios
+    await localAxios
       .get("/api/event/fight/status")
       .then((response) => {
         setStatuses(response.data);
@@ -126,7 +127,7 @@ const Fight = () => {
       });
   };
   const getFights = async (eventId: any) => {
-    await axios
+    await localAxios
       .get("/api/event/fight", {
         params: {
           eventId,
@@ -295,7 +296,7 @@ const Fight = () => {
     };
     setIsLoading(true);
 
-    await axios
+    await localAxios
       .post("/api/event/fight", request)
       .then(() => {
         getFights(selectedEvent);

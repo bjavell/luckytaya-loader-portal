@@ -1,6 +1,7 @@
 import { DB_COLLECTIONS } from "@/classes/constants";
 import CustomError from "@/classes/customError";
 import { getCurrentSession } from "@/context/auth";
+import logger from "@/lib/logger";
 import { luckTayaAxios } from "@/util/axiosUtil";
 import { formatGenericErrorResponse } from "@/util/commonResponse";
 import { decrypt } from "@/util/cryptoUtil";
@@ -9,8 +10,14 @@ import { NextRequest, NextResponse } from "next/server";
 
 const POST = async (req: NextRequest) => {
 
+    const api = "UPDATE PROFILE"
+    let correlationId
+    let logRequest
+    let logResponse
+    let status = 200
     try {
 
+        correlationId = req.headers.get('x-correlation-id');
         const request = await req.json()
         const currentSession = await getCurrentSession()
 
@@ -24,6 +31,15 @@ const POST = async (req: NextRequest) => {
             facebookAccount: currentSession.facebookAccount,
             referralCode: currentSession.referralCode
         }
+
+        logRequest = {
+            ...request,
+            currentPassword: 'XXXXXX',
+            newPassword: 'XXXXXX',
+            confirmPassword: 'XXXXXX'
+        }
+
+
 
         const accountExists = await findOne(DB_COLLECTIONS.TAYA_AGENTS, {
             $or: [
@@ -41,6 +57,7 @@ const POST = async (req: NextRequest) => {
 
         const updateResponse = await luckTayaAxios.put('/api/v1/User/UpdateV2', decryptedRequest, {
             headers: {
+                'X-Correlation-ID': correlationId,
                 'Authorization': `Bearer ${currentSession.token}`,
             },
         })
@@ -51,7 +68,7 @@ const POST = async (req: NextRequest) => {
         const account = await findOne(DB_COLLECTIONS.TAYA_AGENTS, accountQuery)
         //console.log('account', account)
 
-        if(account) {
+        if (account) {
             const updatedAccount = {
                 ...account,
                 response: {
@@ -59,13 +76,14 @@ const POST = async (req: NextRequest) => {
                     ...updateResponse.data
                 }
             }
-            
+
             await update(DB_COLLECTIONS.TAYA_AGENTS, accountQuery, updatedAccount)
         }
 
         if (decryptedRequest.newPassword && decryptedRequest.confirmPassword) {
             await luckTayaAxios.post('/api/v1/User/ChangePasswordV2', decryptedRequest, {
                 headers: {
+                    'X-Correlation-ID': correlationId,
                     'Authorization': `Bearer ${currentSession.token}`,
                 },
             })
@@ -75,14 +93,32 @@ const POST = async (req: NextRequest) => {
 
 
 
-        return NextResponse.json({ 'message': 'Successfully updated!' })
+        logResponse = { 'message': 'Successfully updated!' }
 
-    } catch (e) {
-        console.error(e)
+        return NextResponse.json(logResponse)
+
+    } catch (e: any) {
+        logger.error(api, {
+            correlationId,
+            error: e.message,
+            errorStack: e.stack
+        })
+
+        status = 500
+        logResponse = formatGenericErrorResponse(e)
         return NextResponse.json({
-            error: formatGenericErrorResponse(e)
+            error: logResponse
         },
             { status: 500 })
+    } finally {
+        logger.info(api, {
+            correlationId,
+            apiLog: {
+                status,
+                request: logRequest,
+                response: logResponse,
+            }
+        })
 
     }
 

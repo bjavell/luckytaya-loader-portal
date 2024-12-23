@@ -12,7 +12,7 @@ import Modal from "@/components/modal";
 import { eventSort } from "@/util/eventSorting";
 import LoginModal from "@/components/loginModal";
 import { encrypt } from "@/util/cryptoUtil";
-
+import { localAxios } from "@/util/localAxiosUtil";
 type SabongEvent = {
   entryDateTime: string;
   operatorId: number;
@@ -56,7 +56,7 @@ const Event = () => {
     return venues.find((x: any) => x.venueId == venueId);
   };
   const getEvents = async () => {
-    await axios
+    await localAxios
       .get("/api/event/list")
       .then((response) => {
         let data = response.data;
@@ -79,7 +79,7 @@ const Event = () => {
   };
 
   const getStatus = async () => {
-    await axios
+    await localAxios
       .get("/api/event/status")
       .then((response) => {
         setStatuses(response.data);
@@ -97,7 +97,7 @@ const Event = () => {
   }, [selectedEvent]);
 
   const getFights = async (eventId: any) => {
-    await axios
+    await localAxios
       .get("/api/event/fight", {
         params: {
           eventId,
@@ -120,7 +120,7 @@ const Event = () => {
       });
   };
   const getVenues = async () => {
-    await axios
+    await localAxios
       .get("/api/event/locations")
       .then((response) => {
         const data = response.data.sort(
@@ -208,7 +208,7 @@ const Event = () => {
       fights: fights,
     };
 
-    await axios
+    await localAxios
       .post("/api/event", request)
       .then(() => {
         getEvents();
@@ -252,7 +252,7 @@ const Event = () => {
     }
     setIsLoading(true);
     setErrorMessage("");
-    await axios
+    await localAxios
       .post("/api/verify-signin", {
         password: encrypt(password),
       })

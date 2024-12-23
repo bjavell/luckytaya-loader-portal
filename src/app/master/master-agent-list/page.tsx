@@ -11,6 +11,7 @@ import FormField from "@/components/formField"
 import { useApiData } from "@/app/context/apiContext"
 import BalanceBar from "@/components/balanceBar"
 import LoadingSpinner from "@/components/loadingSpinner"
+import { localAxios } from "@/util/localAxiosUtil"
 
 const Players = () => {
     const router = useRouter()
@@ -38,7 +39,7 @@ const Players = () => {
     const { data } = useApiData()
 
     const getMembers = async (_isMasterAgent: boolean) => {
-        await axios.get('/api/get-user-members', {
+        await localAxios.get('/api/get-user-members', {
             params: {
                 type: _isMasterAgent ? 'masterAgent' : 'agent'
             }
@@ -58,7 +59,7 @@ const Players = () => {
     }
 
     const getAcccountType = async () => {
-        await axios.get('/api/get-account-type')
+        await localAxios.get('/api/get-account-type')
             .then(response => {
                 setAccountType(response.data)
             })
@@ -98,7 +99,7 @@ const Players = () => {
         try {
             setIsLoading(true)
 
-            const response = await axios.patch('/api/member', {
+            const response = await localAxios.patch('/api/member', {
                 accountNumber: member,
                 action
             })

@@ -14,6 +14,7 @@ import QrCode from "@/components/qrCode"
 import Modal from "@/components/modal"
 import LoadingSpinner from "@/components/loadingSpinner"
 import Button from "@/components/button"
+import { localAxios } from "@/util/localAxiosUtil"
 
 const PlayerCashin = () => {
     const router = useRouter()
@@ -61,7 +62,7 @@ const PlayerCashin = () => {
     const [showQr, setShowQr] = useState(false)
 
     const getLoadStationConfig = async () => {
-        await axios.get('/api/get-load-station-config')
+        await localAxios.get('/api/get-load-station-config')
             .then(response => {
                 const responseData = response.data
                 setConfig(responseData)
@@ -93,12 +94,12 @@ const PlayerCashin = () => {
 
                 }
 
-                response = await axios.post('/api/create-qr', data)
+                response = await localAxios.post('/api/create-qr', data)
                 setQrData(response.data.codeUrl)
                 setShowQr(true)
                 setAlertMessage('QR successfully generated!')
             } else {
-                response = await axios.post('/api/cashin', {
+                response = await localAxios.post('/api/cashin', {
                     amount: parseFloat(amount),
                     convFee,
                     comFee,
@@ -132,7 +133,7 @@ const PlayerCashin = () => {
 
     const searchPlayer = async (accountNumber: string) => {
         setIsLoading(true)
-        await axios.get('/api/get-user', {
+        await localAxios.get('/api/get-user', {
             params: {
                 accountNumber: accountNumber.replaceAll('-', '')
             }
@@ -167,7 +168,7 @@ const PlayerCashin = () => {
 
     const searchAgent = async (accountNumber: string) => {
         setIsLoading(true)
-        await axios.get('/api/get-user-members', {
+        await localAxios.get('/api/get-user-members', {
             params: {
                 type: cashinType
             }

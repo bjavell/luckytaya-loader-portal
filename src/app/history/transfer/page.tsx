@@ -9,6 +9,7 @@ import FormField from "@/components/formField"
 import Form from "@/components/form"
 import Button from "@/components/button"
 import { formatDynamicNumber, formatMoney } from "@/util/textUtil"
+import { localAxios } from "@/util/localAxiosUtil"
 
 const Commisson = () => {
 
@@ -37,7 +38,7 @@ const Commisson = () => {
         // Adjust for the local timezone offset
         const localEndDateTime = new Date(endDateDateTime.getTime() - endDateDateTime.getTimezoneOffset() * 60000);
 
-        await axios.get('/api/get-transaction', {
+        await localAxios.get('/api/get-transaction', {
             params: {
                 startDate: localStartDateTime.toISOString(),
                 endDate: localEndDateTime.toISOString()

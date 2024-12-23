@@ -16,6 +16,7 @@ import Timer from "@/components/timer";
 import { eventSort, eventStatus } from "@/util/eventSorting";
 import { fightSortV2, fightStatus } from "@/util/fightSorting";
 import isJsonObjectEmpty from "@/util/isJsonObjectEmpty";
+import { localAxios } from "@/util/localAxiosUtil";
 
 type SabongEvent = {
   entryDateTime: string;
@@ -111,7 +112,7 @@ const Fight = () => {
     return statuses.find((x: any) => x.code == code);
   };
   const getEvents = async () => {
-    await axios
+    await localAxios
       .get("/api/event/list-open")
       .then((response) => {
         let data = response.data;
@@ -125,7 +126,7 @@ const Fight = () => {
   };
 
   const getStatus = async () => {
-    await axios
+    await localAxios
       .get("/api/event/fight/status")
       .then((response) => {
         setStatuses(response.data);
@@ -136,7 +137,7 @@ const Fight = () => {
       });
   };
   const getFights = async (eventId: any) => {
-    await axios
+    await localAxios
       .get("/api/event/fight", {
         params: {
           eventId: eventId,
@@ -184,12 +185,12 @@ const Fight = () => {
 
   const setupGame = async () => {
     setIsLoading(true);
-    const location = await axios.get("/api/event/locationById", {
+    const location = await localAxios.get("/api/event/locationById", {
       params: {
         venueId: selectedEvent.venueId,
       },
     });
-    const fightList = await axios.get("/api/event/fight/", {
+    const fightList = await localAxios.get("/api/event/fight/", {
       params: {
         eventId: selectedEvent.eventId,
       },
@@ -202,7 +203,7 @@ const Fight = () => {
       totalFight: fightList.data.length,
     };
 
-    const bet = await axios.get("/api/event/betDetails", {
+    const bet = await localAxios.get("/api/event/betDetails", {
       params: {
         fightId: fight.fightId,
       },
@@ -217,7 +218,7 @@ const Fight = () => {
     if (!gameData) return;
     setIsLoadingWithScreen(true);
     if (isRefreshFight) await getFights(selectedEvent.eventId);
-    const bet = await axios
+    const bet = await localAxios
       .get("/api/event/fight/byId", {
         params: {
           fightId: gameData.fight.fightId,
@@ -275,7 +276,7 @@ const Fight = () => {
       message: form.message.value,
       duration: form.duration.value,
     };
-    await axios
+    await localAxios
       .post("/api/event/sendMessage", request)
       .then(() => {
         setErrorMessage("");
@@ -319,7 +320,7 @@ const Fight = () => {
       winSide: winningSide,
     };
 
-    await axios
+    await localAxios
       .post("/api/event/fight/result", request)
       .then(() => {
         setErrorMessage("");
@@ -459,7 +460,7 @@ const Fight = () => {
       fightId: gameData.fight.fightId,
       fightStatusCode: status,
     };
-    await axios
+    await localAxios
       .post("/api/event/fight/setStatus", request)
       .then(() => {
         // alert("Successfully Saved");
@@ -493,7 +494,7 @@ const Fight = () => {
       fightId: gameData.fight.fightId,
       fightStatusCode: fightStatusCode,
     };
-    await axios
+    await localAxios
       .post("/api/event/fight/setStatus", request)
       .then(() => {
         // alert("Successfully Saved");

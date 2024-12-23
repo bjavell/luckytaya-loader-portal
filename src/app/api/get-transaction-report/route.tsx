@@ -2,38 +2,41 @@ import { getCurrentSession } from "@/context/auth"
 import { NextRequest, NextResponse } from "next/server"
 import { luckTayaAxios } from "@/util/axiosUtil"
 import { formatGenericErrorResponse } from "@/util/commonResponse"
-import { findAll, findOne } from "@/util/dbUtil"
-import { DB_COLLECTIONS } from "@/classes/constants"
+import logger from "@/lib/logger"
 
 const GET = async (req: NextRequest) => {
+    const api = "GET TRANSACTION REPORT"
+    let correlationId
+    let logRequest
+    let logResponse
+    let status = 200
     try {
+        correlationId = req.headers.get('x-correlation-id');
         const currentSession = await getCurrentSession()
 
         const params = {
             dateTimeFrom: req.nextUrl.searchParams.get('startDate'),
             dateTimeTo: req.nextUrl.searchParams.get('endDate'),
         }
+
+        logRequest = {
+            ...params
+        }
+
         const response = await luckTayaAxios.get(`/api/v1/xAccountTransaction/GetTransByDateV2`, {
             params,
             headers: {
+                'X-Correlation-ID': correlationId,
                 'Authorization': `Bearer ${currentSession.token}`,
             },
         })
 
-
-        const config = await findOne(DB_COLLECTIONS.CONFIG, { code: 'CFG0001' })
-        const getAllUser = await findAll(DB_COLLECTIONS.TAYA_USERS, {})
-        const getAllBackofficeUsers = await findAll(DB_COLLECTIONS.TAYA_AGENTS, {})
-
         const customResponse = response.data.map((e: any) => {
-
-            const fromAccount = getMatchedAccount(e.fromAccountNumber, getAllUser, getAllBackofficeUsers, config)
-            const toAccount = getMatchedAccount(e.toAccountNumber, getAllUser, getAllBackofficeUsers, config)
 
             const transaction = {
                 ...e,
-                fromFullName: fromAccount,
-                toFullName: toAccount
+                fromFullName: `${e.fromFirstname} ${e.fromLastname}`,
+                toFullName: `${e.toFirstname} ${e.toLastname}`
             }
 
 
@@ -47,43 +50,35 @@ const GET = async (req: NextRequest) => {
             return b.transactionNumber - a.transactionNumber
         })
 
-        return NextResponse.json(customResponse)
-    } catch (e) {
-
-        return NextResponse.json({
-            error: formatGenericErrorResponse(e)
-        },
-            { status: 500 })
-    }
-}
-
-
-const getMatchedAccount = (accountNumber: number, getAllUser: any, getAllBackofficeUsers: any, config:any) => {
-
-    const matchedPlayer = getAllUser.find((players: any) => {
-        return Number(players.accountNumber) === Number(accountNumber)
-    })
-
-    const matchedBackofficeUser = getAllBackofficeUsers.find((agents: any) => {
-        return Number(agents.response.accountNumber) === Number(accountNumber)
-    })
-
-    if (matchedPlayer) {
-        return `${matchedPlayer.firstname} ${matchedPlayer.lastname}`
-    } else if (matchedBackofficeUser) {
-        return `${matchedBackofficeUser.response.firstname} ${matchedBackofficeUser.response.lastname}`
-    } else {
-        if (config) {
-            if (config.operatorAccountNumber === accountNumber) {
-                return 'Operator'
-            } else if (config.mainAgentAccount === accountNumber) {
-                return 'Starpay Wallet'
-            }
+        logResponse = {
+            ...customResponse
         }
+        return NextResponse.json(customResponse)
+    } catch (e: any) {
+        logger.error(api, {
+            correlationId,
+            error: e.message,
+            errorStack: e.stack
+        })
 
-        return '-'
+        status = 500
+        logResponse = formatGenericErrorResponse(e)
+        return NextResponse.json({
+            error: logResponse
+        }, {
+            status: 500
+        })
+    } finally {
+        logger.info(api, {
+            correlationId,
+            apiLog: {
+                status,
+                request: logRequest,
+                response: logResponse,
+            }
+        })
+
     }
-
 }
 
 export { GET }

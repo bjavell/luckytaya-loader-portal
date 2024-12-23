@@ -11,6 +11,7 @@ import Button from "@/components/button"
 import { formatDynamicNumber, formatMoney } from "@/util/textUtil"
 import LoadingSpinner from "@/components/loadingSpinner"
 import { useParams } from "next/navigation"
+import { localAxios } from "@/util/localAxiosUtil"
 
 const Reports = () => {
     const params = useParams()
@@ -41,7 +42,7 @@ const Reports = () => {
             endDateDateTime.setHours(23, 59, 59, 999)
             const localEndDateTime = new Date(endDateDateTime.getTime() - endDateDateTime.getTimezoneOffset() * 60000)
 
-            const response = await axios.get('/api/get-transaction-report', {
+            const response = await localAxios.get('/api/get-transaction-report', {
                 params: {
                     startDate: localStartDateTime.toISOString(),
                     endDate: localEndDateTime.toISOString()

@@ -8,6 +8,7 @@ import Image from "next/image"
 import axios from "axios"
 import UserIco from '@/assets/images/UserIco.svg'
 import AgentIco from '@/assets/images/AgentIco.svg'
+import { localAxios } from "@/util/localAxiosUtil"
 
 const Home = () => {
     const router = useRouter()
@@ -18,7 +19,7 @@ const Home = () => {
 
 
     const getMembers = async () => {
-        await axios.get('/api/get-user-members', {
+        await localAxios.get('/api/get-user-members', {
             params: {
                 type: 'agent'
             }

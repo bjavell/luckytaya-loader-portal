@@ -1,6 +1,7 @@
 'use client'
 
 import LoadingSpinner from "@/components/loadingSpinner"
+import { localAxios } from "@/util/localAxiosUtil"
 import { formatNumber } from "@/util/textUtil"
 import axios from "axios"
 import Link from "next/link"
@@ -16,7 +17,7 @@ const Home = () => {
         try {
             setIsLoading(true)
 
-            const response = await axios.get('/api/get-pending-kyc')
+            const response = await localAxios.get('/api/get-pending-kyc')
             setPendingKyc(response.data.count)
 
         } catch (e: any) {

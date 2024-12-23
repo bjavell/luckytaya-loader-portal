@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation"
 import logo from '@/assets/images/logo-1.svg'
 import Image from "next/image"
 import LoadingSpinner from "@/components/loadingSpinner"
+import { localAxios } from "@/util/localAxiosUtil"
 
 const Login = () => {
     const router = useRouter()
@@ -20,9 +21,9 @@ const Login = () => {
 
     const onHandleSubmit = async () => {
         setIsLoading(true)
-        setErrorMessage('')
+        setErrorMessage('')       
 
-        await axios.post('/api/signin', { username: userId, password: encrypt(password) })
+        await localAxios.post('/api/signin', { username: userId, password: encrypt(password) })
             .then(() => {
                 router.push('/')
             })

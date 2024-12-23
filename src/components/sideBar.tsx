@@ -10,6 +10,7 @@ import { getCurrentSession } from "@/context/auth"
 import UserAvatar from '@/assets/images/Avatar.svg'
 import { useApiData } from "@/app/context/apiContext"
 import { sideBarEventRoutes, sideBarAgentRoutes, sideBarMasterRoutes, sideBarAdminRoutes, sideBarMainMasterRoutes, sideBarFinanceRoutes, sideBarDeclaratorRoutes } from "@/classes/routes"
+import { localAxios } from "@/util/localAxiosUtil"
 
 interface SideBarRoutesProps {
     module?: string,
@@ -52,7 +53,7 @@ const populateItems = (item: SideBarRoutesProps, currentRoute: string) => {
 }
 
 const onHandleLogout = async (router: AppRouterInstance | string[], setIsLoading: { (value: SetStateAction<boolean>): void; (arg0: boolean): void }) => {
-    await axios.post('/api/signout', {})
+    await localAxios.post('/api/signout', {})
         .then(response => {
             router.push('/login')
         })

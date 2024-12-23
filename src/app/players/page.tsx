@@ -7,6 +7,7 @@ import { formatDynamicNumber, formatMoney } from "@/util/textUtil"
 import Button from "@/components/button"
 import AccountType from "@/classes/accountTypeData"
 import FormField from "@/components/formField"
+import { localAxios } from "@/util/localAxiosUtil"
 
 const Players = () => {
     const router = useRouter()
@@ -18,7 +19,7 @@ const Players = () => {
 
     const getPlayerLists = async () => {
 
-        await axios.get('/api/get-user-members', {
+        await localAxios.get('/api/get-user-members', {
             params: {
                 type: 'players'
             }
@@ -43,7 +44,7 @@ const Players = () => {
             })
     }
     const getAcccountType = async () => {
-        await axios.get('/api/get-account-type')
+        await localAxios.get('/api/get-account-type')
             .then(response => {
                 setAccountType(response.data)
             })

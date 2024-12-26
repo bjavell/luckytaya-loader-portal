@@ -10,6 +10,21 @@ const MeronWala = ({player, type, data }: any) => {
       return "0";
     }
   };
+
+
+  const calculateOddPercentage = (data:any) => {
+
+    const numerator = parseFloat(getSafeData(data, `s${type}a`))
+    const denominator = parseFloat(getSafeData(data, 's1a')) + parseFloat(getSafeData(data, 's0a'))
+
+    if(numerator === 0 || denominator === 0) {
+      return '0 %'
+    }
+
+    return `${((numerator / denominator) * 100).toFixed(0)} %`
+  }
+
+
   return (
     <div className="p-2  rounded-lg bg-cursedBlack">
       <div className="p-2 ">
@@ -32,7 +47,7 @@ const MeronWala = ({player, type, data }: any) => {
           <div className="bg-dark-no-border p-1 rounded-[20px] border-transparent">
             Odd Percentage
             <div className="bg-gray13 rounded-xl w-full  mt-1 p-1 text-center capitalize">
-              {((parseFloat(getSafeData(data, `s${type}a`)) / (parseFloat(getSafeData(data, 's1a')) + parseFloat(getSafeData(data, 's0a')))) * 100).toFixed(0)} %
+              {calculateOddPercentage(data)}
             </div>
           </div>
         </div>

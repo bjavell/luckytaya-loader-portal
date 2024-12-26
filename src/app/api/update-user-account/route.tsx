@@ -1,14 +1,21 @@
 import { DB_COLLECTIONS } from "@/classes/constants";
 import { getCurrentSession } from "@/context/auth";
+import logger from "@/lib/logger";
 import { luckTayaAxios } from "@/util/axiosUtil";
 import { formatGenericErrorResponse } from "@/util/commonResponse";
 import { findOne, update } from "@/util/dbUtil";
 import { NextRequest, NextResponse } from "next/server";
 
 const POST = async (req: NextRequest) => {
+    const api = "UPDATE USER ACCOUNT"
+    let correlationId
+    let logRequest
+    let logResponse
+    let status = 200
 
     try {
-
+        correlationId = req.headers.get('x-correlation-id');
+        
         const currentSession = await getCurrentSession()
         const { accountNumber, accountType, suspended, id, status } = await req.json()
 
@@ -32,6 +39,12 @@ const POST = async (req: NextRequest) => {
             userId: id
         }
 
+        
+        logRequest = {
+            ...request
+        }
+
+
         //console.log(request)
 
 
@@ -39,6 +52,7 @@ const POST = async (req: NextRequest) => {
 
             await luckTayaAxios.put('/api/v1/User/UserRoleAccountTypeUpdate', request, {
                 headers: {
+                    'X-Correlation-ID': correlationId,
                     'Authorization': `Bearer ${currentSession.token}`,
                 }
             })
@@ -54,6 +68,7 @@ const POST = async (req: NextRequest) => {
                         userId: id
                     },
                     headers: {
+                        'X-Correlation-ID': correlationId,
                         'Authorization': `Bearer ${currentSession.token}`,
                     }
                 })
@@ -65,6 +80,7 @@ const POST = async (req: NextRequest) => {
                         userId: id
                     },
                     headers: {
+                        'X-Correlation-ID': correlationId,
                         'Authorization': `Bearer ${currentSession.token}`,
                     }
                 })
@@ -81,14 +97,33 @@ const POST = async (req: NextRequest) => {
                 await update(DB_COLLECTIONS.TAYA_USERS, query, { ...user, status })
             }
         }
-        return NextResponse.json({ message: 'Successfully updated!' })
+
+        logResponse = { message: 'Successfully updated!' }
+        return NextResponse.json(logResponse)
 
     } catch (e: any) {
-        console.error(e?.response?.data)
+        logger.error(api, {
+            correlationId,
+            error: e.message,
+            errorStack: e.stack
+        })
+
+        status = 500
+        logResponse = formatGenericErrorResponse(e)
         return NextResponse.json({
-            error: formatGenericErrorResponse(e)
+            error: logResponse
         },
             { status: 500 })
+
+    }finally {
+        logger.info(api, {
+            correlationId,
+            apiLog: {
+                status,
+                request: logRequest,
+                response: logResponse,
+            }
+        })
 
     }
 }

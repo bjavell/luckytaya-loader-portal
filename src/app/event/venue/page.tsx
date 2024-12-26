@@ -9,6 +9,7 @@ import Form from "@/components/form";
 import Button from "@/components/button";
 import { formatMoney } from "@/util/textUtil";
 import Modal from "@/components/modal";
+import { localAxios } from "@/util/localAxiosUtil";
 
 
 type VenueType = {
@@ -23,7 +24,7 @@ const Event = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const getVenues = async () => {
-    await axios
+    await localAxios
       .get("/api/event/locations")
       .then((response) => {
         const data = response.data.sort(
@@ -65,7 +66,7 @@ const Event = () => {
       venueId: form.venueId.value,
       venueName: form.venueName.value,
     };
-    await axios
+    await localAxios
       .post("/api/event/locations", request)
       .then(() => {
         getVenues();
@@ -106,7 +107,7 @@ const Event = () => {
   return (
     <div className="flex flex-col gap-4 w-full">
       <h1 className="text-xl">Venue</h1>
-      <div className="w-sm">
+      {/* <div className="w-sm">
         <Button
           onClick={() => setIsModalOpen(true)}
           isLoading={isLoading}
@@ -115,8 +116,8 @@ const Event = () => {
         >
           + New Venue
         </Button>
-      </div>
-      <Modal isOpen={isModalOpen} onClose={closeModal}>
+      </div> */}
+      <Modal size="medium" isOpen={isModalOpen} onClose={closeModal}>
         <div className="w-full p-4">
           {errorMessage !== "" ? (
             <div className="flex gap-2 text-white bg-red p-4 rounded-xlg">

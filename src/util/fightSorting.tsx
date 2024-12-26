@@ -33,6 +33,7 @@ const fightSort = (
       return data.sort((a: any, b: any) => a[sortBy] - b[sortBy]);
   }
 };
+
 const fightSortV2 = (
   sortBy: string,
   data: any,
@@ -75,6 +76,17 @@ const fightSortV2 = (
   }
 };
 
+
+const getLastFight = (
+  data: any
+) => {
+
+  data = data.sort((a: any, b: any) => b.fight.fightNum - a.fight.fightNum);
+  return data[0];
+
+};
+
+
 const sortStatusTempCode = (code: any) => {
   switch (code) {
     //waiting
@@ -115,4 +127,4 @@ const fightStatus = (code: any) => {
   }
 };
 
-export { fightSort, fightSortV2, fightStatus };
+export { fightSort, fightSortV2, fightStatus, getLastFight };

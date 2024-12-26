@@ -11,6 +11,7 @@ import FormField from "@/components/formField"
 import { useApiData } from "@/app/context/apiContext"
 import BalanceBar from "@/components/balanceBar"
 import LoadingSpinner from "@/components/loadingSpinner"
+import { localAxios } from "@/util/localAxiosUtil"
 
 const FundingRequest = () => {
     const router = useRouter()
@@ -34,7 +35,7 @@ const FundingRequest = () => {
     const getFundingRequests = async () => {
         try {
 
-            const response = await axios.get('/api/get-funding-requests',)
+            const response = await localAxios.get('/api/get-funding-requests',)
 
             const responseData = response.data
             setRequests(responseData)
@@ -64,11 +65,11 @@ const FundingRequest = () => {
             setIsLoading(true)
             let response
             if (action === 'APPROVE') {
-                response = await axios.post('/api/approve-funding', {
+                response = await localAxios.post('/api/approve-funding', {
                     id: funding
                 })
             } else {
-                response = await axios.post('/api/reject-funding', {
+                response = await localAxios.post('/api/reject-funding', {
                     id: funding
                 })
             }

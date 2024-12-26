@@ -1,5 +1,6 @@
 import { DB_COLLECTIONS } from "@/classes/constants"
 import { getCurrentSession } from "@/context/auth"
+import logger from "@/lib/logger"
 import { luckTayaAxios } from "@/util/axiosUtil"
 import { formatGenericErrorResponse } from "@/util/commonResponse"
 import { findAll, findOne } from "@/util/dbUtil"
@@ -7,26 +8,42 @@ import { NextRequest, NextResponse } from "next/server"
 
 
 const GET = async (req: NextRequest) => {
+    const api = "GET USER MEMBER"
+    let correlationId
+    let logRequest
+    let logResponse
+    let status = 200
     try {
+        correlationId = req.headers.get('x-correlation-id');
+
         const currentSession = await getCurrentSession()
 
         const type = req.nextUrl.searchParams.get('type')
+
+        logRequest = {
+            url: {
+                type
+            }
+        }
 
         if (type === 'agent' || type === 'masterAgent') {
 
             const directMemberResponse = await luckTayaAxios.get(`/api/v1/AccountMember/Direct`, {
                 headers: {
+                    'X-Correlation-ID': correlationId,
                     'Authorization': `Bearer ${currentSession.token}`,
                 },
             })
             const indirectMemberResponse = await luckTayaAxios.get(`/api/v1/AccountMember/Indirect`, {
                 headers: {
+                    'X-Correlation-ID': correlationId,
                     'Authorization': `Bearer ${currentSession.token}`,
                 },
             })
 
             const orphanMemberResponse = await luckTayaAxios.get(`/api/v1/AccountMember/OrphanAccount`, {
                 headers: {
+                    'X-Correlation-ID': correlationId,
                     'Authorization': `Bearer ${currentSession.token}`,
                 },
             })
@@ -159,16 +176,36 @@ const GET = async (req: NextRequest) => {
                 return customPlayer
             })
 
+            logResponse = {
+                ...customPlayerResponse
+            }
 
             return NextResponse.json(customPlayerResponse)
         }
     } catch (e: any) {
-        console.error(e?.response?.data)
-        console.error(e?.response)
+        logger.error(api, {
+            correlationId,
+            error: e.message,
+            errorStack: e.stack
+        })
+
+        status = 500
+        logResponse = formatGenericErrorResponse(e)
         return NextResponse.json({
-            error: formatGenericErrorResponse(e)
-        },
-            { status: 500 })
+            error: logResponse
+        }, {
+            status: 500
+        })
+    } finally {
+        logger.info(api, {
+            correlationId,
+            apiLog: {
+                status,
+                request: logRequest,
+                response: logResponse,
+            }
+        })
+
     }
 }
 

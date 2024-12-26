@@ -1,3 +1,4 @@
+import { localAxios } from "@/util/localAxiosUtil";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { createContext, ReactNode, useContext, useEffect, useState } from "react"
@@ -31,7 +32,7 @@ const ApiProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
 
 
     const getUserDetails = async () => {
-        await axios.get('/api/get-user-details')
+        await localAxios.get('/api/get-user-details')
             .then(response => {
                 setData(response.data)
             })

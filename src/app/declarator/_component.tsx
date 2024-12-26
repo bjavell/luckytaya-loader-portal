@@ -16,8 +16,10 @@ import Image from "next/image";
 import Logout from "@/assets/images/Logout.svg";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { useRouter } from "next/navigation";
-import { fightSortV2, fightStatus } from "@/util/fightSorting";
+import { fightSortV2, fightStatus, getLastFight } from "@/util/fightSorting";
 import isJsonObjectEmpty from "@/util/isJsonObjectEmpty";
+import { localAxios } from "@/util/localAxiosUtil";
+import Trend from "@/components/trend";
 
 type SabongEvent = {
   entryDateTime: string;
@@ -50,6 +52,11 @@ const Fight = () => {
   const [isErrorMessageOpen, setIsErrorMessageOpen] = useState(false);
   const [fightDetails, setFightDetails] = useState<any>();
   const [isModalSendMessageOpen, setIsModalSendMessageOpen] = useState(false);
+  const [isCreateAnotherGame, setIsCreateAnotherGame] = useState(false);
+  const [lastFight, setLastFight] = useState<any>(null);
+  const [isGameAvailable, setIsGameAvailable] = useState(true);
+
+
   const [betDetails, setBetDetails] = useState({
     fId: 0,
     s0c: 0,
@@ -91,7 +98,7 @@ const Fight = () => {
             break;
         }
       }
-    } catch (error) {}
+    } catch (error) { }
   }, [messages]);
 
   useEffect(() => {
@@ -107,14 +114,14 @@ const Fight = () => {
       setIsFightStatusModalOpen(false);
     }
 
-    return () => {};
+    return () => { };
   }, [isErrorMessageOpen]);
 
   const getEventStatus = (code: number): any => {
     return statuses.find((x: any) => x.code == code);
   };
   const getEvents = async () => {
-    await axios
+    await localAxios
       .get("/api/event/list-open")
       .then((response) => {
         const data = response.data;
@@ -127,7 +134,7 @@ const Fight = () => {
   };
 
   const getStatus = async () => {
-    await axios
+    await localAxios
       .get("/api/event/fight/status")
       .then((response) => {
         setStatuses(response.data);
@@ -138,7 +145,7 @@ const Fight = () => {
       });
   };
   const getFights = async (eventId: any) => {
-    await axios
+    await localAxios
       .get("/api/event/fight", {
         params: {
           eventId: eventId,
@@ -146,13 +153,18 @@ const Fight = () => {
       })
       .then((response) => {
         const data = fightSortV2("fightStatusCode", response.data, true);
+        const lastFight = getLastFight(response.data);
+        setLastFight(lastFight);
         setFights(data);
         if (data.length > 0) {
           setFight(getFightWithStatus(data[0].fight));
           setFightDetails(data[0].fightDetails);
+        } else {
+          setIsCreateAnotherGame(true);
+          setIsGameAvailable(false)
         }
       })
-      .catch(() => {});
+      .catch(() => { });
   };
 
   useEffect(() => {
@@ -194,31 +206,37 @@ const Fight = () => {
 
   const setupGame = async () => {
     setIsLoading(true);
-    const location = await axios.get("/api/event/locationById", {
+    const location = await localAxios.get("/api/event/locationById", {
       params: {
         venueId: selectedEvent.venueId,
       },
     });
-    const fightList = await axios.get("/api/event/fight/", {
+    const fightList = await localAxios.get("/api/event/fight/", {
       params: {
         eventId: selectedEvent.eventId,
       },
     });
 
+
+    const trends = await localAxios.get("/api/event/trend", {
+      params: {
+        eventId: selectedEvent.eventId,
+      },
+    });
     const game = {
       event: selectedEvent,
       fight: fight,
       venue: location.data,
       totalFight: fightList.data.length,
+      trends: trends.data
     };
 
-    const bet = await axios.get("/api/event/betDetails", {
+    const bet = await localAxios.get("/api/event/betDetails", {
       params: {
         fightId: fight.fightId,
       },
     });
     setBetDetails(bet.data);
-
     setGameData(game);
     setIsLoading(false);
   };
@@ -228,7 +246,7 @@ const Fight = () => {
     setIsLoadingWithScreen(true);
     if (isRefreshFight) await getFights(selectedEvent.eventId);
 
-    const bet = await axios
+    const bet = await localAxios
       .get("/api/event/fight/byId", {
         params: {
           fightId: gameData.fight.fightId,
@@ -241,9 +259,13 @@ const Fight = () => {
           setFight(getFightWithStatus(data[0].fight));
           setFightDetails(data[0].fightDetails);
         }
+
+        setIsLoading(false);
         setIsLoadingWithScreen(false);
       })
       .catch(() => {
+
+        setIsLoading(false);
         setIsLoadingWithScreen(false);
       });
   };
@@ -258,7 +280,7 @@ const Fight = () => {
 
   useEffect(() => {
     if (selectedEvent && fight) setupGame();
-    return () => {};
+    return () => { };
   }, [selectedEvent, fight]);
 
   const closeModal = () => {
@@ -286,7 +308,7 @@ const Fight = () => {
       message: form.message.value,
       duration: form.duration.value,
     };
-    await axios
+    await localAxios
       .post("/api/event/sendMessage", request)
       .then(() => {
         setErrorMessage("");
@@ -333,7 +355,7 @@ const Fight = () => {
       winSide: winningSide,
     };
 
-    await axios
+    await localAxios
       .post("/api/event/fight/result", request)
       .then(() => {
         setErrorMessage("");
@@ -369,12 +391,14 @@ const Fight = () => {
     setFight({});
     setFightDetails(null);
     setFights([]);
+    setIsLoading(false);
   };
 
   const handleFightChange = (e: any) => {
     setIsLoading(true);
     setFight(getFightWithStatus(fights[e.target.value].fight));
     setFightDetails(fights[e.target.value].fightDetails);
+    setIsLoading(false);
   };
 
   const renderEventStatusButton = () => {
@@ -454,7 +478,7 @@ const Fight = () => {
   };
 
   const onHandleLogout = async () => {
-    await axios
+    await localAxios
       .post("/api/signout", {})
       .then((response) => {
         router.push("/login");
@@ -467,6 +491,301 @@ const Fight = () => {
       });
   };
 
+
+  const renderOpenBetting = () => {
+    const isDisabled = true;
+    if (gameData) {
+      if (
+        gameData.event.eventStatusCode == 11 &&
+        gameData.fight.fightStatusCode == 10
+      )
+        return (
+          <Button
+            onClick={() => onDirectSetFightStatus(11)}
+            isLoading={isLoading}
+            loadingText="Loading..."
+            type={"button"}
+          >
+            Open Betting
+          </Button>
+        );
+      else if (
+        gameData.event.eventStatusCode == 11 &&
+        gameData.fight.fightStatusCode == 11
+      ) {
+        return (
+          <Button
+            onClick={() => onDirectSetFightStatus(21)}
+            isLoading={isLoading}
+            loadingText="Loading..."
+            type={"button"}
+          >
+            Cancel Game
+          </Button>
+        );
+      }
+    }
+
+    if (isDisabled)
+      return (
+        <button disabled className="bg-gray13 p-3 rounded-xl">
+          Open Betting
+        </button>
+      );
+  };
+
+  const renderCloseBetting = () => {
+    const isDisabled = true;
+    if (gameData) {
+      if (
+        gameData.event.eventStatusCode == 11 &&
+        gameData.fight.fightStatusCode == 11
+      )
+        return (
+          <Button
+            onClick={() => onDirectSetFightStatus(12)}
+            isLoading={isLoading}
+            loadingText="Loading..."
+            type={"button"}
+          >
+            Close Betting
+          </Button>
+        );
+    }
+
+    if (isDisabled)
+      return (
+        <button disabled className="bg-gray13 p-3 rounded-xl">
+          Close Betting
+        </button>
+      );
+  };
+
+  const renderLastCall = () => {
+    const isDisabled = true;
+    if (gameData) {
+      if (
+        gameData.event.eventStatusCode == 11 &&
+        gameData.fight.fightStatusCode == 11
+      )
+        return (
+          <Button
+            onClick={() => lastCall()}
+            isLoading={isLoading}
+            loadingText="Loading..."
+            type={"button"}
+          >
+            Final Call
+          </Button>
+        );
+    }
+
+    if (isDisabled)
+      return (
+        <button disabled className="bg-gray13 p-3 rounded-xl">
+          Final Call
+        </button>
+      );
+  };
+
+
+  const onDirectSetFightStatus = async (status: number) => {
+    setIsLoadingWithScreen(true);
+    const request = {
+      fightId: gameData.fight.fightId,
+      fightStatusCode: status,
+    };
+    await localAxios
+      .post("/api/event/fight/setStatus", request)
+      .then(() => {
+        // alert("Successfully Saved");
+        refreshFight(status == 21);
+        setIsFightStatusModalOpen(false);
+      })
+      .catch((e) => {
+        const errorMessages = e.response.data.error;
+        if (errorMessages) {
+          if (errorMessages["Not found"]) {
+            setErrorMessage(errorMessages["Not found"][0]);
+          } else if (errorMessages["Bad request"]) {
+            setErrorMessage(errorMessages["Bad request"][0]);
+          } else if (errorMessages["Unexpexted Error"]) {
+            setErrorMessage(errorMessages["Unexpexted Error"][0]);
+          } else {
+            setErrorMessage("Oops! something went wrong");
+          }
+        } else {
+          setErrorMessage("Oops! something went wrong");
+        }
+      })
+      .finally(() => {
+        setIsLoadingWithScreen(false);
+      });
+  };
+
+  const onConfirmSetFightStatus = async () => {
+    setIsLoadingWithScreen(true);
+    const request = {
+      fightId: gameData.fight.fightId,
+      fightStatusCode: fightStatusCode,
+    };
+    await localAxios
+      .post("/api/event/fight/setStatus", request)
+      .then(() => {
+        // alert("Successfully Saved");
+        refreshFight(fightStatusCode == 21);
+        setIsFightStatusModalOpen(false);
+      })
+      .catch((e) => {
+        const errorMessages = e.response.data.error;
+        if (errorMessages) {
+          if (errorMessages["Not found"]) {
+            setErrorMessage(errorMessages["Not found"][0]);
+          } else if (errorMessages["Bad request"]) {
+            setErrorMessage(errorMessages["Bad request"][0]);
+          } else if (errorMessages["Unexpexted Error"]) {
+            setErrorMessage(errorMessages["Unexpexted Error"][0]);
+          } else {
+            setErrorMessage("Oops! something went wrong");
+          }
+        } else {
+          setErrorMessage("Oops! something went wrong");
+        }
+      })
+      .finally(() => {
+        setIsLoadingWithScreen(false);
+      });
+  };
+
+
+  const onFightDetailsSubmit = async (e: any) => {
+    setErrorMessage("");
+    e.preventDefault();
+
+    const form = e.target;
+    if (!form["fightNum"].value) {
+      setErrorMessage("Please Enter Game Number");
+      return;
+    }
+    if (!form["meron-owner"].value) {
+      setErrorMessage("Please Enter Name 1");
+      return;
+    }
+    // if (!form["meron-breed"].value) {
+    //   setErrorMessage("Please Enter Pula Last Name");
+    //   return;
+    // }
+    // if (!form["meron-weight"].value) {
+    //   setErrorMessage("Please Enter Pula Age");
+    //   return;
+    // }
+    // if (!form["meron-tag"].value) {
+    //   setErrorMessage("Please Enter Pula Remarks");
+    //   return;
+    // }
+
+    if (!form["wala-owner"].value) {
+      setErrorMessage("Please Enter Name 1");
+      return;
+    }
+    const request = {
+      fight: {
+        fightNum: form["fightNum"].value,
+        eventId: selectedEvent.eventId,
+      },
+      fightDetails: [
+        {
+          side: 1,
+          owner: form["meron-owner"].value ?? "",
+          breed: form["meron-breed"]?.value ?? "",
+          weight: form["meron-weight"]?.value ?? "",
+          tag: form["meron-tag"]?.value ?? "",
+          imageBase64: "",
+          operatorId: 0,
+        },
+        {
+          side: 0,
+          owner: form["wala-owner"].value ?? "",
+          breed: form["wala-breed"]?.value ?? "",
+          weight: form["wala-weight"]?.value ?? "",
+          tag: form["wala-tag"]?.value ?? "",
+          imageBase64: "",
+          operatorId: 0,
+        },
+      ],
+    };
+    setIsLoading(true);
+
+    await localAxios
+      .post("/api/event/fight", request)
+      .then(() => {
+        setIsCreateAnotherGame(false);
+        setErrorMessage("Successfully Saved");
+      })
+      .catch((e) => {
+        const errorMessages = e.response.data.error;
+        if (errorMessages) {
+          if (errorMessages["Not found"]) {
+            setErrorMessage(errorMessages["Not found"][0]);
+          } else if (errorMessages["Bad request"]) {
+            setErrorMessage(errorMessages["Bad request"][0]);
+          } else if (errorMessages["Unexpexted Error"]) {
+            setErrorMessage(errorMessages["Unexpexted Error"][0]);
+          } else {
+            setErrorMessage("Oops! something went wrong");
+          }
+        } else {
+          setErrorMessage("Oops! something went wrong");
+        }
+      })
+      .finally(() => {
+
+        setIsLoading(false);
+        setIsLoadingWithScreen(false);
+        getFights(selectedEvent.eventId);
+      });
+  };
+
+  const getLastGameNumber = () => {
+    if (lastFight) {
+      try {
+        return (parseInt(lastFight.fight.fightNum) + 1).toString();
+      } catch (error) {
+
+      }
+    }
+    return "1"
+  }
+
+  const getPlayerName = (side: number) => {
+    if (!isJsonObjectEmpty(fightDetails)) {
+      const player = fightDetails.find((x: any) => x.side == side);
+      if (player) {
+        return `${player.owner} ${player.breed}`
+      }
+    }
+    return "";
+  }
+
+  const getLastGameFirstName = (side: number) => {
+    if (!isJsonObjectEmpty(lastFight)) {
+      const player = lastFight.fightDetails.find((x: any) => x.side == side);
+      if (player) {
+        return `${player.owner}`
+      }
+    }
+    return ""
+  }
+
+  const getLastGameLastName = (side: number) => {
+    if (!isJsonObjectEmpty(lastFight)) {
+      const player = lastFight.fightDetails.find((x: any) => x.side == side);
+      if (player) {
+        return `${player.breed}`
+      }
+    }
+    return ""
+  }
   return (
     <div className="flex flex-col gap-4 w-full">
       <div className="inline-flex justify-between items-center">
@@ -527,20 +846,120 @@ const Fight = () => {
             );
           })}
         </select>
+        <Button
+          onClick={() => { setIsCreateAnotherGame(true) }}
+          type={"button"}
+        >
+          Add Game
+        </Button>
       </div>
-      <h1>{isLoading && <label>{"   "}Loading ...</label>}</h1>
 
+      <h1>{isLoading && isGameAvailable && <label>{"   "}Loading ...</label>}</h1>
+      {!isGameAvailable && <h1 className="text-3xl">No Game/Rack Available</h1>}
       <Modal size="medium" isOpen={isModalOpen} onClose={closeModal}>
         <div className="flex flex-col justify-center p-4">
           <label className="text-[20px]">Select Winner Side</label>
           <br />
           <br />
           <div className="grid grid-cols-2 grid-rows-1 gap-4">
-            <MeronWalaWin type={1} onClick={() => setWinSide(1)} />
-            <MeronWalaWin type={0} onClick={() => setWinSide(0)} />
+            <MeronWalaWin type={1} onClick={() => setWinSide(1)} playerName={getPlayerName(1)} />
+            <MeronWalaWin type={0} onClick={() => setWinSide(0)} playerName={getPlayerName(0)} />
           </div>
         </div>
       </Modal>
+
+      {isCreateAnotherGame && <Modal size="medium" isOpen={isCreateAnotherGame}
+        onClose={() => setIsCreateAnotherGame(false)}>
+        <h1 className="text-3xl">Create Another Game?</h1>
+        <br />
+        <Form onSubmit={onFightDetailsSubmit} className="">
+          <div className="col-span-4 grid grid-cols-3 grid-rows-1 gap-2">
+            <FormField
+              name="fightNum"
+              label="Game Number"
+              placeholder="Enter Game Number"
+              type="number"
+              value={getLastGameNumber()}
+            />
+          </div>
+          <div className="col-span-2 grid grid-cols-2 grid-rows-1 gap-2">
+            <label>Name 1</label>
+            <label>Name 2</label>
+            {/* <label>Age</label>
+          <label>Remarks</label> */}
+          </div>
+          <div className="grid grid-cols-2 grid-rows-1 gap-0 items-center">
+            <div className="col-span-2 grid grid-cols-2 grid-rows-1 gap-1">
+              <input hidden value={1} name="meron-side" />
+              <input
+                hidden
+                name="meron-id"
+              />
+
+              <FormField
+                name="meron-owner"
+                label=""
+                placeholder="Enter Name 1"
+                type="text"
+                value={getLastGameFirstName(1)}
+              />
+              <FormField
+                name="meron-breed"
+                label=""
+                placeholder="Enter Name 2"
+                type="text"
+                value={getLastGameLastName(1)}
+              />
+              <div className="col-span-2"></div>
+              {/* <FormField
+              name="meron-weight"
+              label=""
+              placeholder="Enter Age"
+              value={getFightDetailValue(1, "weight")}
+              type="text"
+            />
+            <FormField
+              name="meron-tag"
+              label=""
+              placeholder="Enter Remarks"
+              value={getFightDetailValue(1, "tag")}
+              type="text"
+            /> */}
+
+              <input hidden value={0} name="wala-side" />
+              <input hidden
+                name="wala-id" />
+              <FormField
+                name="wala-owner"
+                label=""
+                placeholder="Enter Name 1"
+                type="text"
+                value={getLastGameFirstName(0)}
+              />
+              <FormField
+                name="wala-breed"
+                label=""
+                placeholder="Enter Name 2"
+                type="text"
+                value={getLastGameLastName(0)}
+              />
+              <div className="col-span-2"></div>
+
+            </div>
+            <br />
+          </div>
+          <div className="justify-self-end">
+            <Button
+              onClick={() => { }}
+              loadingText="Loading..."
+              type={"submit"}
+            >
+              Add Game
+            </Button>
+          </div>
+        </Form>
+
+      </Modal>}
 
       <Modal
         size="medium"
@@ -570,7 +989,7 @@ const Fight = () => {
                 type="number"
               />
               <Button
-                onClick={() => {}}
+                onClick={() => { }}
                 isLoading={isLoading}
                 loadingText="Loading..."
                 type={"submit"}
@@ -618,6 +1037,7 @@ const Fight = () => {
                 </div>
 
                 <div>
+
                   {renderEventStatusButton()}
                   <br />
                   <div className="bg-cursedBlack text-center p-3 rounded-xl">
@@ -639,9 +1059,20 @@ const Fight = () => {
                 allowFullScreen
               ></iframe>
             </div>
+
+            {gameData && (
+              <div className="grid grid-cols-3 grid-rows-1 gap-4">
+                {renderOpenBetting()}
+                {renderLastCall()}
+                {renderCloseBetting()}
+                {/* {renderEventStatusButton()} */}
+              </div>
+            )}
             <br />
           </div>
           <div className="flex flex-col gap-5">
+
+            {!isJsonObjectEmpty(gameData) && <Trend data={gameData?.trends}></Trend>}
             <div className="bg-gray13 rounded-xl w-full p-5 capitalize">
               <MeronWala player={getPlayer(1)} type={1} data={betDetails} />
             </div>

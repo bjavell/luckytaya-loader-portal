@@ -2,9 +2,16 @@ import { getCurrentSession } from "@/context/auth";
 import { NextRequest, NextResponse } from "next/server";
 import { luckTayaAxios } from "@/util/axiosUtil";
 import { formatGenericErrorResponse } from "@/util/commonResponse";
+import logger from "@/lib/logger";
 
 const GET = async (req: NextRequest) => {
+  const api = "GET FIGHT STATUS"
+  let correlationId
+  let logRequest
+  let logResponse
+  let status = 200
   try {
+    correlationId = req.headers.get('x-correlation-id');
     const currentSession = await getCurrentSession();
 
     // const params = {
@@ -13,18 +20,37 @@ const GET = async (req: NextRequest) => {
     // }
     const response = await luckTayaAxios.get(`/api/v1/SabongFightStatus`, {
       headers: {
+        'X-Correlation-ID': correlationId,
         Authorization: `Bearer ${currentSession.token}`,
       },
     });
 
+    logResponse = response.data
     return NextResponse.json(response.data);
-  } catch (e) {
-    return NextResponse.json(
-      {
-        error: formatGenericErrorResponse(e),
-      },
-      { status: 500 }
-    );
+  } catch (e: any) {
+    logger.error(api, {
+      correlationId,
+      error: e.message,
+      errorStack: e.stack
+    })
+
+    status = 500
+    logResponse = formatGenericErrorResponse(e)
+    return NextResponse.json({
+      error: logResponse
+    }, {
+      status: 500
+    })
+  } finally {
+    logger.info(api, {
+      correlationId,
+      apiLog: {
+        status,
+        request: logRequest,
+        response: logResponse,
+      }
+    })
+
   }
 };
 

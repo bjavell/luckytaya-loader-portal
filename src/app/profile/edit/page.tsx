@@ -12,6 +12,7 @@ import { useApiData } from "@/app/context/apiContext"
 import LoadingSpinner from "@/components/loadingSpinner"
 import { encrypt } from "@/util/cryptoUtil"
 import Modal from "@/components/modal"
+import { localAxios } from "@/util/localAxiosUtil"
 
 
 const EditProfile = () => {
@@ -75,7 +76,7 @@ const EditProfile = () => {
                 confirmPassword: encrypt(editProfile.confirmPassword),
             }
 
-            const response = await axios.post('/api/update-profile', request)
+            const response = await localAxios.post('/api/update-profile', request)
 
             setIndex(index + 1)
             setIsAlertModalOpen(true)

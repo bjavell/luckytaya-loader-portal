@@ -8,6 +8,7 @@ import FormField from "@/components/formField"
 import Form from "@/components/form"
 import ConfirmationModal from "@/components/confirmationModal"
 import { formatDynamicNumber, guidToNumber } from "@/util/textUtil"
+import { localAxios } from "@/util/localAxiosUtil"
 
 
 interface UserRegistrationProps {
@@ -50,7 +51,7 @@ const Register = () => {
     const [isShowMasterAgenctAccountField, setIsShowMasterAgenctAccountField] = useState(false)
 
     const getUserType = async () => {
-        await axios.get('/api/get-account-type')
+        await localAxios.get('/api/get-account-type')
             .then(response => {
                 setUserType(response.data)
             })
@@ -70,7 +71,7 @@ const Register = () => {
     }
 
     const getUserRole = async () => {
-        await axios.get('/api/get-account-roles')
+        await localAxios.get('/api/get-account-roles')
             .then(response => {
                 setUserRole(response.data)
             })
@@ -149,7 +150,7 @@ const Register = () => {
         try {
             setIsConfirmModalOpen(false)
             setIsLoading(true)
-            const response = await axios.post('/api/register', userRegistration)
+            const response = await localAxios.post('/api/register', userRegistration)
             setUserRegistration({
                 username: '',
                 firstname: '',

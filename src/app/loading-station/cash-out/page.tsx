@@ -10,6 +10,7 @@ import { useApiData } from "@/app/context/apiContext"
 import Form from "@/components/form"
 import { BANK_DETAILS, PATTERNS, TRAN_TYPE } from "@/classes/constants"
 import QrCode from "@/components/qrCode"
+import { localAxios } from "@/util/localAxiosUtil"
 
 const CashOut = () => {
     const router = useRouter()
@@ -27,7 +28,7 @@ const CashOut = () => {
 
 
     // const getBankList = async() => {
-    //     await axios.get('/api/get-bank-lists')
+    //     await localAxios.get('/api/get-bank-lists')
     // }
 
     useEffect(() => {
@@ -55,7 +56,7 @@ const CashOut = () => {
             accountNumber
         }
 
-        await axios.post('/api/create-qr', data)
+        await localAxios.post('/api/create-qr', data)
             .then((response) => {
                 setQrData(response.data.codeUrl)
                 setShowQr(true)

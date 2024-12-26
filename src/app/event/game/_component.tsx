@@ -16,6 +16,8 @@ import Timer from "@/components/timer";
 import { eventSort, eventStatus } from "@/util/eventSorting";
 import { fightSortV2, fightStatus } from "@/util/fightSorting";
 import isJsonObjectEmpty from "@/util/isJsonObjectEmpty";
+import { localAxios } from "@/util/localAxiosUtil";
+import Trend from "@/components/trend";
 
 type SabongEvent = {
   entryDateTime: string;
@@ -50,6 +52,8 @@ const Fight = () => {
   const [isTimer, setIsTimer] = useState(false);
   const [confirmTitle, setConfirmTitle] = useState<string>();
   const [fightDetails, setFightDetails] = useState<any>();
+  const [isGameAvailable, setIsGameAvailable] = useState(true);
+
   const [betDetails, setBetDetails] = useState({
     fId: 0,
     s0c: 0,
@@ -88,7 +92,7 @@ const Fight = () => {
             break;
         }
       }
-    } catch (error) {}
+    } catch (error) { }
   }, [messages]);
 
   useEffect(() => {
@@ -104,14 +108,14 @@ const Fight = () => {
       setIsFightStatusModalOpen(false);
     }
 
-    return () => {};
+    return () => { };
   }, [isErrorMessageOpen]);
 
   const getEventStatus = (code: number): any => {
     return statuses.find((x: any) => x.code == code);
   };
   const getEvents = async () => {
-    await axios
+    await localAxios
       .get("/api/event/list-open")
       .then((response) => {
         let data = response.data;
@@ -125,7 +129,7 @@ const Fight = () => {
   };
 
   const getStatus = async () => {
-    await axios
+    await localAxios
       .get("/api/event/fight/status")
       .then((response) => {
         setStatuses(response.data);
@@ -136,7 +140,7 @@ const Fight = () => {
       });
   };
   const getFights = async (eventId: any) => {
-    await axios
+    await localAxios
       .get("/api/event/fight", {
         params: {
           eventId: eventId,
@@ -148,9 +152,12 @@ const Fight = () => {
         if (data.length > 0) {
           setFight(getFightWithStatus(data[0].fight));
           setFightDetails(data[0].fightDetails);
+        } else {
+
+          setIsGameAvailable(false)
         }
       })
-      .catch(() => {});
+      .catch(() => { });
   };
 
   useEffect(() => {
@@ -184,25 +191,30 @@ const Fight = () => {
 
   const setupGame = async () => {
     setIsLoading(true);
-    const location = await axios.get("/api/event/locationById", {
+    const location = await localAxios.get("/api/event/locationById", {
       params: {
         venueId: selectedEvent.venueId,
       },
     });
-    const fightList = await axios.get("/api/event/fight/", {
+    const fightList = await localAxios.get("/api/event/fight/", {
       params: {
         eventId: selectedEvent.eventId,
       },
     });
-
+    const trends = await localAxios.get("/api/event/trend", {
+      params: {
+        eventId: selectedEvent.eventId,
+      },
+    });
     const game = {
       event: selectedEvent,
       fight: fight,
       venue: location.data,
       totalFight: fightList.data.length,
+      trends : trends.data
     };
 
-    const bet = await axios.get("/api/event/betDetails", {
+    const bet = await localAxios.get("/api/event/betDetails", {
       params: {
         fightId: fight.fightId,
       },
@@ -217,7 +229,7 @@ const Fight = () => {
     if (!gameData) return;
     setIsLoadingWithScreen(true);
     if (isRefreshFight) await getFights(selectedEvent.eventId);
-    const bet = await axios
+    const bet = await localAxios
       .get("/api/event/fight/byId", {
         params: {
           fightId: gameData.fight.fightId,
@@ -247,7 +259,7 @@ const Fight = () => {
 
   useEffect(() => {
     if (selectedEvent && fight) setupGame();
-    return () => {};
+    return () => { };
   }, [selectedEvent, fight]);
 
   const closeModal = () => {
@@ -275,7 +287,7 @@ const Fight = () => {
       message: form.message.value,
       duration: form.duration.value,
     };
-    await axios
+    await localAxios
       .post("/api/event/sendMessage", request)
       .then(() => {
         setErrorMessage("");
@@ -319,7 +331,7 @@ const Fight = () => {
       winSide: winningSide,
     };
 
-    await axios
+    await localAxios
       .post("/api/event/fight/result", request)
       .then(() => {
         setErrorMessage("");
@@ -360,7 +372,7 @@ const Fight = () => {
   const handleEventChange = (e: any) => {
     setIsLoading(true);
     setSelectedEvent(events[e.target.value]);
-    setFight({});  
+    setFight({});
     setFightDetails(null);
     setFights([]);
   };
@@ -386,7 +398,7 @@ const Fight = () => {
         case 10:
           return (
             <Button
-              onClick={() => {}}
+              onClick={() => { }}
               isLoading={isLoading}
               loadingText="Loading..."
               type={"button"}
@@ -459,7 +471,7 @@ const Fight = () => {
       fightId: gameData.fight.fightId,
       fightStatusCode: status,
     };
-    await axios
+    await localAxios
       .post("/api/event/fight/setStatus", request)
       .then(() => {
         // alert("Successfully Saved");
@@ -493,7 +505,7 @@ const Fight = () => {
       fightId: gameData.fight.fightId,
       fightStatusCode: fightStatusCode,
     };
-    await axios
+    await localAxios
       .post("/api/event/fight/setStatus", request)
       .then(() => {
         // alert("Successfully Saved");
@@ -696,7 +708,8 @@ const Fight = () => {
           })}
         </select>
       </div>
-      <h1>{isLoading && <label>{"   "}Loading ...</label>}</h1>
+      <h1>{isLoading && isGameAvailable && <label>{"   "}Loading ...</label>}</h1>
+      {!isGameAvailable && <h1 className="text-3xl">No Game/Rack Available</h1>}
 
       <Modal size="medium" isOpen={isModalOpen} onClose={closeModal}>
         <label className="text-[20px]">Select Winner Side</label>
@@ -736,7 +749,7 @@ const Fight = () => {
                 type="number"
               />
               <Button
-                onClick={() => {}}
+                onClick={() => { }}
                 isLoading={isLoading}
                 loadingText="Loading..."
                 type={"submit"}
@@ -830,9 +843,9 @@ const Fight = () => {
             <br />
             {gameData && (
               <div className="grid grid-cols-3 grid-rows-1 gap-4">
-                {renderOpenBetting()}
+                {/* {renderOpenBetting()}
                 {renderLastCall()}
-                {renderCloseBetting()}
+                {renderCloseBetting()} */}
                 {/* {renderResultButton()} */}
               </div>
             )}
@@ -840,6 +853,8 @@ const Fight = () => {
             <br />
           </div>
           <div className="flex flex-col gap-5">
+
+            {!isJsonObjectEmpty(gameData) && <Trend data={gameData?.trends}></Trend>}
             <div className="bg-gray13 rounded-xl w-full p-5 capitalize">
               <MeronWala player={getPlayer(1)} type={1} data={betDetails} />
             </div>

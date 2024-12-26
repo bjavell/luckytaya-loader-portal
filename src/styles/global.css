@@ -45,6 +45,17 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 
+.cancelColor {
+  background: rgb(139, 139, 139);
+  background: linear-gradient(
+    180deg,
+    rgba(139, 139, 139, 1) 0%,
+    rgba(255, 255, 255, 1) 100%
+  );
+
+  color: white;
+}
+
 .spinner {
   border: 8px solid #f3f3f3; /* Light gray */
   border-top: 8px solid #3498db; /* Blue */

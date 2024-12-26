@@ -14,6 +14,7 @@ import Form from "@/components/form";
 import FormField from "@/components/formField";
 import Tables from "@/components/tables";
 import { formatDynamicNumber, formatMoney } from "@/util/textUtil";
+import { localAxios } from "@/util/localAxiosUtil";
 
 type SabongEvent = {
   entryDateTime: string;
@@ -38,7 +39,7 @@ const TransactionHistory = () => {
   const [transactions, setTransactions] = useState<any>();
   const [total, setTotal] = useState(0);
   const getEvents = async () => {
-    await axios
+    await localAxios
       .get("/api/event/list")
       .then((response) => {
         const data = response.data;
@@ -51,7 +52,7 @@ const TransactionHistory = () => {
   };
 
   const getFights = async (eventId: any) => {
-    await axios
+    await localAxios
       .get("/api/event/fight", {
         params: {
           eventId: eventId,
@@ -86,7 +87,7 @@ const TransactionHistory = () => {
       };
     }
 
-    await axios
+    await localAxios
       .get(url, {
         params,
       })

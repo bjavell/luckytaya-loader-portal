@@ -107,7 +107,7 @@ const Event = () => {
   return (
     <div className="flex flex-col gap-4 w-full">
       <h1 className="text-xl">Venue</h1>
-      <div className="w-sm">
+      {/* <div className="w-sm">
         <Button
           onClick={() => setIsModalOpen(true)}
           isLoading={isLoading}
@@ -116,8 +116,8 @@ const Event = () => {
         >
           + New Venue
         </Button>
-      </div>
-      <Modal isOpen={isModalOpen} onClose={closeModal}>
+      </div> */}
+      <Modal size="medium" isOpen={isModalOpen} onClose={closeModal}>
         <div className="w-full p-4">
           {errorMessage !== "" ? (
             <div className="flex gap-2 text-white bg-red p-4 rounded-xlg">

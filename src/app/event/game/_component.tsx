@@ -831,9 +831,9 @@ const Fight = () => {
             <br />
             {gameData && (
               <div className="grid grid-cols-3 grid-rows-1 gap-4">
-                {renderOpenBetting()}
+                {/* {renderOpenBetting()}
                 {renderLastCall()}
-                {renderCloseBetting()}
+                {renderCloseBetting()} */}
                 {/* {renderResultButton()} */}
               </div>
             )}

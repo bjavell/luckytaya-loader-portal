@@ -92,7 +92,7 @@ const Fight = () => {
             break;
         }
       }
-    } catch (error) {}
+    } catch (error) { }
   }, [messages]);
 
   useEffect(() => {
@@ -108,7 +108,7 @@ const Fight = () => {
       setIsFightStatusModalOpen(false);
     }
 
-    return () => {};
+    return () => { };
   }, [isErrorMessageOpen]);
 
   const getEventStatus = (code: number): any => {
@@ -153,7 +153,7 @@ const Fight = () => {
           setFightDetails(data[0].fightDetails);
         }
       })
-      .catch(() => {});
+      .catch(() => { });
   };
 
   useEffect(() => {
@@ -259,7 +259,7 @@ const Fight = () => {
 
   useEffect(() => {
     if (selectedEvent && fight) setupGame();
-    return () => {};
+    return () => { };
   }, [selectedEvent, fight]);
 
   const closeModal = () => {
@@ -468,6 +468,173 @@ const Fight = () => {
       });
   };
 
+
+  const renderOpenBetting = () => {
+    const isDisabled = true;
+    if (gameData) {
+      if (
+        gameData.event.eventStatusCode == 11 &&
+        gameData.fight.fightStatusCode == 10
+      )
+        return (
+          <Button
+            onClick={() => onDirectSetFightStatus(11)}
+            isLoading={isLoading}
+            loadingText="Loading..."
+            type={"button"}
+          >
+            Open Betting
+          </Button>
+        );
+      else if (
+        gameData.event.eventStatusCode == 11 &&
+        gameData.fight.fightStatusCode == 11
+      ) {
+        return (
+          <Button
+            onClick={() => onDirectSetFightStatus(21)}
+            isLoading={isLoading}
+            loadingText="Loading..."
+            type={"button"}
+          >
+            Cancel Game
+          </Button>
+        );
+      }
+    }
+
+    if (isDisabled)
+      return (
+        <button disabled className="bg-gray13 p-3 rounded-xl">
+          Open Betting
+        </button>
+      );
+  };
+
+  const renderCloseBetting = () => {
+    const isDisabled = true;
+    if (gameData) {
+      if (
+        gameData.event.eventStatusCode == 11 &&
+        gameData.fight.fightStatusCode == 11
+      )
+        return (
+          <Button
+            onClick={() => onDirectSetFightStatus(12)}
+            isLoading={isLoading}
+            loadingText="Loading..."
+            type={"button"}
+          >
+            Close Betting
+          </Button>
+        );
+    }
+
+    if (isDisabled)
+      return (
+        <button disabled className="bg-gray13 p-3 rounded-xl">
+          Close Betting
+        </button>
+      );
+  };
+
+  const renderLastCall = () => {
+    const isDisabled = true;
+    if (gameData) {
+      if (
+        gameData.event.eventStatusCode == 11 &&
+        gameData.fight.fightStatusCode == 11
+      )
+        return (
+          <Button
+            onClick={() => lastCall()}
+            isLoading={isLoading}
+            loadingText="Loading..."
+            type={"button"}
+          >
+            Final Call
+          </Button>
+        );
+    }
+
+    if (isDisabled)
+      return (
+        <button disabled className="bg-gray13 p-3 rounded-xl">
+          Final Call
+        </button>
+      );
+  };
+
+
+  const onDirectSetFightStatus = async (status: number) => {
+    setIsLoadingWithScreen(true);
+    const request = {
+      fightId: gameData.fight.fightId,
+      fightStatusCode: status,
+    };
+    await localAxios
+      .post("/api/event/fight/setStatus", request)
+      .then(() => {
+        // alert("Successfully Saved");
+        refreshFight(status == 21);
+        setIsFightStatusModalOpen(false);
+      })
+      .catch((e) => {
+        const errorMessages = e.response.data.error;
+        if (errorMessages) {
+          if (errorMessages["Not found"]) {
+            setErrorMessage(errorMessages["Not found"][0]);
+          } else if (errorMessages["Bad request"]) {
+            setErrorMessage(errorMessages["Bad request"][0]);
+          } else if (errorMessages["Unexpexted Error"]) {
+            setErrorMessage(errorMessages["Unexpexted Error"][0]);
+          } else {
+            setErrorMessage("Oops! something went wrong");
+          }
+        } else {
+          setErrorMessage("Oops! something went wrong");
+        }
+      })
+      .finally(() => {
+        setIsLoadingWithScreen(false);
+      });
+  };
+
+  const onConfirmSetFightStatus = async () => {
+    setIsLoadingWithScreen(true);
+    const request = {
+      fightId: gameData.fight.fightId,
+      fightStatusCode: fightStatusCode,
+    };
+    await localAxios
+      .post("/api/event/fight/setStatus", request)
+      .then(() => {
+        // alert("Successfully Saved");
+        refreshFight(fightStatusCode == 21);
+        setIsFightStatusModalOpen(false);
+      })
+      .catch((e) => {
+        const errorMessages = e.response.data.error;
+        if (errorMessages) {
+          if (errorMessages["Not found"]) {
+            setErrorMessage(errorMessages["Not found"][0]);
+          } else if (errorMessages["Bad request"]) {
+            setErrorMessage(errorMessages["Bad request"][0]);
+          } else if (errorMessages["Unexpexted Error"]) {
+            setErrorMessage(errorMessages["Unexpexted Error"][0]);
+          } else {
+            setErrorMessage("Oops! something went wrong");
+          }
+        } else {
+          setErrorMessage("Oops! something went wrong");
+        }
+      })
+      .finally(() => {
+        setIsLoadingWithScreen(false);
+      });
+  };
+
+
   return (
     <div className="flex flex-col gap-4 w-full">
       <div className="inline-flex justify-between items-center">
@@ -571,7 +738,7 @@ const Fight = () => {
                 type="number"
               />
               <Button
-                onClick={() => {}}
+                onClick={() => { }}
                 isLoading={isLoading}
                 loadingText="Loading..."
                 type={"submit"}
@@ -619,6 +786,7 @@ const Fight = () => {
                 </div>
 
                 <div>
+
                   {renderEventStatusButton()}
                   <br />
                   <div className="bg-cursedBlack text-center p-3 rounded-xl">
@@ -640,6 +808,15 @@ const Fight = () => {
                 allowFullScreen
               ></iframe>
             </div>
+
+            {gameData && (
+              <div className="grid grid-cols-3 grid-rows-1 gap-4">
+                {renderOpenBetting()}
+                {renderLastCall()}
+                {renderCloseBetting()}
+                {/* {renderEventStatusButton()} */}
+              </div>
+            )}
             <br />
           </div>
           <div className="flex flex-col gap-5">

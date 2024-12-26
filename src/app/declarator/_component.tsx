@@ -16,7 +16,7 @@ import Image from "next/image";
 import Logout from "@/assets/images/Logout.svg";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import { useRouter } from "next/navigation";
-import { fightSortV2, fightStatus } from "@/util/fightSorting";
+import { fightSortV2, fightStatus, getLastFight } from "@/util/fightSorting";
 import isJsonObjectEmpty from "@/util/isJsonObjectEmpty";
 import { localAxios } from "@/util/localAxiosUtil";
 
@@ -52,6 +52,8 @@ const Fight = () => {
   const [fightDetails, setFightDetails] = useState<any>();
   const [isModalSendMessageOpen, setIsModalSendMessageOpen] = useState(false);
   const [isCreateAnotherGame, setIsCreateAnotherGame] = useState(false);
+  const [lastFight, setLastFight] = useState<any>(null);
+
 
   const [betDetails, setBetDetails] = useState({
     fId: 0,
@@ -149,6 +151,8 @@ const Fight = () => {
       })
       .then((response) => {
         const data = fightSortV2("fightStatusCode", response.data, true);
+        const lastFight = getLastFight(response.data);
+        setLastFight(lastFight);
         setFights(data);
         if (data.length > 0) {
           setFight(getFightWithStatus(data[0].fight));
@@ -720,12 +724,23 @@ const Fight = () => {
         }
       })
       .finally(() => {
-        
+
         setIsLoading(false);
+        setIsLoadingWithScreen(false);
         getFights(selectedEvent.eventId);
       });
   };
 
+  const getLastGameNumber = () => {
+    if (lastFight) {
+      try {
+        return (parseInt(lastFight.fight.fightNum) + 1).toString();
+      } catch (error) {
+
+      }
+    }
+    return "1"
+  }
   return (
     <div className="flex flex-col gap-4 w-full">
       <div className="inline-flex justify-between items-center">
@@ -807,8 +822,10 @@ const Fight = () => {
         </div>
       </Modal>
 
-      <Modal size="medium" isOpen={isCreateAnotherGame}
+      {isCreateAnotherGame && <Modal size="medium" isOpen={isCreateAnotherGame}
         onClose={() => setIsCreateAnotherGame(false)}>
+        <h1 className="text-3xl">Create Another Game?</h1>
+        <br />
         <Form onSubmit={onFightDetailsSubmit} className="">
           <div className="col-span-4 grid grid-cols-3 grid-rows-1 gap-2">
             <FormField
@@ -816,6 +833,7 @@ const Fight = () => {
               label="Game Number"
               placeholder="Enter Game Number"
               type="number"
+              value={getLastGameNumber()}
             />
           </div>
           <div className="col-span-2 grid grid-cols-2 grid-rows-1 gap-2">
@@ -878,20 +896,20 @@ const Fight = () => {
               <div className="col-span-2"></div>
 
             </div>
-            <br/>
+            <br />
           </div>
-            <div className="justify-self-end">
-              <Button
-                onClick={() => { }}
-                loadingText="Loading..."
-                type={"submit"}
-              >
-                Add Game
-              </Button>
-            </div>
+          <div className="justify-self-end">
+            <Button
+              onClick={() => { }}
+              loadingText="Loading..."
+              type={"submit"}
+            >
+              Add Game
+            </Button>
+          </div>
         </Form>
 
-      </Modal>
+      </Modal>}
 
       <Modal
         size="medium"

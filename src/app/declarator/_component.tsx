@@ -51,6 +51,8 @@ const Fight = () => {
   const [isErrorMessageOpen, setIsErrorMessageOpen] = useState(false);
   const [fightDetails, setFightDetails] = useState<any>();
   const [isModalSendMessageOpen, setIsModalSendMessageOpen] = useState(false);
+  const [isCreateAnotherGame, setIsCreateAnotherGame] = useState(false);
+
   const [betDetails, setBetDetails] = useState({
     fId: 0,
     s0c: 0,
@@ -151,6 +153,8 @@ const Fight = () => {
         if (data.length > 0) {
           setFight(getFightWithStatus(data[0].fight));
           setFightDetails(data[0].fightDetails);
+        } else {
+          setIsCreateAnotherGame(true);
         }
       })
       .catch(() => { });
@@ -635,6 +639,93 @@ const Fight = () => {
   };
 
 
+  const onFightDetailsSubmit = async (e: any) => {
+    setErrorMessage("");
+    e.preventDefault();
+
+    const form = e.target;
+    if (!form["fightNum"].value) {
+      setErrorMessage("Please Enter Game Number");
+      return;
+    }
+    if (!form["meron-owner"].value) {
+      setErrorMessage("Please Enter Name 1");
+      return;
+    }
+    // if (!form["meron-breed"].value) {
+    //   setErrorMessage("Please Enter Pula Last Name");
+    //   return;
+    // }
+    // if (!form["meron-weight"].value) {
+    //   setErrorMessage("Please Enter Pula Age");
+    //   return;
+    // }
+    // if (!form["meron-tag"].value) {
+    //   setErrorMessage("Please Enter Pula Remarks");
+    //   return;
+    // }
+
+    if (!form["wala-owner"].value) {
+      setErrorMessage("Please Enter Name 1");
+      return;
+    }
+    const request = {
+      fight: {
+        fightNum: form["fightNum"].value,
+        eventId: selectedEvent.eventId,
+      },
+      fightDetails: [
+        {
+          side: 1,
+          owner: form["meron-owner"].value ?? "",
+          breed: form["meron-breed"]?.value ?? "",
+          weight: form["meron-weight"]?.value ?? "",
+          tag: form["meron-tag"]?.value ?? "",
+          imageBase64: "",
+          operatorId: 0,
+        },
+        {
+          side: 0,
+          owner: form["wala-owner"].value ?? "",
+          breed: form["wala-breed"]?.value ?? "",
+          weight: form["wala-weight"]?.value ?? "",
+          tag: form["wala-tag"]?.value ?? "",
+          imageBase64: "",
+          operatorId: 0,
+        },
+      ],
+    };
+    setIsLoading(true);
+
+    await localAxios
+      .post("/api/event/fight", request)
+      .then(() => {
+        setIsCreateAnotherGame(false);
+        setErrorMessage("Successfully Saved");
+      })
+      .catch((e) => {
+        const errorMessages = e.response.data.error;
+        if (errorMessages) {
+          if (errorMessages["Not found"]) {
+            setErrorMessage(errorMessages["Not found"][0]);
+          } else if (errorMessages["Bad request"]) {
+            setErrorMessage(errorMessages["Bad request"][0]);
+          } else if (errorMessages["Unexpexted Error"]) {
+            setErrorMessage(errorMessages["Unexpexted Error"][0]);
+          } else {
+            setErrorMessage("Oops! something went wrong");
+          }
+        } else {
+          setErrorMessage("Oops! something went wrong");
+        }
+      })
+      .finally(() => {
+        
+        setIsLoading(false);
+        getFights(selectedEvent.eventId);
+      });
+  };
+
   return (
     <div className="flex flex-col gap-4 w-full">
       <div className="inline-flex justify-between items-center">
@@ -695,6 +786,12 @@ const Fight = () => {
             );
           })}
         </select>
+        <Button
+          onClick={() => { setIsCreateAnotherGame(true) }}
+          type={"button"}
+        >
+          Add Game
+        </Button>
       </div>
       <h1>{isLoading && <label>{"   "}Loading ...</label>}</h1>
 
@@ -708,6 +805,92 @@ const Fight = () => {
             <MeronWalaWin type={0} onClick={() => setWinSide(0)} />
           </div>
         </div>
+      </Modal>
+
+      <Modal size="medium" isOpen={isCreateAnotherGame}
+        onClose={() => setIsCreateAnotherGame(false)}>
+        <Form onSubmit={onFightDetailsSubmit} className="">
+          <div className="col-span-4 grid grid-cols-3 grid-rows-1 gap-2">
+            <FormField
+              name="fightNum"
+              label="Game Number"
+              placeholder="Enter Game Number"
+              type="number"
+            />
+          </div>
+          <div className="col-span-2 grid grid-cols-2 grid-rows-1 gap-2">
+            <label>Name 1</label>
+            <label>Name 2</label>
+            {/* <label>Age</label>
+          <label>Remarks</label> */}
+          </div>
+          <div className="grid grid-cols-2 grid-rows-1 gap-0 items-center">
+            <div className="col-span-2 grid grid-cols-2 grid-rows-1 gap-1">
+              <input hidden value={1} name="meron-side" />
+              <input
+                hidden
+                name="meron-id"
+              />
+
+              <FormField
+                name="meron-owner"
+                label=""
+                placeholder="Enter Name 1"
+                type="text"
+              />
+              <FormField
+                name="meron-breed"
+                label=""
+                placeholder="Enter Name 2"
+                type="text"
+              />
+              <div className="col-span-2"></div>
+              {/* <FormField
+              name="meron-weight"
+              label=""
+              placeholder="Enter Age"
+              value={getFightDetailValue(1, "weight")}
+              type="text"
+            />
+            <FormField
+              name="meron-tag"
+              label=""
+              placeholder="Enter Remarks"
+              value={getFightDetailValue(1, "tag")}
+              type="text"
+            /> */}
+
+              <input hidden value={0} name="wala-side" />
+              <input hidden
+                name="wala-id" />
+              <FormField
+                name="wala-owner"
+                label=""
+                placeholder="Enter Name 1"
+                type="text"
+              />
+              <FormField
+                name="wala-breed"
+                label=""
+                placeholder="Enter Name 2"
+                type="text"
+              />
+              <div className="col-span-2"></div>
+
+            </div>
+            <br/>
+          </div>
+            <div className="justify-self-end">
+              <Button
+                onClick={() => { }}
+                loadingText="Loading..."
+                type={"submit"}
+              >
+                Add Game
+              </Button>
+            </div>
+        </Form>
+
       </Modal>
 
       <Modal

@@ -748,6 +748,16 @@ const Fight = () => {
     }
     return "1"
   }
+
+  const getPlayerName = (side: number) => {
+    if (!isJsonObjectEmpty(fightDetails)) {
+      const player = fightDetails.find((x:any) => x.side == side);
+      if (player) {
+        return `${player.owner} ${player.breed}`
+      }
+    }
+    return "";
+  }
   return (
     <div className="flex flex-col gap-4 w-full">
       <div className="inline-flex justify-between items-center">
@@ -824,8 +834,8 @@ const Fight = () => {
           <br />
           <br />
           <div className="grid grid-cols-2 grid-rows-1 gap-4">
-            <MeronWalaWin type={1} onClick={() => setWinSide(1)} />
-            <MeronWalaWin type={0} onClick={() => setWinSide(0)} />
+            <MeronWalaWin type={1} onClick={() => setWinSide(1)} playerName={getPlayerName(1)} />
+            <MeronWalaWin type={0} onClick={() => setWinSide(0)} playerName={getPlayerName(0)} />
           </div>
         </div>
       </Modal>

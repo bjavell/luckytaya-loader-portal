@@ -28,14 +28,14 @@ if (typeof window === 'undefined') {
     const apiLogTransport = new DailyRotateFile({
         filename: 'logs/api-logs-%DATE%.log',
         datePattern: 'YYYY-MM-DD',
-        maxFiles: '14d',
+        maxFiles: '7d',
         level: 'info'
     });
 
     const errorLogTransport = new DailyRotateFile({
         filename: 'logs/error-logs-%DATE%.log',
         datePattern: 'YYYY-MM-DD',
-        maxFiles: '14d',
+        maxFiles: '7d',
         level: 'error'
     });
 

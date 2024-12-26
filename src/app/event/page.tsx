@@ -66,7 +66,7 @@ const Event = () => {
           return {
             ...e,
             eventStatusName: stats.name,
-            venueName: location.venueName,
+            venueName: location?.venueName,
           };
         });
 

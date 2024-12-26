@@ -19,8 +19,9 @@ const GET = async (req: NextRequest) => {
         Authorization: `Bearer ${currentSession.token}`,
       },
     });
-    logResponse = response.data
-    return NextResponse.json(response.data);
+    const data = response.data.filter((x:any)=>x.venueId >= 10 && x.venueId <=21)
+    logResponse = data
+    return NextResponse.json(data);
   } catch (e: any) {
     logger.error(api, {
       correlationId,

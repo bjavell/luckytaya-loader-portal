@@ -29,6 +29,12 @@ const MeronWala = ({player, type, data }: any) => {
               {parseFloat(getSafeData(data, `s${type}o`)).toFixed(2)}
             </div>
           </div>
+          <div className="bg-dark-no-border p-1 rounded-[20px] border-transparent">
+            Odd Percentage
+            <div className="bg-gray13 rounded-xl w-full  mt-1 p-1 text-center capitalize">
+              {((parseFloat(getSafeData(data, `s${type}a`)) / (parseFloat(getSafeData(data, 's1a')) + parseFloat(getSafeData(data, 's0a')))) * 100).toFixed(0)} %
+            </div>
+          </div>
         </div>
       </div>
     </div>

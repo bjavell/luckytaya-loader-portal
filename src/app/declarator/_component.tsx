@@ -751,12 +751,32 @@ const Fight = () => {
 
   const getPlayerName = (side: number) => {
     if (!isJsonObjectEmpty(fightDetails)) {
-      const player = fightDetails.find((x:any) => x.side == side);
+      const player = fightDetails.find((x: any) => x.side == side);
       if (player) {
         return `${player.owner} ${player.breed}`
       }
     }
     return "";
+  }
+
+  const getLastGameFirstName = (side:number)=>{
+    if(!isJsonObjectEmpty(lastFight)){
+      const player = lastFight.fightDetails.find((x: any) => x.side == side);
+      if (player) {
+        return `${player.owner}`
+      }
+    }
+    return ""
+  }
+  
+  const getLastGameLastName = (side:number)=>{
+    if(!isJsonObjectEmpty(lastFight)){
+      const player = lastFight.fightDetails.find((x: any) => x.side == side);
+      if (player) {
+        return `${player.breed}`
+      }
+    }
+    return ""
   }
   return (
     <div className="flex flex-col gap-4 w-full">
@@ -873,12 +893,14 @@ const Fight = () => {
                 label=""
                 placeholder="Enter Name 1"
                 type="text"
+                value={getLastGameFirstName(1)}
               />
               <FormField
                 name="meron-breed"
                 label=""
                 placeholder="Enter Name 2"
                 type="text"
+                value={getLastGameLastName(1)}
               />
               <div className="col-span-2"></div>
               {/* <FormField
@@ -904,12 +926,14 @@ const Fight = () => {
                 label=""
                 placeholder="Enter Name 1"
                 type="text"
+                value={getLastGameFirstName(0)}
               />
               <FormField
                 name="wala-breed"
                 label=""
                 placeholder="Enter Name 2"
                 type="text"
+                value={getLastGameLastName(0)}
               />
               <div className="col-span-2"></div>
 

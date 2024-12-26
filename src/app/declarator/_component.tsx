@@ -53,6 +53,7 @@ const Fight = () => {
   const [isModalSendMessageOpen, setIsModalSendMessageOpen] = useState(false);
   const [isCreateAnotherGame, setIsCreateAnotherGame] = useState(false);
   const [lastFight, setLastFight] = useState<any>(null);
+  const [isGameAvailable, setIsGameAvailable] = useState(true);
 
 
   const [betDetails, setBetDetails] = useState({
@@ -159,6 +160,7 @@ const Fight = () => {
           setFightDetails(data[0].fightDetails);
         } else {
           setIsCreateAnotherGame(true);
+          setIsGameAvailable(false)
         }
       })
       .catch(() => { });
@@ -227,7 +229,6 @@ const Fight = () => {
       },
     });
     setBetDetails(bet.data);
-
     setGameData(game);
     setIsLoading(false);
   };
@@ -250,9 +251,13 @@ const Fight = () => {
           setFight(getFightWithStatus(data[0].fight));
           setFightDetails(data[0].fightDetails);
         }
+
+        setIsLoading(false);
         setIsLoadingWithScreen(false);
       })
       .catch(() => {
+
+        setIsLoading(false);
         setIsLoadingWithScreen(false);
       });
   };
@@ -378,12 +383,14 @@ const Fight = () => {
     setFight({});
     setFightDetails(null);
     setFights([]);
+    setIsLoading(false);
   };
 
   const handleFightChange = (e: any) => {
     setIsLoading(true);
     setFight(getFightWithStatus(fights[e.target.value].fight));
     setFightDetails(fights[e.target.value].fightDetails);
+    setIsLoading(false);
   };
 
   const renderEventStatusButton = () => {
@@ -808,8 +815,9 @@ const Fight = () => {
           Add Game
         </Button>
       </div>
-      <h1>{isLoading && <label>{"   "}Loading ...</label>}</h1>
 
+      <h1>{isLoading && isGameAvailable && <label>{"   "}Loading ...</label>}</h1>
+      {!isGameAvailable && <h1 className="text-3xl">No Game/Rack Available</h1>}
       <Modal size="medium" isOpen={isModalOpen} onClose={closeModal}>
         <div className="flex flex-col justify-center p-4">
           <label className="text-[20px]">Select Winner Side</label>

@@ -51,6 +51,8 @@ const Fight = () => {
   const [isTimer, setIsTimer] = useState(false);
   const [confirmTitle, setConfirmTitle] = useState<string>();
   const [fightDetails, setFightDetails] = useState<any>();
+  const [isGameAvailable, setIsGameAvailable] = useState(true);
+
   const [betDetails, setBetDetails] = useState({
     fId: 0,
     s0c: 0,
@@ -89,7 +91,7 @@ const Fight = () => {
             break;
         }
       }
-    } catch (error) {}
+    } catch (error) { }
   }, [messages]);
 
   useEffect(() => {
@@ -105,7 +107,7 @@ const Fight = () => {
       setIsFightStatusModalOpen(false);
     }
 
-    return () => {};
+    return () => { };
   }, [isErrorMessageOpen]);
 
   const getEventStatus = (code: number): any => {
@@ -149,9 +151,12 @@ const Fight = () => {
         if (data.length > 0) {
           setFight(getFightWithStatus(data[0].fight));
           setFightDetails(data[0].fightDetails);
+        } else {
+
+          setIsGameAvailable(false)
         }
       })
-      .catch(() => {});
+      .catch(() => { });
   };
 
   useEffect(() => {
@@ -248,7 +253,7 @@ const Fight = () => {
 
   useEffect(() => {
     if (selectedEvent && fight) setupGame();
-    return () => {};
+    return () => { };
   }, [selectedEvent, fight]);
 
   const closeModal = () => {
@@ -361,7 +366,7 @@ const Fight = () => {
   const handleEventChange = (e: any) => {
     setIsLoading(true);
     setSelectedEvent(events[e.target.value]);
-    setFight({});  
+    setFight({});
     setFightDetails(null);
     setFights([]);
   };
@@ -387,7 +392,7 @@ const Fight = () => {
         case 10:
           return (
             <Button
-              onClick={() => {}}
+              onClick={() => { }}
               isLoading={isLoading}
               loadingText="Loading..."
               type={"button"}
@@ -697,7 +702,8 @@ const Fight = () => {
           })}
         </select>
       </div>
-      <h1>{isLoading && <label>{"   "}Loading ...</label>}</h1>
+      <h1>{isLoading && isGameAvailable && <label>{"   "}Loading ...</label>}</h1>
+      {!isGameAvailable && <h1 className="text-3xl">No Game/Rack Available</h1>}
 
       <Modal size="medium" isOpen={isModalOpen} onClose={closeModal}>
         <label className="text-[20px]">Select Winner Side</label>
@@ -737,7 +743,7 @@ const Fight = () => {
                 type="number"
               />
               <Button
-                onClick={() => {}}
+                onClick={() => { }}
                 isLoading={isLoading}
                 loadingText="Loading..."
                 type={"submit"}

@@ -115,7 +115,7 @@ const cancelFights = async (url: string, fights: any, token: string, correlation
 };
 
 const fightRequest = (url: string, request: any, token: string, correlationId: string | null) => {
-  return axios.post(url + "/api/event/fight/setStatus", request,
+  return luckTayaAxios.post("/api/event/fight/setStatus", request,
     {
       headers: {
         'X-Correlation-ID': correlationId,

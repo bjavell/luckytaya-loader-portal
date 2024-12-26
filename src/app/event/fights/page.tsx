@@ -231,7 +231,7 @@ const Fight = () => {
       return;
     }
     if (!form["meron-owner"].value) {
-      setErrorMessage("Please Enter Pula First Name");
+      setErrorMessage("Please Enter Name 1");
       return;
     }
     // if (!form["meron-breed"].value) {
@@ -248,7 +248,7 @@ const Fight = () => {
     // }
 
     if (!form["wala-owner"].value) {
-      setErrorMessage("Please Enter Asul First Name");
+      setErrorMessage("Please Enter Name 1");
       return;
     }
     // if (!form["wala-breed"].value) {
@@ -275,9 +275,9 @@ const Fight = () => {
           id: form["meron-id"]?.value,
           side: 1,
           owner: form["meron-owner"].value ?? "",
-          breed: form["meron-breed"].value?? "",
-          weight: form["meron-weight"].value ?? "",
-          tag: form["meron-tag"].value?? "",
+          breed: form["meron-breed"]?.value?? "",
+          weight: form["meron-weight"]?.value ?? "",
+          tag: form["meron-tag"]?.value?? "",
           imageBase64: "",
           operatorId: 0,
         },
@@ -286,9 +286,9 @@ const Fight = () => {
           id: form["wala-id"]?.value,
           side: 0,
           owner: form["wala-owner"].value?? "",
-          breed: form["wala-breed"].value?? "",
-          weight: form["wala-weight"].value?? "",
-          tag: form["wala-tag"].value?? "",
+          breed: form["wala-breed"]?.value?? "",
+          weight: form["wala-weight"]?.value?? "",
+          tag: form["wala-tag"]?.value?? "",
           imageBase64: "",
           operatorId: 0,
         },
@@ -345,7 +345,7 @@ const Fight = () => {
       });
   };
   const fightRequest = (request: any) => {
-    return axios.post("/api/event/fight", request);
+    return localAxios.post("/api/event/fight", request);
   };
   const onUpload = (csvData: any) => {
     const items = csvData.map((x: any) => {
@@ -406,10 +406,10 @@ const Fight = () => {
           <GameUpload onUpload={onUpload} />
         </Modal>
         <div className="col-span-4 grid grid-cols-5 grid-rows-1 gap-2">
-          <label>First Name</label>
-          <label>Last Name</label>
-          <label>Age</label>
-          <label>Remarks</label>
+          <label>Name 1</label>
+          <label>Name 2</label>
+          {/* <label>Age</label>
+          <label>Remarks</label> */}
         </div>
         <div className="grid grid-cols-5 grid-rows-1 gap-0 items-center">
           <div className="col-span-4 grid grid-cols-4 grid-rows-1 gap-1">
@@ -423,18 +423,19 @@ const Fight = () => {
             <FormField
               name="meron-owner"
               label=""
-              placeholder="Enter First Name"
+              placeholder="Enter Name 1"
               type="text"
               value={getFightDetailValue(1, "owner")}
             />
             <FormField
               name="meron-breed"
               label=""
-              placeholder="Enter Last Name"
+              placeholder="Enter Name 2"
               value={getFightDetailValue(1, "breed")}
               type="text"
             />
-            <FormField
+            <div className="col-span-2"></div>
+            {/* <FormField
               name="meron-weight"
               label=""
               placeholder="Enter Age"
@@ -447,25 +448,26 @@ const Fight = () => {
               placeholder="Enter Remarks"
               value={getFightDetailValue(1, "tag")}
               type="text"
-            />
+            /> */}
 
             <input hidden value={0} name="wala-side" />
             <input hidden value={getFightDetailValue(0, "id")} name="wala-id" />
             <FormField
               name="wala-owner"
               label=""
-              placeholder="Enter First Name"
+              placeholder="Enter Name 1"
               value={getFightDetailValue(0, "owner")}
               type="text"
             />
             <FormField
               name="wala-breed"
               label=""
-              placeholder="Enter Last Name"
+              placeholder="Enter Name 2"
               value={getFightDetailValue(0, "breed")}
               type="text"
             />
-            <FormField
+            <div className="col-span-2"></div>
+            {/* <FormField
               name="wala-weight"
               label=""
               placeholder="Enter Age"
@@ -478,7 +480,7 @@ const Fight = () => {
               placeholder="Enter Remarks"
               value={getFightDetailValue(0, "tag")}
               type="text"
-            />
+            /> */}
           </div>
           <div className="justify-self-center">
             <Button

@@ -28,6 +28,7 @@ const GET = async (req: NextRequest) => {
       `/api/v1/SabongFight/WithDetailsByEventIdV2/${eventId}`,
       {
         headers: {
+          'X-Correlation-ID': correlationId,
           Authorization: `Bearer ${currentSession.token}`,
         },
       }
@@ -67,26 +68,38 @@ const GET = async (req: NextRequest) => {
   }
 };
 const POST = async (req: NextRequest) => {
+  const api = "POST EVENT FIGHT"
+  let correlationId
+  let logRequest
+  let logResponse
+  let status = 200
   let fightResult: any;
-  const request = await req.json();
-  const { fightDetails, fight } = request;
   let isContinue = true;
   let result: any;
   const currentSession = await getCurrentSession();
-
+  const request = await req.json(); 
+  const { fightDetails, fight } = request;
+  
   try {
+    logRequest = {
+      fightDetails,
+      fight
+    }
+    correlationId = req.headers.get('x-correlation-id');
     fight.eventId = parseInt(fight.eventId);
     fight.fightNum = parseInt(fight.fightNum);
     if (fight.fightId && fight.fightId != 0) {
       fight.fightId = parseInt(fight.fightId);
       fightResult = await luckTayaAxios.put(`/api/v1/SabongFight`, fight, {
         headers: {
+          'X-Correlation-ID': correlationId,
           Authorization: `Bearer ${currentSession.token}`,
         },
       });
     } else {
       fightResult = await luckTayaAxios.post(`/api/v1/SabongFight`, fight, {
         headers: {
+          'X-Correlation-ID': correlationId,
           Authorization: `Bearer ${currentSession.token}`,
         },
       });
@@ -130,6 +143,7 @@ const POST = async (req: NextRequest) => {
         element.picture = "";
         await luckTayaAxios.put(`/api/v1/SabongFightDetail`, element, {
           headers: {
+            'X-Correlation-ID': correlationId,
             Authorization: `Bearer ${currentSession.token}`,
           },
         });
@@ -141,23 +155,37 @@ const POST = async (req: NextRequest) => {
         element.picture = "";
         await luckTayaAxios.post(`/api/v1/SabongFightDetail/`, element, {
           headers: {
+            'X-Correlation-ID': correlationId,
             Authorization: `Bearer ${currentSession.token}`,
           },
         });
       }
     }
-
     return NextResponse.json({ message: "Successfully Logged In!" });
-  } catch (e) {
-    console.error(e);
-    return NextResponse.json(
-      {
-        error: formatGenericErrorResponse(e),
-      },
-      {
-        status: 500,
+  }  catch (e: any) {
+    logger.error(api, {
+      correlationId,
+      error: e.message,
+      errorStack: e.stack
+    })
+
+    status = 500
+    logResponse = formatGenericErrorResponse(e)
+    return NextResponse.json({
+      error: logResponse
+    }, {
+      status: 500
+    })
+  } finally {
+    logger.info(api, {
+      correlationId,
+      apiLog: {
+        status,
+        request: logRequest,
+        response: logResponse,
       }
-    );
+    })
+
   }
 };
 

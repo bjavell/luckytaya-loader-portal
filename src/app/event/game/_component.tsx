@@ -17,6 +17,7 @@ import { eventSort, eventStatus } from "@/util/eventSorting";
 import { fightSortV2, fightStatus } from "@/util/fightSorting";
 import isJsonObjectEmpty from "@/util/isJsonObjectEmpty";
 import { localAxios } from "@/util/localAxiosUtil";
+import Trend from "@/components/trend";
 
 type SabongEvent = {
   entryDateTime: string;
@@ -200,12 +201,17 @@ const Fight = () => {
         eventId: selectedEvent.eventId,
       },
     });
-
+    const trends = await localAxios.get("/api/event/trend", {
+      params: {
+        eventId: selectedEvent.eventId,
+      },
+    });
     const game = {
       event: selectedEvent,
       fight: fight,
       venue: location.data,
       totalFight: fightList.data.length,
+      trends : trends.data
     };
 
     const bet = await localAxios.get("/api/event/betDetails", {
@@ -847,6 +853,8 @@ const Fight = () => {
             <br />
           </div>
           <div className="flex flex-col gap-5">
+
+            {!isJsonObjectEmpty(gameData) && <Trend data={gameData?.trends}></Trend>}
             <div className="bg-gray13 rounded-xl w-full p-5 capitalize">
               <MeronWala player={getPlayer(1)} type={1} data={betDetails} />
             </div>

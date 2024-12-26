@@ -19,6 +19,7 @@ import { useRouter } from "next/navigation";
 import { fightSortV2, fightStatus, getLastFight } from "@/util/fightSorting";
 import isJsonObjectEmpty from "@/util/isJsonObjectEmpty";
 import { localAxios } from "@/util/localAxiosUtil";
+import Trend from "@/components/trend";
 
 type SabongEvent = {
   entryDateTime: string;
@@ -216,11 +217,18 @@ const Fight = () => {
       },
     });
 
+
+    const trends = await localAxios.get("/api/event/trend", {
+      params: {
+        eventId: selectedEvent.eventId,
+      },
+    });
     const game = {
       event: selectedEvent,
       fight: fight,
       venue: location.data,
       totalFight: fightList.data.length,
+      trends: trends.data
     };
 
     const bet = await localAxios.get("/api/event/betDetails", {
@@ -759,8 +767,8 @@ const Fight = () => {
     return "";
   }
 
-  const getLastGameFirstName = (side:number)=>{
-    if(!isJsonObjectEmpty(lastFight)){
+  const getLastGameFirstName = (side: number) => {
+    if (!isJsonObjectEmpty(lastFight)) {
       const player = lastFight.fightDetails.find((x: any) => x.side == side);
       if (player) {
         return `${player.owner}`
@@ -768,9 +776,9 @@ const Fight = () => {
     }
     return ""
   }
-  
-  const getLastGameLastName = (side:number)=>{
-    if(!isJsonObjectEmpty(lastFight)){
+
+  const getLastGameLastName = (side: number) => {
+    if (!isJsonObjectEmpty(lastFight)) {
       const player = lastFight.fightDetails.find((x: any) => x.side == side);
       if (player) {
         return `${player.breed}`
@@ -1063,6 +1071,8 @@ const Fight = () => {
             <br />
           </div>
           <div className="flex flex-col gap-5">
+
+            {!isJsonObjectEmpty(gameData) && <Trend data={gameData?.trends}></Trend>}
             <div className="bg-gray13 rounded-xl w-full p-5 capitalize">
               <MeronWala player={getPlayer(1)} type={1} data={betDetails} />
             </div>

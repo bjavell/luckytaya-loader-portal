@@ -9,18 +9,20 @@ export default function Trend({ data }: any) {
     })
 
     useEffect(() => {
-        const groupedByWinSide = data.reduce((acc: any, fight: any) => {
-            if (!acc[fight.winSide]) {
-                acc[fight.winSide] = [];
-            }
-            acc[fight.winSide].push(fight);
-            return acc;
-        }, {});
-        setDetails({
-            pula: groupedByWinSide["1"]?.length ?? 0,
-            asul: groupedByWinSide["0"]?.length ?? 0,
-            cancel: groupedByWinSide["3"]?.length ?? 0,
-        })
+        if(data) {
+            const groupedByWinSide = data.reduce((acc: any, fight: any) => {
+                if (!acc[fight.winSide]) {
+                    acc[fight.winSide] = [];
+                }
+                acc[fight.winSide].push(fight);
+                return acc;
+            }, {});
+            setDetails({
+                pula: groupedByWinSide["1"]?.length ?? 0,
+                asul: groupedByWinSide["0"]?.length ?? 0,
+                cancel: groupedByWinSide["3"]?.length ?? 0,
+            })
+        }
     }, [data]);
 
     return (<React.Fragment>

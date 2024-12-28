@@ -12,6 +12,18 @@ const luckTayaAxios: AxiosInstance = axios.create({
     })
 })
 
+
+const luckTayaMainAxios: AxiosInstance = axios.create({
+    baseURL: process.env.NEXT_PUBLIC_BACKOFFICE_BASEURL,
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    httpsAgent: new Agent({
+        rejectUnauthorized: false
+    })
+})
+
+
 const starpayAxios: AxiosInstance = axios.create({
     baseURL: process.env.NEXT_PUBLIC_BASE_URL_STARPAY
 })
@@ -151,5 +163,5 @@ luckTayaAxios.interceptors.response.use(
 export {
     luckTayaAxios,
     starpayAxios,
-
+    luckTayaMainAxios
 }

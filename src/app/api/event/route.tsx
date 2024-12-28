@@ -1,6 +1,6 @@
 "use server";
 import { NextRequest, NextResponse } from "next/server";
-import { luckTayaAxios } from "@/util/axiosUtil";
+import { luckTayaAxios, luckTayaMainAxios } from "@/util/axiosUtil";
 import { formatGenericErrorResponse } from "@/util/commonResponse";
 import { getCurrentSession } from "@/context/auth";
 import axios from "axios";
@@ -109,13 +109,21 @@ const cancelFights = async (url: string, fights: any, token: string, correlation
   }
   try {
     await Promise.all(requests);
-  } catch (error) {
-    console.log(error, "error============Cancel Fights");
+  } catch (error: any) {
+    if (error.response) {
+      console.log('Response Status:', error.response.status);  
+      console.log('Response Data:', error.response.data);  
+    } else if (error.request) {
+      console.log('Error URL (no response):', error.config.url);
+      console.log('Request:', error.request);
+    } else {
+      console.log('Error message:', error.message);
+    }
   }
 };
 
 const fightRequest = (url: string, request: any, token: string, correlationId: string | null) => {
-  return luckTayaAxios.post("/api/event/fight/setStatus", request,
+  return luckTayaMainAxios.post("/api/event/fight/setStatus", request,
     {
       headers: {
         'X-Correlation-ID': correlationId,

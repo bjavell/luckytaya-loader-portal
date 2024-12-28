@@ -6,13 +6,15 @@ import axios from "axios"
 import { useRouter } from "next/navigation"
 import { encrypt } from "@/util/cryptoUtil"
 import { useApiData } from "../context/apiContext"
+import QrCode from "@/components/qrCode"
+import LoadingSpinner from "@/components/loadingSpinner"
 
 
 const playerPortal = process.env.NEXT_PUBLIC_PLAYER_PORTAL
 const Home = () => {
     const router = useRouter()
     const [referralLink, setReferralLink] = useState<string>('')
-    const { data } = useApiData()
+    const { data, loading } = useApiData()
 
     useEffect(() => {
         if (data) {
@@ -52,6 +54,21 @@ const Home = () => {
         }
     }
 
+    const downloadQRCode = () => {
+        const canvas = document.querySelector('canvas');  // Find the canvas element
+        if (canvas) {
+            const imageUrl = canvas.toDataURL('image/png'); // Convert canvas to image URL
+            const link = document.createElement('a');
+            link.href = imageUrl;
+            link.download = 'qrcode.png'; // Set the download file name
+            link.click(); // Trigger the download
+        }
+    };
+
+
+    if (loading) {
+        return <LoadingSpinner />
+    }
 
 
     return (
@@ -70,6 +87,16 @@ const Home = () => {
                         <Button onClick={() => onCopyReferralLink()} customCss={'text-black font-semibold text-xs'} type="button">Copy Referral Link</Button>
                     </div>
                 </div>
+                {referralLink ?
+                    <div className="p-5 flex flex-col gap-4 text-base">
+                        <span>QR Code</span>
+                        <div className="flex flex-col gap-2 my-5 items-center">
+                            <div className="bg-gray13 rounded-xl p-3 max-w-[32.375rem] truncate">
+                                <QrCode data={referralLink} className='m-auto' />
+                            </div>
+                            <Button onClick={() => downloadQRCode()} customCss={'text-black font-semibold text-xs'} type="button">Download QR Code</Button>
+                        </div>
+                    </div> : null}
                 <div className="p-5 bg-gray13 rounded-b-xl text-base font-light">
                     Please take note of your referral link above, All players that will register under this link will automatically be under your account
                 </div>

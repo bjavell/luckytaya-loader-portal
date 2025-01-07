@@ -19,7 +19,7 @@ const GET = async (req: NextRequest) => {
 
 
         const tayaUsers = await findAll(DB_COLLECTIONS.TAYA_USERS, {})
-        const fundingRequests = await findAll(DB_COLLECTIONS.FUNDING_REQUESTS, { status: 'Created' })
+        const fundingRequests = await findAll(DB_COLLECTIONS.FUNDING_REQUESTS, {})
 
         const player = fundingRequests.map((_player: any) => {
 
@@ -39,10 +39,12 @@ const GET = async (req: NextRequest) => {
             }
         })
 
-        //console.log(player)
-        logResponse = player
+        const sortPlayer = player.toSorted((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime())
 
-        return NextResponse.json(player)
+        //console.log(player)
+        logResponse = sortPlayer
+
+        return NextResponse.json(sortPlayer)
     } catch (e: any) {
         logger.error(api, {
             correlationId,

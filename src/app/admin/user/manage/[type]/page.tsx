@@ -320,6 +320,9 @@ const Players = () => {
                                 </div>
                                 : null}
                             <div className="flex">
+                                <FormField name={"username"} value={modalData.firstname} label="Username" customLabelClass="text-xs" readonly />
+                            </div>
+                            <div className="flex">
                                 <FormField name={"accountNumber"} value={formatDynamicNumber(modalData.accountNumber)} label="Account Number" customLabelClass="text-xs" readonly />
                                 <FormField name={"accountBalance"} value={formatMoney(`${modalData.accountBalance}`)} label="Account Balance" customLabelClass="text-xs" readonly />
                             </div>

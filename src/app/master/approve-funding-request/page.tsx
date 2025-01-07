@@ -83,7 +83,7 @@ const FundingRequest = () => {
             if (errorMessages) {
                 if (errorMessages['Not found']) {
                     setAlertMessage(errorMessages['Not found'][0])
-                }else if (errorMessages['Bad request']) {
+                } else if (errorMessages['Bad request']) {
                     setAlertMessage(errorMessages['Bad request'][0])
                 } else {
                     setAlertMessage('An Error occured please try again')
@@ -172,25 +172,47 @@ const FundingRequest = () => {
                                     }
                                 },
                                 {
+                                    key: 'status',
+                                    label: 'status',
+                                    format(item: any) {
+                                        console.log(item)
+                                        if (item === 'Created') {
+                                            return 'Unpaid'
+                                        } else if (item === 'Rejected') {
+                                            return 'Rejected'
+                                        }
+                                        else {
+                                            return 'Paid'
+                                        }
+                                    }
+                                },
+                                {
                                     key: '',
                                     label: 'action',
-                                    customValue: (item: any) => <div className="flex gap-2 items-center justify-center">
-                                        <Button
-                                            onClick={() => onToggleConfirmModal(item._id, 'REJECT')}
-                                            type={"button"}
-                                            size="text-xs"
-                                            textColor="text-red"
-                                        >
-                                            Reject
-                                        </Button>
-                                        <Button
-                                            onClick={() => onToggleConfirmModal(item._id, 'APPROVE')}
-                                            type={"button"}
-                                            size="text-xs"
-                                        >
-                                            Approve
-                                        </Button>
-                                    </div>
+                                    customValue: (item: any) => {
+
+                                        if (item.status === 'Created') {
+                                            return <div className="flex gap-2 items-center justify-center">
+                                                <Button
+                                                    onClick={() => onToggleConfirmModal(item._id, 'REJECT')}
+                                                    type={"button"}
+                                                    size="text-xs"
+                                                    textColor="text-red"
+                                                >
+                                                    Reject
+                                                </Button>
+                                                <Button
+                                                    onClick={() => onToggleConfirmModal(item._id, 'APPROVE')}
+                                                    type={"button"}
+                                                    size="text-xs"
+                                                >
+                                                    Approve
+                                                </Button>
+                                            </div>
+                                        }
+
+                                        return <></>
+                                    }
 
                                 }
                             ]}

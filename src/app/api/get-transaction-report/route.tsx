@@ -3,6 +3,8 @@ import { NextRequest, NextResponse } from "next/server"
 import { luckTayaAxios } from "@/util/axiosUtil"
 import { formatGenericErrorResponse } from "@/util/commonResponse"
 import logger from "@/lib/logger"
+import { DB_COLLECTIONS } from "@/classes/constants"
+import { findAll, findOne } from "@/util/dbUtil"
 
 const GET = async (req: NextRequest) => {
     const api = "GET TRANSACTION REPORT"
@@ -31,12 +33,20 @@ const GET = async (req: NextRequest) => {
             },
         })
 
+        const config = await findOne(DB_COLLECTIONS.CONFIG, { code: 'CFG0001' })
+
+        const getAllAgentPlayers = await findAll(DB_COLLECTIONS.TAYA_AGENTS, {})
+        const getAllPlayers = await findAll(DB_COLLECTIONS.TAYA_USERS, {})
+
         const customResponse = response.data.map((e: any) => {
+
+            const fromAccount = getAccount(e.fromAccountNumber, getAllPlayers, getAllAgentPlayers, config)
+            const toAccount = getAccount(e.toAccountNumber, getAllPlayers, getAllAgentPlayers, config)
 
             const transaction = {
                 ...e,
-                fromFullName: `${e.fromFirstname} ${e.fromLastname}`,
-                toFullName: `${e.toFirstname} ${e.toLastname}`
+                fromFullName: `${fromAccount?.response?.firstname ?? fromAccount?.firstname} ${fromAccount?.response?.lastname ?? fromAccount?.lastname}`,
+                toFullName: `${toAccount?.response?.firstname ?? toAccount?.firstname} ${toAccount?.response?.lastname ?? toAccount?.lastname}`
             }
 
 
@@ -79,6 +89,40 @@ const GET = async (req: NextRequest) => {
         })
 
     }
+}
+
+const getAccount = (accountNumber: string, agents: any, users: any, config: any) => {
+
+    let matchItem = agents.find((agent: any) => {
+        return Number(agent.accountNumber) === Number(accountNumber)
+    })
+
+    if (!matchItem) {
+        matchItem = users.find((user: any) => {
+            return Number(user.response.accountNumber) === Number(accountNumber)
+        })
+    }
+
+    if (!matchItem) {
+        if (Number(config.operatorAccountNumber) === Number(accountNumber)) {
+            return {
+                firstname: 'Operator',
+                lastname: ''
+            }
+        }
+    }
+
+    if (!matchItem) {
+        if (Number(config.mainMasterAccountNumber) === Number(accountNumber)) {
+            return {
+                firstname: 'Master',
+                lastname: ''
+            }
+        }
+    }
+
+    return matchItem
+
 }
 
 export { GET }

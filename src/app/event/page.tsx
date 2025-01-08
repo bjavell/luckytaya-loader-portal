@@ -94,8 +94,7 @@ const Event = () => {
     if (selectedEvent) {
       getFights(selectedEvent.eventId);
       setSelecteGameType(selectedEvent.gameType ?? 1);
-    }
-    setSelecteGameType(1);
+    } 
     return () => {};
   }, [selectedEvent]);
 
@@ -225,9 +224,12 @@ const Event = () => {
       fights: fights,
       details: {
         gameType: form.gameType.value,
-        player1: form.player1.value ?? "",
-        player2: form.player2.value ?? "",
-        player3: form.player3.value ?? "",
+        player1: form.player1?.value ?? "",
+        player2: form.player2?.value ?? "",
+        player3: form.player3?.value ?? "",
+        player1HasHandicap: form.player1HasHandicap?.checked,
+        player2HasHandicap: form.player2HasHandicap?.checked,
+        player3HasHandicap: form.player3HasHandicap?.checked,
       },
     };
 
@@ -267,6 +269,7 @@ const Event = () => {
 
   const onNewEvent = () => {
     setSelectedEvent(null);
+    setSelecteGameType(1)
     setIsModalOpen(true);
   };
 
@@ -309,6 +312,18 @@ const Event = () => {
       })
       .finally(() => {});
   };
+
+
+
+    const onHandleCheckBox = (key: string, checked: boolean) => {
+     const tmpSelectedEvent = {
+      ...selectedEvent
+     }
+
+     tmpSelectedEvent[key] = checked
+
+     setSelectedEvent(tmpSelectedEvent)
+    }
 
   return (
     <div className="flex flex-col gap-4 w-full">
@@ -418,27 +433,57 @@ const Event = () => {
                 </select>
                 {selecteGameType == 4 && (
                   <React.Fragment>
-                    <FormField
-                      name="player1"
-                      value={selectedEvent == null ? "" : selectedEvent.player1}
-                      label="Player 1"
-                      placeholder="Name"
-                      type="text"
-                    />
-                    <FormField
-                      name="player2"
-                      value={selectedEvent == null ? "" : selectedEvent.player2}
-                      label="Player 2"
-                      placeholder="Name"
-                      type="text"
-                    />
-                    <FormField
-                      name="player3"
-                      value={selectedEvent == null ? "" : selectedEvent.player3}
-                      label="Player 3"
-                      placeholder="Name"
-                      type="text"
-                    />
+                    <div className="flex flex-row items-center gap-4">
+                      <div className="flex flex-col w-full gap-4">
+
+                        <label htmlFor="player1" className="text-white font-sans font-light text-nowrap">Player 1</label>
+                        <div className="flex flex-row items-center gap-4">
+
+                          <FormField
+                            name="player1"
+                            value={selectedEvent == null ? "" : selectedEvent.player1}
+                            // label="Player 1"
+                            placeholder="Name"
+                            type="text"
+                          />
+                          <input type="checkbox" name="player1HasHandicap" checked={selectedEvent.player1HasHandicap} onChange={(e)=>onHandleCheckBox('player1HasHandicap', e.target.checked)} />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex flex-row items-center gap-4">
+                      <div className="flex flex-col w-full gap-4">
+
+                        <label htmlFor="player1" className="text-white font-sans font-light text-nowrap">Player 2</label>
+                        <div className="flex flex-row items-center gap-4">
+
+                          <FormField
+                            name="player2"
+                            value={selectedEvent == null ? "" : selectedEvent.player2}
+                            // label="Player 2"
+                            placeholder="Name"
+                            type="text"
+                          />
+                          <input type="checkbox" name="player2HasHandicap"  checked={selectedEvent.player2HasHandicap} onChange={(e)=>onHandleCheckBox('player2HasHandicap', e.target.checked)} />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex flex-row items-center gap-4">
+                      <div className="flex flex-col w-full gap-4">
+
+                        <label htmlFor="player1" className="text-white font-sans font-light text-nowrap">Player 3</label>
+                        <div className="flex flex-row items-center gap-4">
+
+                          <FormField
+                            name="player3"
+                            value={selectedEvent == null ? "" : selectedEvent.player3}
+                            // label="Player 3"
+                            placeholder="Name"
+                            type="text"
+                          />
+                          <input type="checkbox" name="player3HasHandicap" checked={selectedEvent.player3HasHandicap} onChange={(e)=>onHandleCheckBox('player3HasHandicap', e.target.checked)} />
+                        </div>
+                      </div>
+                    </div>
                   </React.Fragment>
                 )}
               </React.Fragment>

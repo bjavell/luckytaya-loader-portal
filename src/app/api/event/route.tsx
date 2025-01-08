@@ -4,7 +4,7 @@ import { luckTayaAxios, luckTayaMainAxios } from "@/util/axiosUtil";
 import { formatGenericErrorResponse } from "@/util/commonResponse";
 import { getCurrentSession } from "@/context/auth";
 import logger from "@/lib/logger";
-import { insert } from "@/util/dbUtil";
+import { findOne, insert, update } from "@/util/dbUtil";
 import { DB_COLLECTIONS } from "@/classes/constants";
 
 const POST = async (req: NextRequest) => {
@@ -38,7 +38,7 @@ const POST = async (req: NextRequest) => {
       });
 
       console.log(response.data,'hello00')
-      const dbResult = insert(DB_COLLECTIONS.EVENTS,{
+      const dbResult = await insert(DB_COLLECTIONS.EVENTS,{
         eventId : response.data.eventId,
         ...eventDetails
       })
@@ -54,6 +54,15 @@ const POST = async (req: NextRequest) => {
         eventId: parseInt(copyRequest.eventId),
         eventStatusCode: parseInt(copyRequest.eventStatusCodeNew),
       };
+
+      const query = {eventId: parseInt(copyRequest.eventId)}
+      const previousData = await findOne(DB_COLLECTIONS.EVENTS, query)
+
+      if(previousData) {
+        const eventDetails = request.details ? Object.assign({},request.details) : {};
+        await update(DB_COLLECTIONS.EVENTS, query, { ...previousData, ...eventDetails})
+
+      }
       if (request.eventStatusCode == 10 || request.eventStatusCode == 11)
         response = await luckTayaAxios.put(`/api/v1/SabongEvent/V2`, request, {
           headers: {

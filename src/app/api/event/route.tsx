@@ -3,8 +3,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { luckTayaAxios, luckTayaMainAxios } from "@/util/axiosUtil";
 import { formatGenericErrorResponse } from "@/util/commonResponse";
 import { getCurrentSession } from "@/context/auth";
-import axios from "axios";
 import logger from "@/lib/logger";
+import { insert } from "@/util/dbUtil";
+import { DB_COLLECTIONS } from "@/classes/constants";
 
 const POST = async (req: NextRequest) => {
   const api = "POST EVENT"
@@ -27,12 +28,21 @@ const POST = async (req: NextRequest) => {
     if (!request.eventId) {
       delete request.eventId;
       delete request.eventStatusCode;
+      const eventDetails = request.details ? Object.assign({},request.details) : {};
+      delete request.details;
       response = await luckTayaAxios.post(`/api/v1/SabongEvent/V2`, request, {
         headers: {
           'X-Correlation-ID': correlationId,
           Authorization: `Bearer ${currentSession.token}`,
         },
       });
+
+      console.log(response.data,'hello00')
+      const dbResult = insert(DB_COLLECTIONS.EVENTS,{
+        eventId : response.data.eventId,
+        ...eventDetails
+      })
+      
     } else {
       const copyRequest = JSON.parse(JSON.stringify(request));
       request.eventId = parseInt(request.eventId);

@@ -13,6 +13,7 @@ import { eventSort } from "@/util/eventSorting";
 import LoginModal from "@/components/loginModal";
 import { encrypt } from "@/util/cryptoUtil";
 import { localAxios } from "@/util/localAxiosUtil";
+import { gameTypes } from "@/util/gameTypes";
 type SabongEvent = {
   entryDateTime: string;
   operatorId: number;
@@ -48,7 +49,7 @@ const Event = () => {
   const [fights, setFights] = useState([]);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [form, setForm] = useState();
-
+  const [selecteGameType, setSelecteGameType] = useState(1);
   const getEventStatus = (code: number): any => {
     return statuses.find((x: any) => x.code == code);
   };
@@ -92,7 +93,9 @@ const Event = () => {
   useEffect(() => {
     if (selectedEvent) {
       getFights(selectedEvent.eventId);
+      setSelecteGameType(selectedEvent.gameType ?? 1);
     }
+    setSelecteGameType(1);
     return () => {};
   }, [selectedEvent]);
 
@@ -119,12 +122,16 @@ const Event = () => {
         console.log(e);
       });
   };
+
   const getVenues = async () => {
     await localAxios
       .get("/api/event/locations")
       .then((response) => {
-        const data = response.data.sort(
-          (a: any, b: any) => a.venueName.trim().toLowerCase().localeCompare(b.venueName.trim().toLowerCase())
+        const data = response.data.sort((a: any, b: any) =>
+          a.venueName
+            .trim()
+            .toLowerCase()
+            .localeCompare(b.venueName.trim().toLowerCase())
         );
         setVenues(data);
       })
@@ -133,8 +140,14 @@ const Event = () => {
       });
   };
 
-  const onEventClick = (item: any) => {
-    setSelectedEvent(item);
+  const onEventClick = async (item: any) => {
+    await localAxios
+      .get(`/api/event/by-id?eventId=${item.eventId}`)
+      .then((response) => {
+        console.log(response,'hello')
+        setSelectedEvent({ ...item, ...response.data });
+      })
+      .catch(() => {setSelectedEvent(item)});
     setIsModalOpen(true);
     setErrorMessage("");
   };
@@ -169,7 +182,11 @@ const Event = () => {
 
     const form = e.target;
 
-    if (form.eventStatusCodeNew && form.eventStatusCodeNew.value == 12 && !isForced) {
+    if (
+      form.eventStatusCodeNew &&
+      form.eventStatusCodeNew.value == 12 &&
+      !isForced
+    ) {
       if (fights.length > 0) {
         // setIsModalOpen(false);
         setIsLoginModalOpen(true);
@@ -206,6 +223,12 @@ const Event = () => {
       eventStatusCodeNew:
         selectedEvent != null ? form.eventStatusCodeNew.value : 0,
       fights: fights,
+      details: {
+        gameType: form.gameType.value,
+        player1: form.player1.value ?? "",
+        player2: form.player2.value ?? "",
+        player3: form.player3.value ?? "",
+      },
     };
 
     await localAxios
@@ -217,6 +240,7 @@ const Event = () => {
         alert("Successfully Saved");
       })
       .catch((e) => {
+        console.log(e, "hello");
         const errorMessages = e.response.data.error;
         if (errorMessages) {
           if (errorMessages["Not found"]) {
@@ -240,15 +264,20 @@ const Event = () => {
   const closeModal = () => {
     setIsModalOpen(false);
   };
+
   const onNewEvent = () => {
     setSelectedEvent(null);
     setIsModalOpen(true);
   };
 
-  const onLoginSubmit = async ( password: string, rePassword : string) => {
-    if(password != rePassword){
+  const onGameTypeSelect = (e: any) => {
+    setSelecteGameType(e.target.value);
+  };
+
+  const onLoginSubmit = async (password: string, rePassword: string) => {
+    if (password != rePassword) {
       setErrorMessage("Password does not match");
-      return
+      return;
     }
     setIsLoading(true);
     setErrorMessage("");
@@ -280,6 +309,7 @@ const Event = () => {
       })
       .finally(() => {});
   };
+
   return (
     <div className="flex flex-col gap-4 w-full">
       <h1 className="text-xl">Events</h1>
@@ -343,7 +373,11 @@ const Event = () => {
                 name="eventDate"
                 label="Event Date"
                 readonly={selectedEvent != null}
-                value={selectedEvent == null ? "" : formatDate(selectedEvent.eventDate,"yyyy-MM-dd")}
+                value={
+                  selectedEvent == null
+                    ? ""
+                    : formatDate(selectedEvent.eventDate, "yyyy-MM-dd")
+                }
                 placeholder="Enter Event Date"
                 //   value={endDate}
                 //   onChange={(e) => {
@@ -358,6 +392,56 @@ const Event = () => {
                 placeholder="Enter Url"
                 type="text"
               />
+
+              <React.Fragment>
+                <label
+                  htmlFor="gameType"
+                  className="text-white font-sans font-light text-nowrap "
+                >
+                  Game Type
+                </label>
+                <select
+                  name="gameType"
+                  defaultValue={
+                    selectedEvent == null ? "" : selectedEvent.gameType
+                  }
+                  onChange={(e) => onGameTypeSelect(e)}
+                  className="peer rounded-xlg py-4 px-4 bg-semiBlack shadow-sm font-sans font-light tacking-[5%] text-white invalid:border-red-500 invalid:[&.visited]:border invalid:[&.visited]:border-[#E74C3C]"
+                >
+                  {gameTypes.map((item: any, index: any) => {
+                    return (
+                      <option key={`option-${index}`} value={item.id}>
+                        {item.name}
+                      </option>
+                    );
+                  })}
+                </select>
+                {selecteGameType == 4 && (
+                  <React.Fragment>
+                    <FormField
+                      name="player1"
+                      value={selectedEvent == null ? "" : selectedEvent.player1}
+                      label="Player 1"
+                      placeholder="Name"
+                      type="text"
+                    />
+                    <FormField
+                      name="player2"
+                      value={selectedEvent == null ? "" : selectedEvent.player2}
+                      label="Player 2"
+                      placeholder="Name"
+                      type="text"
+                    />
+                    <FormField
+                      name="player3"
+                      value={selectedEvent == null ? "" : selectedEvent.player3}
+                      label="Player 3"
+                      placeholder="Name"
+                      type="text"
+                    />
+                  </React.Fragment>
+                )}
+              </React.Fragment>
               {selectedEvent && (
                 <React.Fragment>
                   <label

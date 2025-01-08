@@ -14,8 +14,8 @@ const GET = async (req: NextRequest) => {
   try {
     correlationId = req.headers.get('x-correlation-id');
     const eventId = req.nextUrl.searchParams.get("eventId");
-    const data = await findOne(DB_COLLECTIONS.EVENTS,{eventId : {$eq : eventId}});
-    console.log(data,'hello')
+    const query = {"eventId" : {$eq : parseInt(`${eventId}`)}};
+    const data = await findOne(DB_COLLECTIONS.EVENTS,query);
     logResponse = data
 
     return NextResponse.json(data);

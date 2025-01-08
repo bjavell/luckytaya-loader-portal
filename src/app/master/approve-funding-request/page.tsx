@@ -175,7 +175,6 @@ const FundingRequest = () => {
                                     key: 'status',
                                     label: 'status',
                                     format(item: any) {
-                                        console.log(item)
                                         if (item === 'Created') {
                                             return 'Unpaid'
                                         } else if (item === 'Rejected') {

@@ -3,6 +3,8 @@ import { NextRequest, NextResponse } from "next/server"
 import { luckTayaAxios } from "@/util/axiosUtil"
 import { formatGenericErrorResponse } from "@/util/commonResponse"
 import logger from "@/lib/logger"
+import { findAll } from "@/util/dbUtil"
+import { DB_COLLECTIONS } from "@/classes/constants"
 
 const GET = async (req: NextRequest) => {
     const api = "GET TRANSACTION"
@@ -32,14 +34,20 @@ const GET = async (req: NextRequest) => {
             },
         })
 
+
+        const getAllAgentPlayers = await findAll(DB_COLLECTIONS.TAYA_AGENTS, {})
+        const getAllPlayers = await findAll(DB_COLLECTIONS.TAYA_USERS, {})
+
         const customResponse = response.data.map((e: any) => {
+
+            const fromAccount = getAccount(e.fromAccountNumber, getAllPlayers, getAllAgentPlayers)
+            const toAccount = getAccount(e.toAccountNumber, getAllPlayers, getAllAgentPlayers)
 
             const transaction = {
                 ...e,
-                fromFullName: `${e.fromFirstname} ${e.fromLastname}`,
-                toFullName: `${e.toFirstname} ${e.toLastname}`
+                fromFullName: `${fromAccount?.fromFirstname} ${fromAccount?.fromLastname}`,
+                toFullName: `${toAccount?.toFirstname} ${toAccount?.toLastname}`
             }
-
 
             if (transaction.amount < 0) {
                 transaction.amount *= -1
@@ -80,6 +88,22 @@ const GET = async (req: NextRequest) => {
         })
 
     }
+}
+
+const getAccount = (accountNumber: string, agents: any, users: any) => {
+
+    let matchItem = agents.find((agent: any) => {
+        return Number(agent.accountNumber) === Number(accountNumber)
+    })
+
+    if (!matchItem) {
+        matchItem = users.find((user: any) => {
+            return Number(user.response.accountNumber) === Number(accountNumber)
+        })
+    }
+
+    return matchItem
+
 }
 
 export { GET }

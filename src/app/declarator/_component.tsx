@@ -20,6 +20,7 @@ import { fightSortV2, fightStatus, getLastFight } from "@/util/fightSorting";
 import isJsonObjectEmpty from "@/util/isJsonObjectEmpty";
 import { localAxios } from "@/util/localAxiosUtil";
 import Trend from "@/components/trend";
+import ThreeManTrend from "@/components/threeManTrend";
 
 type SabongEvent = {
   entryDateTime: string;
@@ -46,6 +47,7 @@ const Fight = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
+  const [selectedEventDet, setSelectedEventDet] = useState<any>(null);
   const [gameData, setGameData] = useState<any>({});
   const [winningSide, setWinningSide] = useState(-1);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
@@ -55,7 +57,11 @@ const Fight = () => {
   const [isCreateAnotherGame, setIsCreateAnotherGame] = useState(false);
   const [lastFight, setLastFight] = useState<any>(null);
   const [isGameAvailable, setIsGameAvailable] = useState(true);
-
+  const [game3Details, setGame3Details] = useState({
+    players: [""],
+    loser: "",
+    winner: "",
+  });
 
   const [betDetails, setBetDetails] = useState({
     fId: 0,
@@ -98,7 +104,7 @@ const Fight = () => {
             break;
         }
       }
-    } catch (error) { }
+    } catch (error) {}
   }, [messages]);
 
   useEffect(() => {
@@ -114,7 +120,7 @@ const Fight = () => {
       setIsFightStatusModalOpen(false);
     }
 
-    return () => { };
+    return () => {};
   }, [isErrorMessageOpen]);
 
   const getEventStatus = (code: number): any => {
@@ -160,11 +166,13 @@ const Fight = () => {
           setFight(getFightWithStatus(data[0].fight));
           setFightDetails(data[0].fightDetails);
         } else {
-          setIsCreateAnotherGame(true);
-          setIsGameAvailable(false)
+          setTimeout(() => {
+            setIsCreateAnotherGame(true);
+          }, 500);
+          setIsGameAvailable(false);
         }
       })
-      .catch(() => { });
+      .catch(() => {});
   };
 
   useEffect(() => {
@@ -188,11 +196,13 @@ const Fight = () => {
       getEvents();
     }
   }, [statuses]);
+
   useEffect(() => {
     if (selectedEvent && statuses) getFights(selectedEvent.eventId);
     if (selectedEvent) {
       // const evnt = events[selectedEvent];
       // //console.log({events,selectedEvent}, "-----0");
+      getEventInDb(selectedEvent);
       setWebRtcStream(
         selectedEvent.webRtcStream == ""
           ? process.env.NEXT_PUBLIC_WEB_RTC_URL
@@ -217,7 +227,6 @@ const Fight = () => {
       },
     });
 
-
     const trends = await localAxios.get("/api/event/trend", {
       params: {
         eventId: selectedEvent.eventId,
@@ -228,7 +237,7 @@ const Fight = () => {
       fight: fight,
       venue: location.data,
       totalFight: fightList.data.length,
-      trends: trends.data
+      trends: trends.data,
     };
 
     const bet = await localAxios.get("/api/event/betDetails", {
@@ -264,7 +273,6 @@ const Fight = () => {
         setIsLoadingWithScreen(false);
       })
       .catch(() => {
-
         setIsLoading(false);
         setIsLoadingWithScreen(false);
       });
@@ -280,7 +288,7 @@ const Fight = () => {
 
   useEffect(() => {
     if (selectedEvent && fight) setupGame();
-    return () => { };
+    return () => {};
   }, [selectedEvent, fight]);
 
   const closeModal = () => {
@@ -353,12 +361,25 @@ const Fight = () => {
     const request = {
       fightId: gameData.fight.fightId,
       winSide: winningSide,
+      details: {
+        gameType: selectedEventDet.gameType,
+        eventId: selectedEvent.eventId,
+        winnerName: getPlayerName(winningSide),
+        loserName: getPlayerName(winningSide == 1 ? 0 : 1),
+      },
     };
+
+    setGame3Details((prev) => ({
+      ...prev,
+      winner: request.details.winnerName,
+      loser: request.details.loserName,
+    }));
 
     await localAxios
       .post("/api/event/fight/result", request)
       .then(() => {
         setErrorMessage("");
+        getEventInDb(selectedEvent);
         // alert("Successfully Saved");
         // refreshFight()
       })
@@ -385,9 +406,39 @@ const Fight = () => {
       });
   };
 
+  const getEventInDb = async (item: any) => {
+    await localAxios
+      .get(`/api/event/by-id?eventId=${item.eventId}`)
+      .then((response) => {
+        const { data } = response;
+        const { player1, player2, player3 } = data;
+        const players = [player1, player2, player3];
+        setSelectedEventDet({ ...item, ...response.data });
+      })
+      .catch(() => {
+        setSelectedEventDet(item);
+      });
+  };
+
+  useEffect(() => {
+    if (selectedEventDet) {
+      const { lastWinner, lastLoser } =
+        selectedEventDet;
+      setGame3Details({
+        players: [getGameType3Name('player1'), 
+          getGameType3Name('player2'), 
+          getGameType3Name('player3')],
+        winner: lastWinner,
+        loser: lastLoser,
+      });
+    }
+    return () => {};
+  }, [selectedEventDet]);
+
   const handleEventChange = (e: any) => {
+    const item = events[e.target.value];
     setIsLoading(true);
-    setSelectedEvent(events[e.target.value]);
+    setSelectedEvent(item);
     setFight({});
     setFightDetails(null);
     setFights([]);
@@ -491,7 +542,6 @@ const Fight = () => {
       });
   };
 
-
   const renderOpenBetting = () => {
     const isDisabled = true;
     if (gameData) {
@@ -588,7 +638,6 @@ const Fight = () => {
       );
   };
 
-
   const onDirectSetFightStatus = async (status: number) => {
     setIsLoadingWithScreen(true);
     const request = {
@@ -656,7 +705,6 @@ const Fight = () => {
         setIsLoadingWithScreen(false);
       });
   };
-
 
   const onFightDetailsSubmit = async (e: any) => {
     setErrorMessage("");
@@ -739,7 +787,6 @@ const Fight = () => {
         }
       })
       .finally(() => {
-
         setIsLoading(false);
         setIsLoadingWithScreen(false);
         getFights(selectedEvent.eventId);
@@ -750,42 +797,68 @@ const Fight = () => {
     if (lastFight) {
       try {
         return (parseInt(lastFight.fight.fightNum) + 1).toString();
-      } catch (error) {
-
-      }
+      } catch (error) {}
     }
-    return "1"
-  }
+    return "1";
+  };
 
   const getPlayerName = (side: number) => {
     if (!isJsonObjectEmpty(fightDetails)) {
       const player = fightDetails.find((x: any) => x.side == side);
       if (player) {
-        return `${player.owner} ${player.breed}`
+        return `${player.owner} ${player.breed}`.trim();
       }
     }
     return "";
+  };
+
+  const getNextPlayerGameType3 = () => {
+    try {
+      const { players, winner, loser } = game3Details;
+
+      const result = players.filter(
+        (item) => item !== winner && item !== loser
+      );
+      return result[0];
+    } catch (error) {
+      return "";
+    }
+  };
+
+  const getGameType3Name = (player : string) =>{
+    return `${selectedEventDet[player]} ${selectedEventDet[player+"HasHandicap"]? "(H)": ""}`
   }
 
   const getLastGameFirstName = (side: number) => {
     if (!isJsonObjectEmpty(lastFight)) {
       const player = lastFight.fightDetails.find((x: any) => x.side == side);
       if (player) {
-        return `${player.owner}`
+        if (selectedEventDet?.gameType == 4) {
+          if (selectedEventDet?.lastWinner == player.owner)
+            return `${player.owner}`;
+          else {
+            return getNextPlayerGameType3();
+          }
+        }
+        return `${player.owner}`;
+      }
+    } else {
+      if (selectedEventDet?.gameType == 4) {
+        return side == 0 ? getGameType3Name('player2') : getGameType3Name('player1');
       }
     }
-    return ""
-  }
+    return "";
+  };
 
   const getLastGameLastName = (side: number) => {
     if (!isJsonObjectEmpty(lastFight)) {
       const player = lastFight.fightDetails.find((x: any) => x.side == side);
       if (player) {
-        return `${player.breed}`
+        return `${player.breed}`;
       }
     }
-    return ""
-  }
+    return "";
+  };
   return (
     <div className="flex flex-col gap-4 w-full">
       <div className="inline-flex justify-between items-center">
@@ -847,14 +920,18 @@ const Fight = () => {
           })}
         </select>
         <Button
-          onClick={() => { setIsCreateAnotherGame(true) }}
+          onClick={() => {
+            setIsCreateAnotherGame(true);
+          }}
           type={"button"}
         >
           Add Game
         </Button>
       </div>
 
-      <h1>{isLoading && isGameAvailable && <label>{"   "}Loading ...</label>}</h1>
+      <h1>
+        {isLoading && isGameAvailable && <label>{"   "}Loading ...</label>}
+      </h1>
       {!isGameAvailable && <h1 className="text-3xl">No Game/Rack Available</h1>}
       <Modal size="medium" isOpen={isModalOpen} onClose={closeModal}>
         <div className="flex flex-col justify-center p-4">
@@ -862,39 +939,47 @@ const Fight = () => {
           <br />
           <br />
           <div className="grid grid-cols-2 grid-rows-1 gap-4">
-            <MeronWalaWin type={1} onClick={() => setWinSide(1)} playerName={getPlayerName(1)} />
-            <MeronWalaWin type={0} onClick={() => setWinSide(0)} playerName={getPlayerName(0)} />
+            <MeronWalaWin
+              type={1}
+              onClick={() => setWinSide(1)}
+              playerName={getPlayerName(1)}
+            />
+            <MeronWalaWin
+              type={0}
+              onClick={() => setWinSide(0)}
+              playerName={getPlayerName(0)}
+            />
           </div>
         </div>
       </Modal>
 
-      {isCreateAnotherGame && <Modal size="medium" isOpen={isCreateAnotherGame}
-        onClose={() => setIsCreateAnotherGame(false)}>
-        <h1 className="text-3xl">Create Another Game?</h1>
-        <br />
-        <Form onSubmit={onFightDetailsSubmit} className="">
-          <div className="col-span-4 grid grid-cols-3 grid-rows-1 gap-2">
-            <FormField
-              name="fightNum"
-              label="Game Number"
-              placeholder="Enter Game Number"
-              type="number"
-              value={getLastGameNumber()}
-            />
-          </div>
-          <div className="col-span-2 grid grid-cols-2 grid-rows-1 gap-2">
-            <label>Name 1</label>
-            <label>Name 2</label>
-            {/* <label>Age</label>
+      {isCreateAnotherGame && (
+        <Modal
+          size="medium"
+          isOpen={isCreateAnotherGame}
+          onClose={() => setIsCreateAnotherGame(false)}
+        >
+          <h1 className="text-3xl">Create Another Game?</h1>
+          <br />
+          <Form onSubmit={onFightDetailsSubmit} className="">
+            <div className="col-span-4 grid grid-cols-3 grid-rows-1 gap-2">
+              <FormField
+                name="fightNum"
+                label="Game Number"
+                placeholder="Enter Game Number"
+                type="number"
+                value={getLastGameNumber()}
+              />
+            </div>
+            <div className="col-span-2 grid grid-cols-2 grid-rows-1 gap-2">
+              <label>Name 1</label>
+              <label>Name 2</label>
+              {/* <label>Age</label>
           <label>Remarks</label> */}
-          </div>
-          <div className="grid grid-cols-2 grid-rows-1 gap-0 items-center">
+            </div>
             <div className="col-span-2 grid grid-cols-2 grid-rows-1 gap-1">
               <input hidden value={1} name="meron-side" />
-              <input
-                hidden
-                name="meron-id"
-              />
+              <input hidden name="meron-id" />
 
               <FormField
                 name="meron-owner"
@@ -903,32 +988,17 @@ const Fight = () => {
                 type="text"
                 value={getLastGameFirstName(1)}
               />
-              <FormField
-                name="meron-breed"
-                label=""
-                placeholder="Enter Name 2"
-                type="text"
-                value={getLastGameLastName(1)}
-              />
-              <div className="col-span-2"></div>
-              {/* <FormField
-              name="meron-weight"
-              label=""
-              placeholder="Enter Age"
-              value={getFightDetailValue(1, "weight")}
-              type="text"
-            />
-            <FormField
-              name="meron-tag"
-              label=""
-              placeholder="Enter Remarks"
-              value={getFightDetailValue(1, "tag")}
-              type="text"
-            /> */}
-
+              {selectedEventDet?.gameType != 4 && (
+                <FormField
+                  name="meron-breed"
+                  label=""
+                  placeholder="Enter Name 2"
+                  type="text"
+                  value={getLastGameLastName(1)}
+                />
+              )}
               <input hidden value={0} name="wala-side" />
-              <input hidden
-                name="wala-id" />
+              <input hidden name="wala-id" />
               <FormField
                 name="wala-owner"
                 label=""
@@ -936,30 +1006,29 @@ const Fight = () => {
                 type="text"
                 value={getLastGameFirstName(0)}
               />
-              <FormField
-                name="wala-breed"
-                label=""
-                placeholder="Enter Name 2"
-                type="text"
-                value={getLastGameLastName(0)}
-              />
-              <div className="col-span-2"></div>
-
+              {selectedEventDet?.gameType != 4 && (
+                <FormField
+                  name="wala-breed"
+                  label=""
+                  placeholder="Enter Name 2"
+                  type="text"
+                  value={getLastGameLastName(0)}
+                />
+              )}
             </div>
             <br />
-          </div>
-          <div className="justify-self-end">
-            <Button
-              onClick={() => { }}
-              loadingText="Loading..."
-              type={"submit"}
-            >
-              Add Game
-            </Button>
-          </div>
-        </Form>
-
-      </Modal>}
+            <div className="justify-self-end">
+              <Button
+                onClick={() => {}}
+                loadingText="Loading..."
+                type={"submit"}
+              >
+                Add Game
+              </Button>
+            </div>
+          </Form>
+        </Modal>
+      )}
 
       <Modal
         size="medium"
@@ -989,7 +1058,7 @@ const Fight = () => {
                 type="number"
               />
               <Button
-                onClick={() => { }}
+                onClick={() => {}}
                 isLoading={isLoading}
                 loadingText="Loading..."
                 type={"submit"}
@@ -1037,7 +1106,6 @@ const Fight = () => {
                 </div>
 
                 <div>
-
                   {renderEventStatusButton()}
                   <br />
                   <div className="bg-cursedBlack text-center p-3 rounded-xl">
@@ -1071,8 +1139,14 @@ const Fight = () => {
             <br />
           </div>
           <div className="flex flex-col gap-5">
-
-            {!isJsonObjectEmpty(gameData) && <Trend data={gameData?.trends}></Trend>}
+            {!isJsonObjectEmpty(gameData) &&
+              selectedEventDet?.gameType != 4 && (
+                <Trend data={gameData?.trends}></Trend>
+              )}
+            {!isJsonObjectEmpty(gameData) &&
+              selectedEventDet?.gameType == 4 && (
+                <ThreeManTrend data={selectedEventDet}></ThreeManTrend>
+              )}
             <div className="bg-gray13 rounded-xl w-full p-5 capitalize">
               <MeronWala player={getPlayer(1)} type={1} data={betDetails} />
             </div>

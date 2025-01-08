@@ -4,6 +4,8 @@ import { luckTayaAxios } from "@/util/axiosUtil";
 import { formatGenericErrorResponse } from "@/util/commonResponse";
 import { getCurrentSession } from "@/context/auth";
 import logger from "@/lib/logger";
+import { findOne, update } from "@/util/dbUtil";
+import { DB_COLLECTIONS } from "@/classes/constants";
 
 const POST = async (req: NextRequest) => {
   const api = "POST FIGHT RESULT"
@@ -22,9 +24,13 @@ const POST = async (req: NextRequest) => {
 
     request.winSide = parseInt(request.winSide);
     request.fightId = parseInt(request.fightId);
+    const sabongRequest = {
+      winSide : request.winSide,
+      fightId : request.fightId
+    }
     const response = await luckTayaAxios.post(
       `/api/v1/SabongFightResultEntry`,
-      request,
+      sabongRequest,
       {
         headers: {
           'X-Correlation-ID': correlationId,
@@ -42,8 +48,50 @@ const POST = async (req: NextRequest) => {
         },
       }
     );
-    logResponse = { message: "Successfully Logged In!" }
-    return NextResponse.json({ message: "Successfully Logged In!" });
+    if(request.details.gameType == 4){
+      try {
+        const {details} = request;
+        const query = {eventId : {$eq : parseInt(`${request.details.eventId}`)}};
+        const event = await findOne(DB_COLLECTIONS.EVENTS,query)
+        const winName = details.winnerName.replace('(H)','').trim();
+        if(event){
+          if(event.lastWinner){
+            if(event.player1 == winName){
+              event.player1Score = (event.player1Score + 1);
+            }
+            else if(event.player2 == winName){
+              event.player2Score = (event.player2Score + 1);
+            }
+            else if(event.player3 == winName){
+              event.player3Score = (event.player3Score + 1);
+            }
+          }else{
+            event.player1Score = 0;
+            event.player2Score = 0;
+            event.player3Score = 0;
+            if(event.player1 == winName){
+              event.player1Score = 1;
+            }
+            else if(event.player2 == winName){
+              event.player2Score = 1;
+            }
+            else if(event.player3 == winName){
+              event.player3Score = 1;
+            } 
+          }
+          event.lastWinner = details.winnerName;
+          event.lastLoser = details.loserName;
+          
+          const dbResponse = await update(DB_COLLECTIONS.EVENTS,query,event)
+        }
+      } catch (error) {
+        console.log(error, "DB RESPONSE")
+      }
+
+    }
+
+    logResponse = { message: "Successfully Set Result!" }
+    return NextResponse.json({ message: "Successfully Set Result!" });
   } catch (e: any) {
     logger.error(api, {
       correlationId,

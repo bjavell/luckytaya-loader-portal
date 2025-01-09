@@ -14,6 +14,7 @@ import LoginModal from "@/components/loginModal";
 import { encrypt } from "@/util/cryptoUtil";
 import { localAxios } from "@/util/localAxiosUtil";
 import { gameTypes } from "@/util/gameTypes";
+import isJsonObjectEmpty from "@/util/isJsonObjectEmpty";
 type SabongEvent = {
   entryDateTime: string;
   operatorId: number;
@@ -94,7 +95,7 @@ const Event = () => {
     if (selectedEvent) {
       getFights(selectedEvent.eventId);
       setSelecteGameType(selectedEvent.gameType ?? 1);
-    } 
+    }
     return () => {};
   }, [selectedEvent]);
 
@@ -143,10 +144,11 @@ const Event = () => {
     await localAxios
       .get(`/api/event/by-id?eventId=${item.eventId}`)
       .then((response) => {
-        console.log(response,'hello')
         setSelectedEvent({ ...item, ...response.data });
       })
-      .catch(() => {setSelectedEvent(item)});
+      .catch(() => {
+        setSelectedEvent(item);
+      });
     setIsModalOpen(true);
     setErrorMessage("");
   };
@@ -213,14 +215,14 @@ const Event = () => {
       eventId: form.eventId.value,
       venueId: form.venueId.value,
       eventName: form.eventName.value,
-      eventDate: selectedEvent
+      eventDate: !isJsonObjectEmpty(selectedEvent)
         ? selectedEvent.eventDate
         : `${form.eventDate.value}T00:00:00.008Z`,
       webRtcStream: form.webRtcStream.value,
       eventStatusCode:
-        selectedEvent != null ? selectedEvent.eventStatusCode : 0,
+        !isJsonObjectEmpty(selectedEvent) ? selectedEvent.eventStatusCode : 0,
       eventStatusCodeNew:
-        selectedEvent != null ? form.eventStatusCodeNew.value : 0,
+        !isJsonObjectEmpty(selectedEvent) ? form.eventStatusCodeNew.value : 0,
       fights: fights,
       details: {
         gameType: form.gameType.value,
@@ -232,7 +234,6 @@ const Event = () => {
         player3HasHandicap: form.player3HasHandicap?.checked,
       },
     };
-
     await localAxios
       .post("/api/event", request)
       .then(() => {
@@ -242,7 +243,6 @@ const Event = () => {
         alert("Successfully Saved");
       })
       .catch((e) => {
-        console.log(e, "hello");
         const errorMessages = e.response.data.error;
         if (errorMessages) {
           if (errorMessages["Not found"]) {
@@ -268,8 +268,8 @@ const Event = () => {
   };
 
   const onNewEvent = () => {
-    setSelectedEvent(null);
-    setSelecteGameType(1)
+    setSelectedEvent({});
+    setSelecteGameType(1);
     setIsModalOpen(true);
   };
 
@@ -313,18 +313,22 @@ const Event = () => {
       .finally(() => {});
   };
 
+  const onHandleCheckBox = (key: string, checked: boolean) => {
+    const tmpSelectedEvent = {
+      ...selectedEvent,
+    };
 
+    tmpSelectedEvent[key] = checked;
 
-    const onHandleCheckBox = (key: string, checked: boolean) => {
-     const tmpSelectedEvent = {
-      ...selectedEvent
-     }
-
-     tmpSelectedEvent[key] = checked
-
-     setSelectedEvent(tmpSelectedEvent)
+    setSelectedEvent(tmpSelectedEvent);
+  };
+  const safeDateFormat = (date: any, format: string) => {
+    try {
+      formatDate(date, format);
+    } catch (error) {
+      return "";
     }
-
+  };
   return (
     <div className="flex flex-col gap-4 w-full">
       <h1 className="text-xl">Events</h1>
@@ -363,7 +367,7 @@ const Event = () => {
               </label>
               <select
                 name="venueId"
-                disabled={selectedEvent != null}
+                disabled={!isJsonObjectEmpty(selectedEvent)}
                 defaultValue={
                   selectedEvent == null ? "" : selectedEvent.venueId
                 }
@@ -387,11 +391,11 @@ const Event = () => {
               <FormField
                 name="eventDate"
                 label="Event Date"
-                readonly={selectedEvent != null}
+                readonly={!isJsonObjectEmpty(selectedEvent)}
                 value={
-                  selectedEvent == null
+                  isJsonObjectEmpty(selectedEvent) == null
                     ? ""
-                    : formatDate(selectedEvent.eventDate, "yyyy-MM-dd")
+                    : safeDateFormat(selectedEvent?.eventDate, "yyyy-MM-dd")
                 }
                 placeholder="Enter Event Date"
                 //   value={endDate}
@@ -435,59 +439,104 @@ const Event = () => {
                   <React.Fragment>
                     <div className="flex flex-row items-center gap-4">
                       <div className="flex flex-col w-full gap-4">
-
-                        <label htmlFor="player1" className="text-white font-sans font-light text-nowrap">Player 1</label>
+                        <label
+                          htmlFor="player1"
+                          className="text-white font-sans font-light text-nowrap"
+                        >
+                          Player 1
+                        </label>
                         <div className="flex flex-row items-center gap-4">
-
                           <FormField
                             name="player1"
-                            value={selectedEvent == null ? "" : selectedEvent.player1}
+                            value={
+                              selectedEvent == null ? "" : selectedEvent.player1
+                            }
                             // label="Player 1"
                             placeholder="Name"
                             type="text"
                           />
-                          <input type="checkbox" name="player1HasHandicap" checked={selectedEvent.player1HasHandicap} onChange={(e)=>onHandleCheckBox('player1HasHandicap', e.target.checked)} />
+                          <input
+                            type="checkbox"
+                            name="player1HasHandicap"
+                            checked={selectedEvent?.player1HasHandicap}
+                            // onChange={(e) =>
+                            //   onHandleCheckBox(
+                            //     "player1HasHandicap",
+                            //     e.target.checked
+                            //   )
+                            // }
+                          />
                         </div>
                       </div>
                     </div>
                     <div className="flex flex-row items-center gap-4">
                       <div className="flex flex-col w-full gap-4">
-
-                        <label htmlFor="player1" className="text-white font-sans font-light text-nowrap">Player 2</label>
+                        <label
+                          htmlFor="player1"
+                          className="text-white font-sans font-light text-nowrap"
+                        >
+                          Player 2
+                        </label>
                         <div className="flex flex-row items-center gap-4">
-
                           <FormField
                             name="player2"
-                            value={selectedEvent == null ? "" : selectedEvent.player2}
+                            value={
+                              selectedEvent == null ? "" : selectedEvent.player2
+                            }
                             // label="Player 2"
                             placeholder="Name"
                             type="text"
                           />
-                          <input type="checkbox" name="player2HasHandicap"  checked={selectedEvent.player2HasHandicap} onChange={(e)=>onHandleCheckBox('player2HasHandicap', e.target.checked)} />
+                          <input
+                            type="checkbox"
+                            name="player2HasHandicap"
+                            checked={selectedEvent?.player2HasHandicap}
+                            // onChange={(e) =>
+                            //   onHandleCheckBox(
+                            //     "player2HasHandicap",
+                            //     e.target.checked
+                            //   )
+                            // }
+                          />
                         </div>
                       </div>
                     </div>
                     <div className="flex flex-row items-center gap-4">
                       <div className="flex flex-col w-full gap-4">
-
-                        <label htmlFor="player1" className="text-white font-sans font-light text-nowrap">Player 3</label>
+                        <label
+                          htmlFor="player1"
+                          className="text-white font-sans font-light text-nowrap"
+                        >
+                          Player 3
+                        </label>
                         <div className="flex flex-row items-center gap-4">
-
                           <FormField
                             name="player3"
-                            value={selectedEvent == null ? "" : selectedEvent.player3}
+                            value={
+                              selectedEvent == null ? "" : selectedEvent.player3
+                            }
                             // label="Player 3"
                             placeholder="Name"
                             type="text"
                           />
-                          <input type="checkbox" name="player3HasHandicap" checked={selectedEvent.player3HasHandicap} onChange={(e)=>onHandleCheckBox('player3HasHandicap', e.target.checked)} />
+                          <input
+                            type="checkbox"
+                            name="player3HasHandicap"
+                            checked={selectedEvent?.player3HasHandicap}
+                            // onChange={(e) =>
+                            //   onHandleCheckBox(
+                            //     "player3HasHandicap",
+                            //     e.target.checked
+                            //   )
+                            // }
+                          />
                         </div>
                       </div>
                     </div>
                   </React.Fragment>
                 )}
               </React.Fragment>
-              {selectedEvent && (
+              {!isJsonObjectEmpty(selectedEvent) && (
                 <React.Fragment>
                   <label
                     htmlFor="eventStatusCodeNew"

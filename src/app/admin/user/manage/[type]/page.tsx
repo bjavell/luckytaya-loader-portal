@@ -202,7 +202,8 @@ const Players = () => {
         const filter = players.filter((player: any) => {
             return (`${player?.firstname} ${player?.lastname}`.toUpperCase().includes(value) || String(player?.accountNumber)?.includes(value)
                 || player?.phoneNumber?.toUpperCase().includes(value) ||
-                player?.email?.toUpperCase().includes(value)) &&
+                player?.email?.toUpperCase().includes(value) ||
+                player?.username?.toUpperCase().includes(value)) &&
                 (status === 'ALL' ? true : Number(status) === player.suspended) &&
                 (srchAcctType === 'ALL' ? true : Number(srchAcctType) === Number(player.accountType)) &&
                 (accountStatus === 'ALL' ? true : accountStatus === player.status)
@@ -464,6 +465,10 @@ const Players = () => {
                             format: (val: string) => {
                                 return formatDynamicNumber(val)
                             }
+                        },
+                        {
+                            key: 'username',
+                            label: 'username',
                         },
                         {
                             key: 'firstname',

@@ -35,11 +35,11 @@ const Reports = () => {
     const getTransaction = async () => {
         try {
             const startDateDateTime = new Date(startDate)
-            startDateDateTime.setHours(0, 0, 0, 0)
+            // startDateDateTime.setHours(0, 0, 0, 0)
             const localStartDateTime = new Date(startDateDateTime.getTime() - startDateDateTime.getTimezoneOffset() * 60000)
 
             const endDateDateTime = new Date(endDate)
-            endDateDateTime.setHours(23, 59, 59, 999)
+            // endDateDateTime.setHours(23, 59, 59, 999)
             const localEndDateTime = new Date(endDateDateTime.getTime() - endDateDateTime.getTimezoneOffset() * 60000)
 
             const response = await localAxios.get('/api/get-transaction-report', {
@@ -227,6 +227,7 @@ const Reports = () => {
                                 }
                             }, {
                                 key: 'fromFullName',
+                                label: 'sender',
                                 concatKey: ['fromAccountNumber'],
                                 customValue: (item) => {
                                     return (
@@ -240,6 +241,7 @@ const Reports = () => {
                                 }
                             }, {
                                 key: 'toFullName',
+                                label: 'receiver',
                                 concatKey: ['toAccountNumber'],
                                 customValue: (item) => {
                                     return (

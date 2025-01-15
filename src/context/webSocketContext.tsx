@@ -8,9 +8,6 @@ import {
   ReactNode,
 } from "react";
 
-import { usePathname } from "next/navigation";
-import { getCurrentSession } from "./auth";
-import { useApiData } from "@/app/context/apiContext";
 
 // Define types for context values
 interface WebSocketContextType {
@@ -73,22 +70,39 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
       if (token) {
         const serverUrl = `${process.env.NEXT_PUBLIC_WEB_SOCKET_URL}${token}`;
         const socket = new WebSocket(serverUrl);
+  
         socket.onmessage = (event) => {
           setMessages(event.data);
         };
-
+  
         socket.onopen = () => {
-          //console.log("WebSocket connected");
+          console.log("WebSocket connected");
         };
-
+  
         socket.onerror = (error) => {
           console.error("WebSocket error", error);
         };
-
+  
+        socket.onclose = () => {
+          console.log("WebSocket closed, attempting to reconnect...");
+          setTimeout(() => {
+            setup(); // Try to reconnect after a delay
+          }, 5000); // 5 seconds delay before reconnecting
+        };
+  
         setSocket(socket);
+  
+        // Ping every 30 seconds
+        const pingInterval = setInterval(() => {
+          if (socket.readyState === WebSocket.OPEN) {
+            socket.send("ping");
+          }
+        }, 30000);
+  
+        return () => clearInterval(pingInterval);
       }
     };
-
+  
     if (token) {
       if (socket) {
         try {
@@ -99,13 +113,14 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
       }
       setup();
     }
-
+  
     return () => {
       if (socket) {
         socket.close();
       }
     };
   }, [token]);
+  
 
   return (
     <WebSocketContext.Provider value={{ messages, socket }}>

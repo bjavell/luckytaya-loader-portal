@@ -14,7 +14,7 @@
             "name": "Launch Admin",
             "request": "launch",
             "type": "chrome",
-            "url": "http://localhost:6002"
+            "url": "http://localhost:6003"
         },
         {
             "type": "node",

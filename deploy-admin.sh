@@ -4,7 +4,7 @@
 git fetch
 
 # Pull the latest code from the 'dev' branch
-git pull origin dev
+git pull origin main
 
 # Install dependencies
 npm install
@@ -13,4 +13,4 @@ npm install
 npm run build:admin
 
 # Restart the PM2 application (replace with your app name)
-pm2 restart luckytaya-admin
+pm2 restart luckytaya-admin-prod

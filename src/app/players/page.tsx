@@ -140,6 +140,21 @@ const Players = () => {
                             format: (val: string) => {
                                 return formatDynamicNumber(val)
                             },
+                        },
+                        {
+                            key: 'suspended',
+                            label: 'status',
+                            format: (val: string) => {
+
+                                let formattedValue
+                                if (Number(val) === 1) {
+                                    formattedValue = 'Suspended'
+                                } else {
+                                    formattedValue = 'Active'
+                                }
+
+                                return formattedValue
+                            }
                         }, {
                             key: '',
                             label: 'action',

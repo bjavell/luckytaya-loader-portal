@@ -16,6 +16,7 @@ import LoadingSpinner from "@/components/loadingSpinner"
 import Image from "next/image";
 import Form from "@/components/form"
 import { localAxios } from "@/util/localAxiosUtil"
+import TransactionHistory from "@/components/transactionHistory"
 
 
 const playerPortal = process.env.NEXT_PUBLIC_PLAYER_PORTAL
@@ -58,6 +59,8 @@ const Players = () => {
     const [searchAccountType, setSearchAccountType] = useState('ALL')
     const [accountStatus, setAccountStatus] = useState('ALL')
     const [currDataStatus, setCurrDataStatus] = useState('')
+
+    const [isShowTransactionHistoryModal, setIsShowTransactionHistoryModal] = useState(false)
 
 
     const getUserLists = async () => {
@@ -175,6 +178,11 @@ const Players = () => {
         setIsShowModal(true)
     }
 
+    const openTransactionHistoryModal = (data: any) => {
+        setModalData(data)
+        setIsShowTransactionHistoryModal(true)
+    }
+
     const closeModal = () => {
         if (!isLoading) {
             setModalData({
@@ -195,6 +203,28 @@ const Players = () => {
             })
             setIsShowModal(false)
             setCurrDataStatus('')
+        }
+    }
+
+    const closeTransactionHistoryModal = () => {
+        if (!isLoading) {
+            setModalData({
+                "accountNumber": 0,
+                "accountType": 0,
+                "accountStatus": 0,
+                "accountBalance": 0,
+                "username": "",
+                "firstname": "",
+                "lastname": "",
+                "phoneNumber": "",
+                "email": "",
+                "facebookAccount": "",
+                "referralCode": 0,
+                "id": 0,
+                "suspended": 0,
+                // "roles": []
+            })
+            setIsShowTransactionHistoryModal(false)
         }
     }
 
@@ -415,6 +445,24 @@ const Players = () => {
                     </div>
                 </div>
             </Modal>
+
+            <Modal isOpen={isShowTransactionHistoryModal} onClose={closeTransactionHistoryModal} size="large">
+                <div className="flex flex-col items-end gap-4">
+                    <div className="flex w-full gap-4">
+                        <TransactionHistory reportType="player" accountNumber={modalData.accountNumber} />
+                    </div>
+                    <div className="flex gap-4">
+                        <Button
+                            onClick={closeTransactionHistoryModal}
+                            isLoading={isLoading}
+                            type={"button"}
+                            textColor="text-red"
+                        >
+                            Cancel
+                        </Button>
+                    </div>
+                </div>
+            </Modal>
             <h1 className="text-xl">{manageType === 'backoffice' ? 'Backoffice' : 'Players'}</h1>
             <div className="gap-4 items-center flex w-2/3">
                 <label htmlFor="accountNumber" >Search</label>
@@ -527,6 +575,7 @@ const Players = () => {
                             key: '',
                             label: 'action',
                             customValue: (item: any) => {
+
                                 return <div className="flex gap-2 items-center justify-center">
                                     <Button
                                         onClick={() => openModal(item)}
@@ -535,6 +584,15 @@ const Players = () => {
                                     >
                                         Edit
                                     </Button>
+                                    {manageType === 'players' && (
+                                        <Button
+                                            onClick={() => openTransactionHistoryModal(item)}
+                                            type={"button"}
+                                            size="text-xs"
+                                        >
+                                            View Transaction
+                                        </Button>
+                                    )}
                                 </div>
                             }
                         }

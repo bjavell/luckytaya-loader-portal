@@ -16,17 +16,34 @@ const GET = async (req: NextRequest) => {
         correlationId = req.headers.get('x-correlation-id');
         const currentSession = await getCurrentSession()
 
-        const params = {
-            dateTimeFrom: req.nextUrl.searchParams.get('startDate'),
-            dateTimeTo: req.nextUrl.searchParams.get('endDate'),
+        const reportType = req.nextUrl.searchParams.get('reportType')
+
+        let params
+
+        let uri
+
+        if(reportType === 'player') {
+            uri = `/api/v1/xAccountTransaction/GetTransByAcctNumByDateV2`
+            params = {
+                accountNumber : req.nextUrl.searchParams.get('accountNumber'),
+                dateTimeFrom: req.nextUrl.searchParams.get('startDate'),
+                dateTimeTo: req.nextUrl.searchParams.get('endDate'),
+            }
+        } else {
+            uri = `/api/v1/xAccountTransaction/GetTransByDateV2`
+            params = {
+                dateTimeFrom: req.nextUrl.searchParams.get('startDate'),
+                dateTimeTo: req.nextUrl.searchParams.get('endDate'),
+            }
         }
 
 
         logRequest = {
             ...params
         }
+        
 
-        const response = await luckTayaAxios.get(`/api/v1/xAccountTransaction/GetTransByUserIdByDateV2`, {
+        const response = await luckTayaAxios.get(uri, {
             params,
             headers: {
                 'X-Correlation-ID': correlationId,

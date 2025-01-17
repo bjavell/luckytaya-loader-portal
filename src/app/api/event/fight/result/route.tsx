@@ -56,26 +56,26 @@ const POST = async (req: NextRequest) => {
         const winName = details.winnerName.replace('(H)','').trim();
         if(event){
           if(event.lastWinner){
-            if(event.player1 == winName){
+            if(1 == winName){
               event.player1Score = (event.player1Score + 1);
             }
-            else if(event.player2 == winName){
+            else if(2 == winName){
               event.player2Score = (event.player2Score + 1);
             }
-            else if(event.player3 == winName){
+            else if(3 == winName){
               event.player3Score = (event.player3Score + 1);
             }
           }else{
             event.player1Score = 0;
             event.player2Score = 0;
             event.player3Score = 0;
-            if(event.player1 == winName){
+            if(1 == winName){
               event.player1Score = 1;
             }
-            else if(event.player2 == winName){
+            else if(2 == winName){
               event.player2Score = 1;
             }
-            else if(event.player3 == winName){
+            else if(3 == winName){
               event.player3Score = 1;
             } 
           }

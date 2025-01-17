@@ -23,7 +23,6 @@ const GET = async (req: NextRequest) => {
         eventId
       }
     }
-    //console.log(eventId,'hello')
     const response = await luckTayaAxios.get(
       `/api/v1/SabongFight/WithDetailsByEventIdV2/${eventId}`,
       {
@@ -80,6 +79,10 @@ const POST = async (req: NextRequest) => {
   const request = await req.json(); 
   const { fightDetails, fight } = request;
   
+  const token = currentSession ? `Bearer ${currentSession.token}` : req.headers.get('Authorization')  
+  const userId = currentSession ? `${currentSession.userId}` : req.headers.get('UserId')
+
+  console.log(request)
   try {
     logRequest = {
       fightDetails,
@@ -93,14 +96,14 @@ const POST = async (req: NextRequest) => {
       fightResult = await luckTayaAxios.put(`/api/v1/SabongFight`, fight, {
         headers: {
           'X-Correlation-ID': correlationId,
-          Authorization: `Bearer ${currentSession.token}`,
+          Authorization: `${token}`,
         },
       });
     } else {
       fightResult = await luckTayaAxios.post(`/api/v1/SabongFight`, fight, {
         headers: {
           'X-Correlation-ID': correlationId,
-          Authorization: `Bearer ${currentSession.token}`,
+          Authorization: `${token}`,
         },
       });
     }
@@ -134,7 +137,7 @@ const POST = async (req: NextRequest) => {
     for (let index = 0; index < fightDetails.length; index++) {
       const element = fightDetails[index];
       element.fightId = fightResult.fightId;
-      element.operatorId = currentSession.userId;
+      element.operatorId = userId;
       if (element.id) {
         element.id = parseInt(element.id);
         delete element.operatorId;
@@ -144,7 +147,7 @@ const POST = async (req: NextRequest) => {
         await luckTayaAxios.put(`/api/v1/SabongFightDetail`, element, {
           headers: {
             'X-Correlation-ID': correlationId,
-            Authorization: `Bearer ${currentSession.token}`,
+            Authorization: `${token}`,
           },
         });
       } else {
@@ -156,7 +159,7 @@ const POST = async (req: NextRequest) => {
         await luckTayaAxios.post(`/api/v1/SabongFightDetail/`, element, {
           headers: {
             'X-Correlation-ID': correlationId,
-            Authorization: `Bearer ${currentSession.token}`,
+            Authorization: `${token}`,
           },
         });
       }

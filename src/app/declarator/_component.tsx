@@ -62,6 +62,12 @@ const Fight = () => {
     loser: "",
     winner: "",
   });
+  const [playerNames, setPlayerNames] = useState({
+    player1FirstName: "",
+    player1LastName: "",
+    player2FirstName: "",
+    player2LastName: "",
+  });
 
   const [betDetails, setBetDetails] = useState({
     fId: 0,
@@ -174,6 +180,15 @@ const Fight = () => {
       })
       .catch(() => {});
   };
+
+  useEffect(() => {
+    setPlayerNames({
+      player1FirstName: getLastGameFirstName(1, lastFight, selectedEventDet),
+      player1LastName: getLastGameLastName(1, lastFight, selectedEventDet),
+      player2FirstName: getLastGameFirstName(0, lastFight, selectedEventDet),
+      player2LastName: getLastGameLastName(0, lastFight, selectedEventDet),
+    });
+  }, [lastFight, game3Details, selectedEventDet]);
 
   useEffect(() => {
     const getData = async () => {
@@ -356,6 +371,13 @@ const Fight = () => {
     setWinningSide(-1);
     setIsConfirmModalOpen(false);
   };
+  const findIndexInPlayer = (name: string) => {
+    const { players } = game3Details;
+    const result = players.findIndex((item) => item.trim() == name);
+
+    return (result + 1).toString();
+  };
+
   const onConfirm = async () => {
     setIsLoadingWithScreen(true);
     const request = {
@@ -364,8 +386,8 @@ const Fight = () => {
       details: {
         gameType: selectedEventDet.gameType,
         eventId: selectedEvent.eventId,
-        winnerName: getPlayerName(winningSide),
-        loserName: getPlayerName(winningSide == 1 ? 0 : 1),
+        winnerName: findIndexInPlayer(getPlayerName(winningSide)),
+        loserName: findIndexInPlayer(getPlayerName(winningSide == 1 ? 0 : 1)),
       },
     };
 
@@ -412,7 +434,6 @@ const Fight = () => {
       .then((response) => {
         const { data } = response;
         const { player1, player2, player3 } = data;
-        const players = [player1, player2, player3];
         setSelectedEventDet({ ...item, ...response.data });
       })
       .catch(() => {
@@ -422,16 +443,18 @@ const Fight = () => {
 
   useEffect(() => {
     if (selectedEventDet) {
-      const { lastWinner, lastLoser } =
-        selectedEventDet;
+      const { lastWinner, lastLoser } = selectedEventDet;
       setGame3Details({
-        players: [getGameType3Name('player1'), 
-          getGameType3Name('player2'), 
-          getGameType3Name('player3')],
+        players: [
+          getGameType3Name("player1"),
+          getGameType3Name("player2"),
+          getGameType3Name("player3"),
+        ],
         winner: lastWinner,
         loser: lastLoser,
       });
     }
+
     return () => {};
   }, [selectedEventDet]);
 
@@ -806,7 +829,7 @@ const Fight = () => {
     if (!isJsonObjectEmpty(fightDetails)) {
       const player = fightDetails.find((x: any) => x.side == side);
       if (player) {
-        return `${player.owner} ${player.breed}`.trim();
+        return `${player.owner.trim()} ${player.breed.trim()}`.trim();
       }
     }
     return "";
@@ -816,45 +839,82 @@ const Fight = () => {
     try {
       const { players, winner, loser } = game3Details;
 
-      const result = players.filter(
-        (item) => item !== winner && item !== loser
+      const result = players.findIndex(
+        (item) =>
+          item.trim() !== getPlayerGame3(winner, selectedEventDet) &&
+          item.trim() !== getPlayerGame3(loser, selectedEventDet)
       );
-      return result[0];
+      return selectedEventDet[`player${result + 1}`];
     } catch (error) {
       return "";
     }
   };
 
-  const getGameType3Name = (player : string) =>{
-    return `${selectedEventDet[player]} ${selectedEventDet[player+"HasHandicap"]? "(H)": ""}`
-  }
+  const getNextPlayerGameType3Handicap = () => {
+    try {
+      const { players, winner, loser } = game3Details;
 
-  const getLastGameFirstName = (side: number) => {
-    if (!isJsonObjectEmpty(lastFight)) {
-      const player = lastFight.fightDetails.find((x: any) => x.side == side);
+      const result = players.findIndex(
+        (item) =>
+          item.trim() !== getPlayerGame3(winner, selectedEventDet) &&
+          item.trim() !== getPlayerGame3(loser, selectedEventDet)
+      );
+
+      return selectedEventDet[`player${result + 1}Other`];
+    } catch (error) {
+      return "";
+    }
+  };
+
+  const getGameType3Name = (player: string) => {
+    return `${selectedEventDet[player]} ${selectedEventDet[player + "Other"]}`;
+  };
+
+  const getPlayerGame3 = (player: string, evnt: any) => {
+    if (!player) return "";
+
+    return (
+      evnt[`player${player}`] +
+      " " +
+      evnt[`player${player}Other`]
+    ).trim();
+  };
+
+  const getLastGameFirstName = (side: number, lastFght: any, evnt: any) => {
+    if (!isJsonObjectEmpty(lastFght)) {
+      const player = lastFght.fightDetails.find((x: any) => x.side == side);
       if (player) {
-        if (selectedEventDet?.gameType == 4) {
-          if (selectedEventDet?.lastWinner == player.owner)
-            return `${player.owner}`;
+        if (evnt?.gameType == 4) {
+          if (
+            getPlayerGame3(evnt?.lastWinner, evnt) ==
+            `${player.owner.trim()} ${player.breed.trim()}`.trim()
+          )
+            return `${player.owner.trim()}`;
           else {
             return getNextPlayerGameType3();
           }
         }
-        return `${player.owner}`;
-      }
-    } else {
-      if (selectedEventDet?.gameType == 4) {
-        return side == 0 ? getGameType3Name('player2') : getGameType3Name('player1');
+        return `${player.owner.trim()}`;
       }
     }
     return "";
   };
 
-  const getLastGameLastName = (side: number) => {
-    if (!isJsonObjectEmpty(lastFight)) {
-      const player = lastFight.fightDetails.find((x: any) => x.side == side);
+  const getLastGameLastName = (side: number, lastFght: any, evnt: any) => {
+    if (!isJsonObjectEmpty(lastFght)) {
+      const player = lastFght.fightDetails.find((x: any) => x.side == side);
       if (player) {
-        return `${player.breed}`;
+        if (evnt?.gameType == 4) {
+          if (
+            getPlayerGame3(evnt?.lastWinner, evnt) ==
+            `${player.owner.trim()} ${player.breed.trim()}`.trim()
+          )
+            return `${player.breed.trim()}`;
+          else {
+            return getNextPlayerGameType3Handicap();
+          }
+        }
+        return `${player.breed.trim()}`;
       }
     }
     return "";
@@ -986,15 +1046,15 @@ const Fight = () => {
                 label=""
                 placeholder="Enter Name 1"
                 type="text"
-                value={getLastGameFirstName(1)}
+                value={playerNames.player1FirstName}
               />
-              {selectedEventDet?.gameType != 4 && (
+              {selectedEventDet?.gameType != 1 && (
                 <FormField
                   name="meron-breed"
                   label=""
                   placeholder="Enter Name 2"
                   type="text"
-                  value={getLastGameLastName(1)}
+                  value={playerNames.player1LastName}
                 />
               )}
               <input hidden value={0} name="wala-side" />
@@ -1004,15 +1064,15 @@ const Fight = () => {
                 label=""
                 placeholder="Enter Name 1"
                 type="text"
-                value={getLastGameFirstName(0)}
+                value={playerNames.player2FirstName}
               />
-              {selectedEventDet?.gameType != 4 && (
+              {selectedEventDet?.gameType != 1 && (
                 <FormField
                   name="wala-breed"
                   label=""
                   placeholder="Enter Name 2"
                   type="text"
-                  value={getLastGameLastName(0)}
+                  value={playerNames.player2LastName}
                 />
               )}
             </div>

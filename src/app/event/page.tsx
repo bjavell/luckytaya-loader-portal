@@ -15,6 +15,7 @@ import { encrypt } from "@/util/cryptoUtil";
 import { localAxios } from "@/util/localAxiosUtil";
 import { gameTypes } from "@/util/gameTypes";
 import isJsonObjectEmpty from "@/util/isJsonObjectEmpty";
+import PlayerInput from "@/components/playerInput";
 type SabongEvent = {
   entryDateTime: string;
   operatorId: number;
@@ -144,9 +145,10 @@ const Event = () => {
     await localAxios
       .get(`/api/event/by-id?eventId=${item.eventId}`)
       .then((response) => {
+        console.log({ ...item, ...response.data },'hello09')
         setSelectedEvent({ ...item, ...response.data });
       })
-      .catch(() => {
+      .catch(() => {      
         setSelectedEvent(item);
       });
     setIsModalOpen(true);
@@ -226,14 +228,15 @@ const Event = () => {
       fights: fights,
       details: {
         gameType: form.gameType.value,
-        player1: form.player1?.value ?? "",
-        player2: form.player2?.value ?? "",
+        player1: selecteGameType == 1 ? "Pula" : form.player1?.value ?? "",
+        player2: selecteGameType == 1 ? "Asul" : form.player2?.value ?? "",
         player3: form.player3?.value ?? "",
-        player1HasHandicap: form.player1HasHandicap?.checked,
-        player2HasHandicap: form.player2HasHandicap?.checked,
-        player3HasHandicap: form.player3HasHandicap?.checked,
+        player1Other : form.player1Other?.value ?? "",
+        player2Other : form.player2Other?.value ?? "",
+        player3Other : form.player3Other?.value ?? "",
       },
     };
+    console.log(form.player1Other,'hello123')
     await localAxios
       .post("/api/event", request)
       .then(() => {
@@ -422,7 +425,7 @@ const Event = () => {
                 <select
                   name="gameType"
                   defaultValue={
-                    selectedEvent == null ? "" : selectedEvent.gameType
+                    selectedEvent == null ? "" : parseInt(selectedEvent.gameType)
                   }
                   onChange={(e) => onGameTypeSelect(e)}
                   className="peer rounded-xlg py-4 px-4 bg-semiBlack shadow-sm font-sans font-light tacking-[5%] text-white invalid:border-red-500 invalid:[&.visited]:border invalid:[&.visited]:border-[#E74C3C]"
@@ -435,6 +438,8 @@ const Event = () => {
                     );
                   })}
                 </select>
+
+                <PlayerInput data={selectedEvent} gameType={selecteGameType}></PlayerInput>
                 {selecteGameType == 4 && (
                   <React.Fragment>
                     <div className="flex flex-row items-center gap-4">
@@ -455,17 +460,16 @@ const Event = () => {
                             placeholder="Name"
                             type="text"
                           />
-                          <input
-                            type="checkbox"
-                            name="player1HasHandicap"
-                            checked={selectedEvent?.player1HasHandicap}
-                            // onChange={(e) =>
-                            //   onHandleCheckBox(
-                            //     "player1HasHandicap",
-                            //     e.target.checked
-                            //   )
-                            // }
+                            <FormField
+                            name="player1Other"
+                            value={
+                              selectedEvent == null ? "" : selectedEvent.player1Other
+                            }
+                            // label="Player 1"
+                            placeholder="Handicap"
+                            type="text"
                           />
+                          
                         </div>
                       </div>
                     </div>
@@ -487,16 +491,14 @@ const Event = () => {
                             placeholder="Name"
                             type="text"
                           />
-                          <input
-                            type="checkbox"
-                            name="player2HasHandicap"
-                            checked={selectedEvent?.player2HasHandicap}
-                            // onChange={(e) =>
-                            //   onHandleCheckBox(
-                            //     "player2HasHandicap",
-                            //     e.target.checked
-                            //   )
-                            // }
+                          <FormField
+                            name="player2Other"
+                            value={
+                              selectedEvent == null ? "" : selectedEvent.player2Other
+                            }
+                            // label="Player 2"
+                            placeholder="Handical"
+                            type="text"
                           />
                         </div>
                       </div>
@@ -519,17 +521,16 @@ const Event = () => {
                             placeholder="Name"
                             type="text"
                           />
-                          <input
-                            type="checkbox"
-                            name="player3HasHandicap"
-                            checked={selectedEvent?.player3HasHandicap}
-                            // onChange={(e) =>
-                            //   onHandleCheckBox(
-                            //     "player3HasHandicap",
-                            //     e.target.checked
-                            //   )
-                            // }
+                             <FormField
+                            name="player3Other"
+                            value={
+                              selectedEvent == null ? "" : selectedEvent.player3Other
+                            }
+                            // label="Player 3"
+                            placeholder="Name"
+                            type="text"
                           />
+                          
                         </div>
                       </div>
                     </div>

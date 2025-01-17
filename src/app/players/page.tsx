@@ -8,6 +8,8 @@ import Button from "@/components/button"
 import AccountType from "@/classes/accountTypeData"
 import FormField from "@/components/formField"
 import { localAxios } from "@/util/localAxiosUtil"
+import Modal from "@/components/modal"
+import TransactionHistory from "@/components/transactionHistory"
 
 const Players = () => {
     const router = useRouter()
@@ -15,6 +17,8 @@ const Players = () => {
     const [filterPlayers, setFilterPlayers] = useState([])
     const [accountType, setAccountType] = useState<AccountType[]>([])
     const [search, setSearch] = useState('')
+    const [isShowTransactionHistoryModal, setIsShowTransactionHistoryModal] = useState(false)
+    const [accountNumber, setAccountNumber] = useState(0)
 
 
     const getPlayerLists = async () => {
@@ -84,8 +88,36 @@ const Players = () => {
         setFilterPlayers(filter)
     }
 
+
+    const openTransactionHistoryModal = (data: any) => {
+        setAccountNumber(data.accountNumber)
+        setIsShowTransactionHistoryModal(true)
+    }
+
+
+    const closeTransactionHistoryModal = () => {
+        setAccountNumber(0)
+        setIsShowTransactionHistoryModal(false)
+    }
+
     return (
         <div className="flex flex-col gap-4 w-full">
+            <Modal isOpen={isShowTransactionHistoryModal} onClose={closeTransactionHistoryModal} size="large">
+                <div className="flex flex-col items-end gap-4">
+                    <div className="flex w-full gap-4">
+                        <TransactionHistory reportType="player" accountNumber={accountNumber} />
+                    </div>
+                    <div className="flex gap-4">
+                        <Button
+                            onClick={closeTransactionHistoryModal}
+                            type={"button"}
+                            textColor="text-red"
+                        >
+                            Cancel
+                        </Button>
+                    </div>
+                </div>
+            </Modal>
             <h1 className="text-xl">Players</h1>
             <div className="flex items-center gap-2 w-1/3">
                 <label htmlFor="accountNumber" >Search</label>
@@ -109,6 +141,36 @@ const Players = () => {
                                 return formatDynamicNumber(val)
                             },
                         },
+                        {
+                            key: 'suspended',
+                            label: 'status',
+                            format: (val: string) => {
+
+                                let formattedValue
+                                if (Number(val) === 1) {
+                                    formattedValue = 'Suspended'
+                                } else {
+                                    formattedValue = 'Active'
+                                }
+
+                                return formattedValue
+                            }
+                        }, {
+                            key: '',
+                            label: 'action',
+                            customValue: (item: any) => {
+
+                                return <div className="flex gap-2 items-center justify-center">
+                                    <Button
+                                        onClick={() => openTransactionHistoryModal(item)}
+                                        type={"button"}
+                                        size="text-xs"
+                                    >
+                                        View Transaction
+                                    </Button>
+                                </div>
+                            }
+                        }
                         // {
                         //     key: 'accountType',
                         //     label: 'ACCOUNT TYPE',

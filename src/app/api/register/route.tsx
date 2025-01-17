@@ -70,7 +70,7 @@ const POST = async (req: NextRequest) => {
 
         if (Number(request.accountType) === Number(6)) {
             hasMasterAccount = mgmtUsersResponseData.filter((e: any) => {
-                return Number(e.accountNumber) === Number(request.masterAgentAccountNumber)
+                return Number(e.accountNumber) === Number(request.masterAgentAccountNumber) && e.accountType === 3
             })
 
         }

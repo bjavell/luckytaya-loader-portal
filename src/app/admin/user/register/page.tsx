@@ -245,8 +245,8 @@ const Register = () => {
                                             <option></option>
                                     }
                                 </select>
-                                {isShowMasterAgenctAccountField ? <FormField name={"masterAgentAccountNumber"} label="Master Agent Account Number" customLabelClass="text-xs" onBlur={handleChange} value={formatDynamicNumber(userRegistration.masterAgentAccountNumber)} required /> : ''}
-                                {isShowMasterAgenctAccountField ? <FormField name={"referralCode"} label="Referral Code" customLabelClass="text-xs" value={formatDynamicNumber(userRegistration.referralCode)} readonly /> : null}
+                                {isShowMasterAgenctAccountField && <FormField name={"masterAgentAccountNumber"} label="Master Agent Account Number" customLabelClass="text-xs" onBlur={handleChange} value={formatDynamicNumber(userRegistration.masterAgentAccountNumber)} required />}
+                                {isShowMasterAgenctAccountField && <FormField name={"referralCode"} label="Referral Code" customLabelClass="text-xs" value={formatDynamicNumber(userRegistration.referralCode)} readonly />}
                             </div>
                         </div>
 

@@ -18,7 +18,8 @@ const DB_COLLECTIONS = {
     TAYA_AGENTS: 'taya_agent',
     FUNDING_REQUESTS: 'taya_request_fund',
     CASHOUT_REQUESTS: 'taya_cashout_request',
-    EVENTS : 'taya_events'
+    EVENTS : 'taya_events',
+    GAMES : 'taya_games'
 }
 
 const TRAN_TYPE = {

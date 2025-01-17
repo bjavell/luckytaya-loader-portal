@@ -4,6 +4,8 @@ import { luckTayaAxios } from "@/util/axiosUtil";
 import { formatGenericErrorResponse } from "@/util/commonResponse";
 import { getCurrentSession } from "@/context/auth";
 import logger from "@/lib/logger";
+import { DB_COLLECTIONS } from "@/classes/constants";
+import { insert } from "@/util/dbUtil";
 
 const POST = async (req: NextRequest) => {
   const api = "SET FIGHT STATUS"
@@ -23,10 +25,15 @@ const POST = async (req: NextRequest) => {
     request.fightStatusCode = parseInt(request.fightStatusCode);
     request.fightId = parseInt(request.fightId);
 
+    const updateRequest = {
+      fightStatusCode : parseInt(request.fightStatusCode),
+      fightId : parseInt(request.fightId),
+    }
+
     const token = currentSession ? `Bearer ${currentSession.token}` : req.headers.get('Authorization')
     const response = await luckTayaAxios.put(
       `/api/v1/SabongFight/UpdateStatus`,
-      request,
+      updateRequest,
       {
         headers: {
           'X-Correlation-ID': correlationId,
@@ -45,6 +52,8 @@ const POST = async (req: NextRequest) => {
           },
         }
       );
+
+      const dbResult = await insert(DB_COLLECTIONS.GAMES, request);
     }
     const responseData = response.data;
 

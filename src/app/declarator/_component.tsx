@@ -57,6 +57,7 @@ const Fight = () => {
   const [isCreateAnotherGame, setIsCreateAnotherGame] = useState(false);
   const [lastFight, setLastFight] = useState<any>(null);
   const [isGameAvailable, setIsGameAvailable] = useState(true);
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [game3Details, setGame3Details] = useState({
     players: [""],
     loser: "",
@@ -359,6 +360,54 @@ const Fight = () => {
       });
   };
 
+  const onHandleCancel = async (e: any) => {
+    // setIsLoading(true);
+    setErrorMessage("");
+    e.preventDefault();
+
+    const form = e.target;
+
+    if (!form.reason.value) {
+      setErrorMessage("Please Enter Reason");
+      return;
+    }
+
+    const request = {
+      reason: form.reason.value,
+      fightId: gameData.fight.fightId,
+      fightStatusCode: 21,
+      event: selectedEvent,
+    };
+    setIsLoadingWithScreen(true);
+    await localAxios
+      .post("/api/event/fight/setStatus", request)
+      .then(() => {
+        // alert("Successfully Saved");
+        refreshFight(true);
+        setIsFightStatusModalOpen(false);
+      })
+      .catch((e) => {
+        const errorMessages = e.response.data.error;
+        if (errorMessages) {
+          if (errorMessages["Not found"]) {
+            setErrorMessage(errorMessages["Not found"][0]);
+          } else if (errorMessages["Bad request"]) {
+            setErrorMessage(errorMessages["Bad request"][0]);
+          } else if (errorMessages["Unexpexted Error"]) {
+            setErrorMessage(errorMessages["Unexpexted Error"][0]);
+          } else {
+            setErrorMessage("Oops! something went wrong");
+          }
+        } else {
+          setErrorMessage("Oops! something went wrong");
+        }
+      })
+      .finally(() => {
+        setIsCancelModalOpen(false);
+        setIsLoadingWithScreen(false);
+      });
+  };
+
   const closeSendModal = () => {
     setIsModalSendMessageOpen(false);
   };
@@ -588,7 +637,7 @@ const Fight = () => {
       ) {
         return (
           <Button
-            onClick={() => onDirectSetFightStatus(21)}
+            onClick={() => onCancelGame(21)}
             isLoading={isLoading}
             loadingText="Loading..."
             type={"button"}
@@ -659,6 +708,10 @@ const Fight = () => {
           Final Call
         </button>
       );
+  };
+
+  const onCancelGame = async (status: number) => {
+    setIsCancelModalOpen(true);
   };
 
   const onDirectSetFightStatus = async (status: number) => {
@@ -1124,6 +1177,42 @@ const Fight = () => {
                 type={"submit"}
               >
                 Send
+              </Button>
+            </div>
+          </Form>{" "}
+        </div>
+      </Modal>
+
+      <Modal
+        size="medium"
+        isOpen={isCancelModalOpen}
+        onClose={() => setIsCancelModalOpen(false)}
+      >
+        <h1 className="text-4xl">Cancel Game</h1>
+        <div className="p-4">
+          {errorMessage !== "" ? (
+            <div className="flex gap-2 text-white bg-red p-4 rounded-xlg">
+              {errorMessage}
+            </div>
+          ) : (
+            ""
+          )}
+          <Form onSubmit={onHandleCancel}>
+            <div className="flex flex-col gap-5">
+              <FormField
+                name="reason"
+                label="Reason"
+                placeholder="Enter Reason"
+                type="textarea"
+              />
+
+              <Button
+                onClick={() => {}}
+                isLoading={isLoading}
+                loadingText="Loading..."
+                type={"submit"}
+              >
+                Cancel Game
               </Button>
             </div>
           </Form>{" "}

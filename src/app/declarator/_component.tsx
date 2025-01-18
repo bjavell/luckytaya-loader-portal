@@ -1101,7 +1101,7 @@ const Fight = () => {
                 type="text"
                 value={playerNames.player1FirstName}
               />
-              {selectedEventDet?.gameType != 1 && (
+              {selectedEventDet?.gameType != 1 && selectedEventDet?.gameType != 3  && (
                 <FormField
                   name="meron-breed"
                   label=""
@@ -1119,7 +1119,7 @@ const Fight = () => {
                 type="text"
                 value={playerNames.player2FirstName}
               />
-              {selectedEventDet?.gameType != 1 && (
+              {selectedEventDet?.gameType != 1  && selectedEventDet?.gameType != 3&&  (
                 <FormField
                   name="wala-breed"
                   label=""

@@ -8,7 +8,7 @@ import { findAll, findOne } from "@/util/dbUtil"
 
 const GET = async (req: NextRequest) => {
     const api = "GET TRANSACTION REPORT"
-    let correlationId
+    let correlationId: string | null = ''
     let logRequest
     let logResponse
     let status = 200
@@ -57,6 +57,47 @@ const GET = async (req: NextRequest) => {
         const getAllAgentPlayers = await findAll(DB_COLLECTIONS.TAYA_AGENTS, {})
         const getAllPlayers = await findAll(DB_COLLECTIONS.TAYA_USERS, {})
 
+        const fightIds: string[] = Array.from(new Set(response.data.map((e: any) => e.fightId).filter((id: number) => id !== 0)))
+
+        const fightDetails = await Promise.all(fightIds.map(async (fightId: string) => {
+            const fightResponse = await luckTayaAxios.get(`/api/v1/SabongFight/V3/WithDetails/${fightId}`, {
+                headers: {
+                    'X-Correlation-ID': correlationId,
+                    'Authorization': `Bearer ${currentSession.token}`,
+                },
+            });
+
+            const fightResponseData = fightResponse.data
+
+            const betResponse = await luckTayaAxios.get(`/api/v1/SabongBet/GetByFightId`, {
+                params: {
+                    fightId
+                },
+                headers: {
+                    'X-Correlation-ID': correlationId,
+                    'Authorization': `Bearer ${currentSession.token}`,
+                },
+            });
+
+            const betResponseData = betResponse.data
+
+            fightResponseData.betDetails = betResponseData
+
+            if (fightResponseData.fight.fightStatusCode === 22) {
+                const fightResulst = await luckTayaAxios.get(`/api/v1/SabongFightResult/${fightId}`, {
+                    headers: {
+                        'X-Correlation-ID': correlationId,
+                        'Authorization': `Bearer ${currentSession.token}`,
+                    },
+                });
+
+                fightResponseData.fightResult = fightResulst.data
+            }
+
+            return fightResponseData;
+        }));
+
+
         const customResponse = response.data.map((e: any) => {
 
             const fromAccount = getAccount(e.fromAccountNumber, getAllPlayers, getAllAgentPlayers, config)
@@ -72,6 +113,21 @@ const GET = async (req: NextRequest) => {
             if (transaction.amount < 0) {
                 transaction.amount *= -1
             }
+
+            const otherInfo = fightDetails.find((fight: any) => fight.fight.fightId === transaction.fightId)
+
+            if (otherInfo) {
+                const bet = otherInfo.betDetails.find((bet: any) => bet.transactionNumber === transaction.transactionNumber)
+                let betSide: any
+                if (bet) {
+                    betSide = otherInfo.fightDetails.find((fight: any) => fight.side === bet.side)
+                } else if (otherInfo.fightResult) {
+                    betSide = otherInfo.fightDetails.find((fight: any) => fight.side === otherInfo.fightResult.winSide)
+                }
+                transaction.otherInfo = `Event Name: ${otherInfo.event.eventName}\nVenue Name: ${otherInfo.venue.venueName}\nGame Number: ${otherInfo.fight.fightNum}${betSide ? '\nBet: ' + betSide.owner : ''}`
+            }
+
+            transaction.otherDetails = otherInfo
 
 
             return transaction

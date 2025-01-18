@@ -11,7 +11,7 @@ import LoadingSpinner from "@/components/loadingSpinner"
 import { localAxios } from "@/util/localAxiosUtil"
 import { NextPage } from "next"
 
-const TransactionHistory: NextPage<{reportType:string, accountNumber?: number}> = (props) => {
+const TransactionHistory: NextPage<{ reportType: string, accountNumber?: number }> = (props) => {
 
     const currDate = new Date()
     const defaultStartDate = new Date(currDate)
@@ -96,7 +96,7 @@ const TransactionHistory: NextPage<{reportType:string, accountNumber?: number}> 
         const milliseconds = currDate.getMilliseconds();
 
         const headers = [
-            "DATE", "TXN ID", "SENDER", "RECEIVER", "AMOUNT", "TYPE"
+            "DATE", "TXN ID", "SENDER", "RECEIVER", "AMOUNT", "TYPE", "OTHER INFO"
         ];
 
         const csvRows = [
@@ -106,13 +106,19 @@ const TransactionHistory: NextPage<{reportType:string, accountNumber?: number}> 
                 const sender = transaction.fromFullName + ' | ' + transaction.fromAccountNumber;
                 const receiver = transaction.toFullName + ' | ' + transaction.toAccountNumber;
                 const amount = transaction.amount;
+                let otherInfo = ''
+
+                if (transaction.otherInfo) {
+                    otherInfo = String(transaction.otherInfo).replaceAll('\n', ' | ')
+                }
                 return [
                     formattedDate,
                     transaction.transactionNumber,
                     sender,
                     receiver,
                     amount,
-                    transaction.transactionDesc
+                    transaction.transactionDesc,
+                    otherInfo
                 ].join(',');
             })
         ];
@@ -261,6 +267,9 @@ const TransactionHistory: NextPage<{reportType:string, accountNumber?: number}> 
                             }, {
                                 key: 'transactionDesc',
                                 label: 'type'
+                            }, {
+                                key: 'otherInfo',
+                                label: 'other info'
                             },
                         ]}
                         items={filteredTransactions}

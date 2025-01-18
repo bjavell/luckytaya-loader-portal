@@ -52,6 +52,10 @@ const Event = () => {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [form, setForm] = useState();
   const [selecteGameType, setSelecteGameType] = useState(1);
+  const [feed, setFeed] = useState({
+    isShowFeed: false,
+    feedUrl: "",
+  });
   const getEventStatus = (code: number): any => {
     return statuses.find((x: any) => x.code == code);
   };
@@ -145,10 +149,10 @@ const Event = () => {
     await localAxios
       .get(`/api/event/by-id?eventId=${item.eventId}`)
       .then((response) => {
-        console.log({ ...item, ...response.data },'hello09')
+        console.log({ ...item, ...response.data }, "hello09");
         setSelectedEvent({ ...item, ...response.data });
       })
-      .catch(() => {      
+      .catch(() => {
         setSelectedEvent(item);
       });
     setIsModalOpen(true);
@@ -159,9 +163,27 @@ const Event = () => {
     const getData = async () => {
       await getStatus();
       await getVenues();
+      await localAxios
+      .get("/api/event/feed")
+      .then((response) => {
+        let data = response.data;
+        if(data){
+          setFeed({
+            isShowFeed : data.isShowFeed,
+            feedUrl : data.feedUrl
+          })
+        }
+      })
+      .catch((e) => {
+       
+      })
+      .finally(() => {
+      });
+    
     };
 
     getData();
+    
   }, []);
 
   useEffect(() => {
@@ -221,22 +243,23 @@ const Event = () => {
         ? selectedEvent.eventDate
         : `${form.eventDate.value}T00:00:00.008Z`,
       webRtcStream: form.webRtcStream.value,
-      eventStatusCode:
-        !isJsonObjectEmpty(selectedEvent) ? selectedEvent.eventStatusCode : 0,
-      eventStatusCodeNew:
-        !isJsonObjectEmpty(selectedEvent) ? form.eventStatusCodeNew.value : 0,
+      eventStatusCode: !isJsonObjectEmpty(selectedEvent)
+        ? selectedEvent.eventStatusCode
+        : 0,
+      eventStatusCodeNew: !isJsonObjectEmpty(selectedEvent)
+        ? form.eventStatusCodeNew.value
+        : 0,
       fights: fights,
       details: {
         gameType: form.gameType.value,
         player1: selecteGameType == 1 ? "Pula" : form.player1?.value ?? "",
         player2: selecteGameType == 1 ? "Asul" : form.player2?.value ?? "",
         player3: form.player3?.value ?? "",
-        player1Other : form.player1Other?.value ?? "",
-        player2Other : form.player2Other?.value ?? "",
-        player3Other : form.player3Other?.value ?? "",
+        player1Other: form.player1Other?.value ?? "",
+        player2Other: form.player2Other?.value ?? "",
+        player3Other: form.player3Other?.value ?? "",
       },
     };
-    console.log(form.player1Other,'hello123')
     await localAxios
       .post("/api/event", request)
       .then(() => {
@@ -332,6 +355,50 @@ const Event = () => {
       return "";
     }
   };
+
+  const onHandleSubmitFeed = async (e: any) => {
+    setIsLoading(true);
+    setErrorMessage("");
+    e.preventDefault();
+
+    const form = e.target;
+
+    if (!form.feedUrl?.value && feed.isShowFeed) {
+      setIsLoading(false);
+      alert("Please Enter Feed Url");
+      return;
+    }
+
+    const request = {
+      isShowFeed: feed.isShowFeed,
+      feedUrl: form.feedUrl?.value,
+    };
+    await localAxios
+      .post("/api/event/feed", request)
+      .then(() => {
+        setErrorMessage("");
+        alert("Successfully Saved");
+      })
+      .catch((e) => {
+        const errorMessages = e.response.data.error;
+        if (errorMessages) {
+          if (errorMessages["Not found"]) {
+            setErrorMessage(errorMessages["Not found"][0]);
+          } else if (errorMessages["Bad request"]) {
+            setErrorMessage(errorMessages["Bad request"][0]);
+          } else if (errorMessages["Unexpexted Error"]) {
+            setErrorMessage(errorMessages["Unexpexted Error"][0]);
+          } else {
+            setErrorMessage("Oops! something went wrong");
+          }
+        } else {
+          setErrorMessage("Oops! something went wrong");
+        }
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
   return (
     <div className="flex flex-col gap-4 w-full">
       <h1 className="text-xl">Events</h1>
@@ -345,6 +412,42 @@ const Event = () => {
           + New Event
         </Button>
       </div>
+
+      <Form onSubmit={(e: any) => onHandleSubmitFeed(e)}>
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center gap-2 ">
+            <input
+              type="checkbox"
+              name="isShowFeed"
+              checked={feed.isShowFeed}
+              onChange={(e) =>
+                setFeed((x: any) => ({ ...x, isShowFeed: e.target.checked }))
+              }
+            />
+            <label htmlFor="isShowFeed" className="text-xl">
+              Show Feed
+            </label>
+          </div>
+
+          <FormField
+            name="feedUrl"
+            // label="URL"
+            value={feed.feedUrl == null ? "" : feed.feedUrl}
+            placeholder="Enter Feed Url"
+            type="text"
+          />
+          <div className="w-sm">
+            <Button
+              onClick={() => {}}
+              isLoading={isLoading}
+              loadingText="Loading..."
+              type={"submit"}
+            >
+              Save Feed
+            </Button>
+          </div>
+        </div>
+      </Form>
 
       <Modal size="medium" isOpen={isModalOpen} onClose={closeModal}>
         <div className="w-full p-4">
@@ -425,7 +528,9 @@ const Event = () => {
                 <select
                   name="gameType"
                   defaultValue={
-                    selectedEvent == null ? "" : parseInt(selectedEvent.gameType)
+                    selectedEvent == null
+                      ? ""
+                      : parseInt(selectedEvent.gameType)
                   }
                   onChange={(e) => onGameTypeSelect(e)}
                   className="peer rounded-xlg py-4 px-4 bg-semiBlack shadow-sm font-sans font-light tacking-[5%] text-white invalid:border-red-500 invalid:[&.visited]:border invalid:[&.visited]:border-[#E74C3C]"
@@ -439,7 +544,10 @@ const Event = () => {
                   })}
                 </select>
 
-                <PlayerInput data={selectedEvent} gameType={selecteGameType}></PlayerInput>
+                <PlayerInput
+                  data={selectedEvent}
+                  gameType={selecteGameType}
+                ></PlayerInput>
                 {selecteGameType == 4 && (
                   <React.Fragment>
                     <div className="flex flex-row items-center gap-4">
@@ -460,16 +568,17 @@ const Event = () => {
                             placeholder="Name"
                             type="text"
                           />
-                            <FormField
+                          <FormField
                             name="player1Other"
                             value={
-                              selectedEvent == null ? "" : selectedEvent.player1Other
+                              selectedEvent == null
+                                ? ""
+                                : selectedEvent.player1Other
                             }
                             // label="Player 1"
                             placeholder="Handicap"
                             type="text"
                           />
-                          
                         </div>
                       </div>
                     </div>
@@ -494,7 +603,9 @@ const Event = () => {
                           <FormField
                             name="player2Other"
                             value={
-                              selectedEvent == null ? "" : selectedEvent.player2Other
+                              selectedEvent == null
+                                ? ""
+                                : selectedEvent.player2Other
                             }
                             // label="Player 2"
                             placeholder="Handical"
@@ -521,16 +632,17 @@ const Event = () => {
                             placeholder="Name"
                             type="text"
                           />
-                             <FormField
+                          <FormField
                             name="player3Other"
                             value={
-                              selectedEvent == null ? "" : selectedEvent.player3Other
+                              selectedEvent == null
+                                ? ""
+                                : selectedEvent.player3Other
                             }
                             // label="Player 3"
                             placeholder="Name"
                             type="text"
                           />
-                          
                         </div>
                       </div>
                     </div>

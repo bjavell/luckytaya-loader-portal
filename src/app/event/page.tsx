@@ -236,7 +236,6 @@ const Event = () => {
         player3Other : form.player3Other?.value ?? "",
       },
     };
-    console.log(form.player1Other,'hello123')
     await localAxios
       .post("/api/event", request)
       .then(() => {

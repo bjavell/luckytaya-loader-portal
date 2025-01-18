@@ -4,13 +4,14 @@ import { luckTayaAxios, luckTayaMainAxios } from "@/util/axiosUtil";
 import { formatGenericErrorResponse } from "@/util/commonResponse";
 import { getCurrentSession } from "@/context/auth";
 import logger from "@/lib/logger";
-import { findOne, insert, update } from "@/util/dbUtil";
+import { findAll, findOne, insert, update } from "@/util/dbUtil";
 import { DB_COLLECTIONS } from "@/classes/constants";
 import { localAxios } from "@/util/localAxiosUtil";
+import { transferFromMaster } from "@/common/transaction";
 
 const POST = async (req: NextRequest) => {
   const api = "POST EVENT";
-  let correlationId;
+  let correlationId: string | null = '';
   let logRequest;
   let logResponse;
   let status = 200;
@@ -81,7 +82,7 @@ const POST = async (req: NextRequest) => {
           currentSession.userId,
           correlationId
         );
-      } catch (error : any) {
+      } catch (error: any) {
       }
     } else {
       const copyRequest = JSON.parse(JSON.stringify(request));
@@ -124,6 +125,7 @@ const POST = async (req: NextRequest) => {
             correlationId
           );
         }
+        
         await luckTayaAxios.put(
           `/api/v1/SabongEvent/UpdateStatus`,
           eventStatusRequest,
@@ -134,6 +136,62 @@ const POST = async (req: NextRequest) => {
             },
           }
         );
+
+
+        if (eventStatusRequest.eventStatusCode === 12) {
+
+          const config = await findOne(DB_COLLECTIONS.CONFIG, { code: 'CFG0001' })
+          if (config) {
+            const getBetSummarryResponse = await luckTayaAxios.get('api/v1/xAccountTransaction/GetTransByAcctNumByEventIdSummary', {
+              headers: {
+                "X-Correlation-ID": correlationId,
+                Authorization: `Bearer ${currentSession.token}`,
+              },
+              params: {
+                accountNumber: config.operatorAccountNumber,
+                eventId: parseInt(copyRequest.eventId)
+              }
+            });
+
+            const getBetSummaryResponseData = getBetSummarryResponse.data;
+
+            const bets = getBetSummaryResponseData.find((e: any) => e.transCategory === 1);
+            const sales = getBetSummaryResponseData.find((e: any) => e.transCategory === 2);
+
+            const totalSales = bets.amount - sales.amount
+
+            const maCommission = (totalSales * config.masterAgentCommision).toFixed(2)
+            const agentCommission = (parseFloat(maCommission) * config.agentCommission).toFixed(2)
+
+            console.log(maCommission, agentCommission);
+
+            const allMaAgents = await findAll(DB_COLLECTIONS.TAYA_AGENTS, { 'request.accountType': '3' })
+
+            const allMaAgentsAccount = allMaAgents.map((e: any) => e.response.accountNumber)
+
+            const allAgentsAccount = await Promise.all(allMaAgentsAccount.map(async (e: any) => {
+
+              const agentsUnderMaAccount = await findAll(DB_COLLECTIONS.TAYA_AGENTS, { 'request.masterAgentAccountNumber': String(e) })
+
+              return agentsUnderMaAccount.map((e: any) => e.response.accountNumber)
+            }))
+
+            const allTransfers = [
+              ...allMaAgentsAccount.map((e: any) => ({
+              amount: parseFloat(maCommission),
+              account: e,
+              })),
+              ...allAgentsAccount.flat().map((d: any) => ({
+              amount: parseFloat(agentCommission),
+              account: d,
+              })),
+            ];
+
+            for (const transfer of allTransfers) {
+              await transferFromMaster(transfer.amount, transfer.account, correlationId);
+            }
+          }
+        }
       }
     }
     logResponse = { message: "Successfully Logged In!" };
@@ -214,14 +272,14 @@ const fightRequest = async (
 const createGame = (
   request: any,
   token: string,
-  userId : string,
+  userId: string,
   correlationId: string | null
 ) => {
   return luckTayaMainAxios.post("/api/event/fight", request, {
     headers: {
       "X-Correlation-ID": correlationId,
       Authorization: `Bearer ${token}`,
-      "UserId" : userId
+      "UserId": userId
     },
   });
 };

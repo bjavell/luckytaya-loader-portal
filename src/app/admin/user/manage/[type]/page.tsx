@@ -397,6 +397,7 @@ const Players = () => {
                                                     {
                                                         accountType ?
                                                             accountType.map((e: any) => {
+                                                                if (e.accountType === 6 || e.accountType === 3) return null
                                                                 return <option key={e.description} value={e.accountType}>{e.description}</option>
                                                             }) :
                                                             <option></option>

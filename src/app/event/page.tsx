@@ -427,15 +427,16 @@ const Event = () => {
             <label htmlFor="isShowFeed" className="text-xl">
               Show Feed
             </label>
-          </div>
-
-          <FormField
+            <FormField
             name="feedUrl"
             // label="URL"
             value={feed.feedUrl == null ? "" : feed.feedUrl}
             placeholder="Enter Feed Url"
             type="text"
           />
+          </div>
+
+          
           <div className="w-sm">
             <Button
               onClick={() => {}}

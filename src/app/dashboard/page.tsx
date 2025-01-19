@@ -8,16 +8,19 @@ import { encrypt } from "@/util/cryptoUtil"
 import { useApiData } from "../context/apiContext"
 import QrCode from "@/components/qrCode"
 import LoadingSpinner from "@/components/loadingSpinner"
+import BalanceBar from "@/components/balanceBar"
 
 
 const playerPortal = process.env.NEXT_PUBLIC_PLAYER_PORTAL
 const Home = () => {
     const router = useRouter()
     const [referralLink, setReferralLink] = useState<string>('')
+    const [balance, setBalance] = useState('')
     const { data, loading } = useApiData()
 
     useEffect(() => {
         if (data) {
+            setBalance(data.balance)
             setReferralLink(`${playerPortal}/register/${encrypt(data.referralCode.toString())}`)
         }
     }, [data])
@@ -73,6 +76,7 @@ const Home = () => {
 
     return (
         <div className="flex flex-col gap-4">
+            <BalanceBar balance={balance} />
             <div className="text-bold text-2xl text-lightGreen">GOOD DAY, <br />E-BILLIARD AGENTS</div>
             {/* <div className="font-light mt-10">Recently archived reports are now available and can be viewed by visiting the &quot;Report Archive Menu&quot; <br />Please bear in mind that the platform only offers a &quot;Read Only&quot; access in which you should not <br />perform your typical transactions on the said site. Thank you for your continuous support.
             </div> */}

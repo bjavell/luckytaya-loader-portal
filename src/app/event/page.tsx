@@ -166,7 +166,7 @@ const Event = () => {
       await localAxios
       .get("/api/event/feed")
       .then((response) => {
-        let data = response.data;
+        const data = response.data;
         if(data){
           setFeed({
             isShowFeed : data.isShowFeed,

@@ -3,8 +3,6 @@ import { NextRequest, NextResponse } from "next/server"
 import { luckTayaAxios } from "@/util/axiosUtil"
 import { formatGenericErrorResponse } from "@/util/commonResponse"
 import logger from "@/lib/logger"
-import { findAll } from "@/util/dbUtil"
-import { DB_COLLECTIONS } from "@/classes/constants"
 
 const GET = async (req: NextRequest) => {
     const api = "GET TRANSACTION"
@@ -16,34 +14,17 @@ const GET = async (req: NextRequest) => {
         correlationId = req.headers.get('x-correlation-id');
         const currentSession = await getCurrentSession()
 
-        const reportType = req.nextUrl.searchParams.get('reportType')
-
-        let params
-
-        let uri
-
-        if(reportType === 'player') {
-            uri = `/api/v1/xAccountTransaction/GetTransByAcctNumByDateV2`
-            params = {
-                accountNumber : req.nextUrl.searchParams.get('accountNumber'),
-                dateTimeFrom: req.nextUrl.searchParams.get('startDate'),
-                dateTimeTo: req.nextUrl.searchParams.get('endDate'),
-            }
-        } else {
-            uri = `/api/v1/xAccountTransaction/GetTransByDateV2`
-            params = {
-                dateTimeFrom: req.nextUrl.searchParams.get('startDate'),
-                dateTimeTo: req.nextUrl.searchParams.get('endDate'),
-            }
+        const params = {
+            dateTimeFrom: req.nextUrl.searchParams.get('startDate'),
+            dateTimeTo: req.nextUrl.searchParams.get('endDate'),
         }
 
 
         logRequest = {
             ...params
         }
-        
 
-        const response = await luckTayaAxios.get(uri, {
+        const response = await luckTayaAxios.get(`/api/v1/xAccountTransaction/GetTransByUserIdByDateV2`, {
             params,
             headers: {
                 'X-Correlation-ID': correlationId,
@@ -51,20 +32,14 @@ const GET = async (req: NextRequest) => {
             },
         })
 
-
-        const getAllAgentPlayers = await findAll(DB_COLLECTIONS.TAYA_AGENTS, {})
-        const getAllPlayers = await findAll(DB_COLLECTIONS.TAYA_USERS, {})
-
         const customResponse = response.data.map((e: any) => {
-
-            const fromAccount = getAccount(e.fromAccountNumber, getAllPlayers, getAllAgentPlayers)
-            const toAccount = getAccount(e.toAccountNumber, getAllPlayers, getAllAgentPlayers)
 
             const transaction = {
                 ...e,
-                fromFullName: `${fromAccount?.fromFirstname} ${fromAccount?.fromLastname}`,
-                toFullName: `${toAccount?.toFirstname} ${toAccount?.toLastname}`
+                fromFullName: `${e.fromFirstname} ${e.fromLastname}`,
+                toFullName: `${e.toFirstname} ${e.toLastname}`
             }
+
 
             if (transaction.amount < 0) {
                 transaction.amount *= -1
@@ -105,22 +80,6 @@ const GET = async (req: NextRequest) => {
         })
 
     }
-}
-
-const getAccount = (accountNumber: string, agents: any, users: any) => {
-
-    let matchItem = agents.find((agent: any) => {
-        return Number(agent.accountNumber) === Number(accountNumber)
-    })
-
-    if (!matchItem) {
-        matchItem = users.find((user: any) => {
-            return Number(user.response.accountNumber) === Number(accountNumber)
-        })
-    }
-
-    return matchItem
-
 }
 
 export { GET }

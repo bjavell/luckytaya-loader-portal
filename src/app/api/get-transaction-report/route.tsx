@@ -17,25 +17,26 @@ const GET = async (req: NextRequest) => {
         const currentSession = await getCurrentSession()
 
         const reportType = req.nextUrl.searchParams.get('type')
+        const accountNumber = req.nextUrl.searchParams.get('accountNumber')
 
-        let params
-
-        let uri
-
-        if (reportType === 'player') {
-            uri = `/api/v1/xAccountTransaction/GetTransByAcctNumByDateV2`
-            params = {
-                accountNumber: req.nextUrl.searchParams.get('accountNumber'),
-                dateTimeFrom: req.nextUrl.searchParams.get('startDate'),
-                dateTimeTo: req.nextUrl.searchParams.get('endDate'),
-            }
-        } else {
-            uri = `/api/v1/xAccountTransaction/GetTransByDateV2`
-            params = {
-                dateTimeFrom: req.nextUrl.searchParams.get('startDate'),
-                dateTimeTo: req.nextUrl.searchParams.get('endDate'),
-            }
+        const params = {
+            dateTimeFrom: req.nextUrl.searchParams.get('startDate'),
+            dateTimeTo: req.nextUrl.searchParams.get('endDate'),
         }
+
+        const uri = `/api/v1/xAccountTransaction/GetTransByDateV2`
+
+        // if (reportType === 'player') {
+        //     uri = `/api/v1/xAccountTransaction/GetTransByAcctNumByDateV2`
+        //     params = {
+        //         accountNumber: req.nextUrl.searchParams.get('accountNumber'),
+        //         dateTimeFrom: req.nextUrl.searchParams.get('startDate'),
+        //         dateTimeTo: req.nextUrl.searchParams.get('endDate'),
+        //     }
+        // } else {
+        //     uri 
+        //     params 
+        // }
 
 
 
@@ -52,14 +53,23 @@ const GET = async (req: NextRequest) => {
             },
         })
 
+        const responseData = response.data
+
+        let filteredData = responseData
+
+        if (reportType === 'player') {
+            filteredData = responseData.filter((e: any) => e.fromAccountNumber === Number(accountNumber) || e.toAccountNumber === Number(accountNumber))
+        }
+
         const config = await findOne(DB_COLLECTIONS.CONFIG, { code: 'CFG0001' })
 
         const getAllAgentPlayers = await findAll(DB_COLLECTIONS.TAYA_AGENTS, {})
         const getAllPlayers = await findAll(DB_COLLECTIONS.TAYA_USERS, {})
 
-        const fightIds: string[] = Array.from(new Set(response.data.map((e: any) => e.fightId).filter((id: number) => id !== 0)))
+        const fightIds: string[] = Array.from(new Set(filteredData.map((e: any) => e.fightId).filter((id: number) => id !== 0 && id !== null && id !== undefined)))
 
         const fightDetails = await Promise.all(fightIds.map(async (fightId: string) => {
+
             const fightResponse = await luckTayaAxios.get(`/api/v1/SabongFight/V3/WithDetails/${fightId}`, {
                 headers: {
                     'X-Correlation-ID': correlationId,
@@ -94,11 +104,16 @@ const GET = async (req: NextRequest) => {
                 fightResponseData.fightResult = fightResulst.data
             }
 
+            const fightDetailsDb = await findOne(DB_COLLECTIONS.GAMES, { fightId: Number(fightId) })
+
+            fightResponseData.dbDetails = fightDetailsDb
+
             return fightResponseData;
+
         }));
 
 
-        const customResponse = response.data.map((e: any) => {
+        const customResponse = filteredData.map((e: any) => {
 
             const fromAccount = getAccount(e.fromAccountNumber, getAllPlayers, getAllAgentPlayers, config)
             const toAccount = getAccount(e.toAccountNumber, getAllPlayers, getAllAgentPlayers, config)
@@ -119,12 +134,15 @@ const GET = async (req: NextRequest) => {
             if (otherInfo) {
                 const bet = otherInfo.betDetails.find((bet: any) => bet.transactionNumber === transaction.transactionNumber)
                 let betSide: any
+                let reason: string
                 if (bet) {
                     betSide = otherInfo.fightDetails.find((fight: any) => fight.side === bet.side)
                 } else if (otherInfo.fightResult) {
                     betSide = otherInfo.fightDetails.find((fight: any) => fight.side === otherInfo.fightResult.winSide)
+                } else if (otherInfo.dbDetails) {
+                    reason = otherInfo.dbDetails.reason
                 }
-                transaction.otherInfo = `Event Name: ${otherInfo.event.eventName}\nVenue Name: ${otherInfo.venue.venueName}\nGame Number: ${otherInfo.fight.fightNum}${betSide ? '\nBet: ' + betSide.owner : ''}`
+                transaction.otherInfo = `Event Name: ${otherInfo.event.eventName}\nVenue Name: ${otherInfo.venue.venueName}\nGame Number: ${otherInfo.fight.fightNum}${betSide ? '\nBet: ' + betSide.owner : ''}${reason ? '\nReason: ' + reason : ''}`
             }
 
             transaction.otherDetails = otherInfo
@@ -196,7 +214,10 @@ const getAccount = (accountNumber: string, agents: any, users: any, config: any)
         }
     }
 
-    return matchItem
+    return matchItem ?? {
+        firstname: '',
+        lastname: ''
+    }
 
 }
 

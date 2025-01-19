@@ -133,16 +133,19 @@ const GET = async (req: NextRequest) => {
 
             if (otherInfo) {
                 const bet = otherInfo.betDetails.find((bet: any) => bet.transactionNumber === transaction.transactionNumber)
+                let otherInfoDesc = `Event Name: ${otherInfo.event.eventName}\nVenue Name: ${otherInfo.venue.venueName}\nGame Number: ${otherInfo.fight.fightNum}`
                 let betSide: any
-                let reason: any
+
                 if (bet) {
                     betSide = otherInfo.fightDetails.find((fight: any) => fight.side === bet.side)
+                    otherInfoDesc += `\nBet: ${betSide.owner}`
                 } else if (otherInfo.fightResult) {
                     betSide = otherInfo.fightDetails.find((fight: any) => fight.side === otherInfo.fightResult.winSide)
+                    otherInfoDesc += `\nBet: ${betSide.owner}`
                 } else if (otherInfo.dbDetails) {
-                    reason = otherInfo.dbDetails.reason
+                    otherInfoDesc += `\nReason: ${otherInfo.dbDetails.reason}`
                 }
-                transaction.otherInfo = `Event Name: ${otherInfo.event.eventName}\nVenue Name: ${otherInfo.venue.venueName}\nGame Number: ${otherInfo.fight.fightNum}${betSide ? '\nBet: ' + betSide.owner : ''}${reason ? '\nReason: ' + reason : ''}`
+                transaction.otherInfo = otherInfoDesc
             }
 
             transaction.otherDetails = otherInfo

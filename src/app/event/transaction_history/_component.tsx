@@ -15,6 +15,7 @@ import FormField from "@/components/formField";
 import Tables from "@/components/tables";
 import { formatDynamicNumber, formatMoney } from "@/util/textUtil";
 import { localAxios } from "@/util/localAxiosUtil";
+import { eventSort, eventStatus } from "@/util/eventSorting";
 
 type SabongEvent = {
   entryDateTime: string;
@@ -42,7 +43,8 @@ const TransactionHistory = () => {
     await localAxios
       .get("/api/event/list")
       .then((response) => {
-        const data = response.data;
+        let data = response.data;
+        data = eventSort("eventStatusCode", data);
         setEvents(data);
         if (data) setSelectedEvent(data[0]);
       })
@@ -144,8 +146,9 @@ const TransactionHistory = () => {
         >
           {events.map((item, index): any => {
             return (
-              <option key={`option-${index}`} value={index}>
-                {item.eventName}
+              <option key={`option-${index}`} value={index}>                
+                {formatDate(item.eventDate, "MM/dd/yyyy")} - {item.eventName} -{" "}
+                {eventStatus(item.eventStatusCode)}
               </option>
             );
           })}

@@ -67,6 +67,11 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
 
   useEffect(() => {
     const setup = async () => {
+      if (socket) {
+        if (socket.readyState == WebSocket.OPEN) { 
+          return
+        }
+      }
       if (token) {
         const serverUrl = `${process.env.NEXT_PUBLIC_WEB_SOCKET_URL}${token}`;
         const socket = new WebSocket(serverUrl);
@@ -85,19 +90,18 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
   
         socket.onclose = () => {
           console.log("WebSocket closed, attempting to reconnect...");
-          setTimeout(() => {
-            setup(); // Try to reconnect after a delay
-          }, 5000); // 5 seconds delay before reconnecting
+          // setTimeout(() => {
+          //   setup(); // Try to reconnect after a delay
+          // }, 5000); // 5 seconds delay before reconnecting
         };
-  
-        setSocket(socket);
-  
-        // Ping every 30 seconds
+
+        setSocket(socket);  
+        // Ping every 10 seconds
         const pingInterval = setInterval(() => {
           if (socket.readyState === WebSocket.OPEN) {
             socket.send("ping");
           }
-        }, 30000);
+        }, 10000);
   
         return () => clearInterval(pingInterval);
       }

@@ -106,6 +106,11 @@ const sideBarDeclaratorRoutes = [{
         module: 'Gaming Control',
         ico: Game,
         link: '/declarator'
+    },
+    {
+        module: 'Transactions',
+        ico: Dashboard,
+        link: '/event/transaction_history'
     }]
 
 },

@@ -21,6 +21,9 @@ import isJsonObjectEmpty from "@/util/isJsonObjectEmpty";
 import { localAxios } from "@/util/localAxiosUtil";
 import Trend from "@/components/trend";
 import ThreeManTrend from "@/components/threeManTrend";
+import Link from "next/link";
+import Dashboard from "@/assets/images/Dashboard.svg";
+import Game from "@/assets/images/Game.png";
 
 type SabongEvent = {
   entryDateTime: string;
@@ -976,12 +979,23 @@ const Fight = () => {
     <div className="flex flex-col gap-4 w-full">
       <div className="inline-flex justify-between items-center">
         <h1 className="text-xl">Gaming Control</h1>
-        <button
-          onClick={() => onHandleLogout()}
-          className="p-4 text-red hover:bg-cursedBlack hover:rounded-xlg hover:text-[#E7DE54] flex gap-2"
-        >
-          <Image src={Logout} alt="" className={`h-4 w-auto my-auto`} /> Logout
-        </button>
+        <div className="inline-flex">
+          <Link
+            key="transactino_history"
+            href="/event/transaction_history"
+            className={`p-4 hover:bg-cursedBlack hover:rounded-xlg hover:text-[#E7DE54] flex gap-2`}
+          >
+            <Image src={Dashboard} alt="" className={`h-4 w-auto my-auto`} />
+            Transaction History
+          </Link>
+          <button
+            onClick={() => onHandleLogout()}
+            className="p-4 text-red hover:bg-cursedBlack hover:rounded-xlg hover:text-[#E7DE54] flex gap-2"
+          >
+            <Image src={Logout} alt="" className={`h-4 w-auto my-auto`} />{" "}
+            Logout
+          </button>
+        </div>
       </div>
 
       <ConfirmationModal
@@ -1101,15 +1115,16 @@ const Fight = () => {
                 type="text"
                 value={playerNames.player1FirstName}
               />
-              {selectedEventDet?.gameType != 1 && selectedEventDet?.gameType != 3  && (
-                <FormField
-                  name="meron-breed"
-                  label=""
-                  placeholder="Enter Name 2"
-                  type="text"
-                  value={playerNames.player1LastName}
-                />
-              )}
+              {selectedEventDet?.gameType != 1 &&
+                selectedEventDet?.gameType != 3 && (
+                  <FormField
+                    name="meron-breed"
+                    label=""
+                    placeholder="Enter Name 2"
+                    type="text"
+                    value={playerNames.player1LastName}
+                  />
+                )}
               <input hidden value={0} name="wala-side" />
               <input hidden name="wala-id" />
               <FormField
@@ -1119,15 +1134,16 @@ const Fight = () => {
                 type="text"
                 value={playerNames.player2FirstName}
               />
-              {selectedEventDet?.gameType != 1  && selectedEventDet?.gameType != 3&&  (
-                <FormField
-                  name="wala-breed"
-                  label=""
-                  placeholder="Enter Name 2"
-                  type="text"
-                  value={playerNames.player2LastName}
-                />
-              )}
+              {selectedEventDet?.gameType != 1 &&
+                selectedEventDet?.gameType != 3 && (
+                  <FormField
+                    name="wala-breed"
+                    label=""
+                    placeholder="Enter Name 2"
+                    type="text"
+                    value={playerNames.player2LastName}
+                  />
+                )}
             </div>
             <br />
             <div className="justify-self-end">

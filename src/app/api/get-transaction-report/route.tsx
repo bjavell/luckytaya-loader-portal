@@ -134,7 +134,7 @@ const GET = async (req: NextRequest) => {
             if (otherInfo) {
                 const bet = otherInfo.betDetails.find((bet: any) => bet.transactionNumber === transaction.transactionNumber)
                 let betSide: any
-                let reason: string
+                let reason: any
                 if (bet) {
                     betSide = otherInfo.fightDetails.find((fight: any) => fight.side === bet.side)
                 } else if (otherInfo.fightResult) {

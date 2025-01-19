@@ -609,7 +609,7 @@ const Event = () => {
                                 : selectedEvent.player2Other
                             }
                             // label="Player 2"
-                            placeholder="Handical"
+                            placeholder="Handicap"
                             type="text"
                           />
                         </div>

@@ -111,7 +111,12 @@ const sideBarDeclaratorRoutes = [{
         module: 'Transactions',
         ico: Dashboard,
         link: '/event/transaction_history'
-    }]
+    },
+    {
+        module: 'Game / Rack',
+        ico: Dashboard,
+        link: '/event/fights'
+    },]
 
 },
 ]

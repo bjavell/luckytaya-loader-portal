@@ -155,10 +155,12 @@ const POST = async (req: NextRequest) => {
 
             const getBetSummaryResponseData = getBetSummarryResponse.data;
 
-            const bets = getBetSummaryResponseData.find((e: any) => e.transCategory === 1);
-            const sales = getBetSummaryResponseData.find((e: any) => e.transCategory === 2);
-
-            const totalSales = bets.amount - sales.amount
+            const bets = getBetSummaryResponseData.find((e: any) => e.transTypeDesc === 'Bet');
+            const sales = getBetSummaryResponseData.find((e: any) => e.transTypeDesc === 'Win');
+            const draw = getBetSummaryResponseData.find((e: any) => e.transTypeDesc === 'Draw');
+            const cancelled = getBetSummaryResponseData.find((e: any) => e.transTypeDesc === 'Cancelled');
+            
+            const totalSales = (bets?.amount || 0) - (sales?.amount || 0) - (draw?.amount || 0) - (cancelled?.amount || 0);
 
             const maCommission = (totalSales * config.masterAgentCommision).toFixed(2)
             const agentCommission = (parseFloat(maCommission) * config.agentCommission).toFixed(2)

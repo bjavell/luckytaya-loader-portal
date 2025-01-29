@@ -146,7 +146,7 @@ const TransactionHistory = () => {
         >
           {events.map((item, index): any => {
             return (
-              <option key={`option-${index}`} value={index}>                
+              <option key={`option-${index}`} value={index}>
                 {formatDate(item.eventDate, "MM/dd/yyyy")} - {item.eventName} -{" "}
                 {eventStatus(item.eventStatusCode)}
               </option>
@@ -204,9 +204,17 @@ const TransactionHistory = () => {
               {
                 key: "accountNumber",
                 label: "Account Number",
-                format: (val:string)=> {
-                  return formatDynamicNumber(val)
-                }
+
+                customValue: (item) => {
+                  return (
+                    <>
+                      {item.playerName}
+                      <br />
+                      {formatDynamicNumber(item.accountNumber)}
+                    </>
+                  );
+                  // spliitedVal[0] + ' | ' + formatAccountNumber
+                },
               },
               {
                 key: "fightNum",

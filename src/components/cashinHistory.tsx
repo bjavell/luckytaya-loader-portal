@@ -11,7 +11,7 @@ import LoadingSpinner from "@/components/loadingSpinner"
 import { localAxios } from "@/util/localAxiosUtil"
 import { NextPage } from "next"
 
-const CashinHistory: NextPage<{}> = (props) => {
+const CashinHistory: NextPage = () => {
 
     const currDate = new Date()
     const defaultStartDate = new Date(currDate)

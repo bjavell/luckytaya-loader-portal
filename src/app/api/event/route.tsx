@@ -43,6 +43,7 @@ const POST = async (req: NextRequest) => {
 
       const dbResult = await insert(DB_COLLECTIONS.EVENTS, {
         eventId: response.data.eventId,
+        eventName: response.data.eventName,
         ...eventDetails,
       });
 
@@ -105,9 +106,10 @@ const POST = async (req: NextRequest) => {
           : {};
         await update(DB_COLLECTIONS.EVENTS, query, {
           ...previousData,
-          ...eventDetails,
+          ...eventDetails
         });
       }
+
       if (request.eventStatusCode == 10 || request.eventStatusCode == 11)
         response = await luckTayaAxios.put(`/api/v1/SabongEvent/V2`, request, {
           headers: {
@@ -125,7 +127,7 @@ const POST = async (req: NextRequest) => {
             correlationId
           );
         }
-        
+
         await luckTayaAxios.put(
           `/api/v1/SabongEvent/UpdateStatus`,
           eventStatusRequest,
@@ -159,13 +161,25 @@ const POST = async (req: NextRequest) => {
             const sales = getBetSummaryResponseData.find((e: any) => e.transTypeDesc === 'Win');
             const draw = getBetSummaryResponseData.find((e: any) => e.transTypeDesc === 'Draw');
             const cancelled = getBetSummaryResponseData.find((e: any) => e.transTypeDesc === 'Cancelled');
-            
+
             const totalSales = (bets?.amount || 0) - (sales?.amount || 0) - (draw?.amount || 0) - (cancelled?.amount || 0);
 
             const maCommission = (totalSales * config.masterAgentCommision).toFixed(2)
             const agentCommission = (parseFloat(maCommission) * config.agentCommission).toFixed(2)
 
-            console.log(maCommission, agentCommission);
+            const commissions = {
+              agentCommission: agentCommission,
+              maCommission: maCommission
+            }
+
+            const prevData = await findOne(DB_COLLECTIONS.EVENTS, query);
+            await update(DB_COLLECTIONS.EVENTS, query, {
+              ...prevData,
+              commissions,
+              totalSales: totalSales.toFixed(2)
+            });
+
+
 
             const allMaAgents = await findAll(DB_COLLECTIONS.TAYA_AGENTS, { 'request.accountType': '3' })
 
@@ -180,20 +194,31 @@ const POST = async (req: NextRequest) => {
 
             const allTransfers = [
               ...allMaAgentsAccount.map((e: any) => ({
-              amount: parseFloat(maCommission),
-              account: e,
+                amount: parseFloat(maCommission),
+                account: e,
               })),
               ...allAgentsAccount.flat().map((d: any) => ({
-              amount: parseFloat(agentCommission),
-              account: d,
+                amount: parseFloat(agentCommission),
+                account: d,
               })),
             ];
 
             for (const transfer of allTransfers) {
-              await transferFromMaster(transfer.amount, transfer.account, correlationId);
+              try {
+                await transferFromMaster(transfer.amount, transfer.account, correlationId);
+              } catch (error: any) {
+                logger.error(api, {
+                  correlationId,
+                  error: error.message,
+                  errorStack: error.stack,
+                });
+              }
             }
           }
         }
+
+
+
       }
     }
     logResponse = { message: "Successfully Logged In!" };

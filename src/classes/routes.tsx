@@ -51,6 +51,15 @@ const sideBarAgentRoutes = [{
 
 // }, 
 {
+    module: 'Finance',
+    item: [{
+        module: 'Commissions',
+        ico: Transfer,
+        link: '/finance/commission'
+    }]
+
+},
+{
     module: 'HISTORY',
     item: [{
         module: 'Transfer',
@@ -129,8 +138,7 @@ const sideBarMasterRoutes = [{
         ico: Dashboard,
         link: '/master/dashboard'
     }]
-},
-{
+}, {
     module: 'LOADING STATION',
     item: [
         //     {
@@ -144,14 +152,21 @@ const sideBarMasterRoutes = [{
             link: '/loading-station/cash-in/agent'
         }]
 
-},
-{
+}, {
     module: 'Agent',
     item: [{
         module: 'Agent List',
         ico: UserList,
         link: '/master/agent-list'
     }]
+}, {
+    module: 'Finance',
+    item: [{
+        module: 'Commissions',
+        ico: Transfer,
+        link: '/finance/commission'
+    }]
+
 }, {
     module: 'HISTORY',
     item: [{

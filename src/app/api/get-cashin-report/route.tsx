@@ -77,7 +77,7 @@ const GET = async (req: NextRequest) => {
 
 const getAccount = (accountNumber: string, users: any) => {
 
-    let matchItem = users.find((user: any) => {
+    const matchItem = users.find((user: any) => {
         return Number(user.accountNumber) === Number(accountNumber)
     })
 

@@ -258,6 +258,10 @@ const sideBarAdminRoutes = [{
         module: 'Generate Report',
         ico: Transfer,
         link: '/finance/reports/all'
+    }, {
+        module: 'Cash-in Report',
+        ico: Transfer,
+        link: '/finance/reports/cashin'
     }]
 
 }
@@ -300,6 +304,10 @@ const sideBarFinanceRoutes = [{
         module: 'Generate Report',
         ico: Transfer,
         link: '/finance/reports/all'
+    }, {
+        module: 'Cash-in Report',
+        ico: Transfer,
+        link: '/finance/reports/cashin'
     }]
 
 },

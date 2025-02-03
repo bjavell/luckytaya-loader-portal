@@ -11,7 +11,7 @@ import { transferFromMaster } from "@/common/transaction";
 
 const POST = async (req: NextRequest) => {
   const api = "POST EVENT";
-  let correlationId: string | null = '';
+  let correlationId: string | null = "";
   let logRequest;
   let logResponse;
   let status = 200;
@@ -44,45 +44,92 @@ const POST = async (req: NextRequest) => {
       const dbResult = await insert(DB_COLLECTIONS.EVENTS, {
         eventId: response.data.eventId,
         ...eventDetails,
+        ...request
       });
 
-      const gameRequest = {
-        fight: {
-          fightNum: "1",
-          eventId: response.data.eventId,
-        },
-        fightDetails: [
-          {
-            id: "",
-            side: 1,
-            owner: eventDetails.player1 ?? "",
-            breed: eventDetails.player1Other ?? "",
-            weight: "",
-            tag: "",
-            imageBase64: "",
-            operatorId: 0,
-          },
-          {
-            id: "",
-            side: 0,
-            owner: eventDetails.player2 ?? "",
-            breed: eventDetails.player2Other ?? "",
-            weight: "",
-            tag: "",
-            imageBase64: "",
-            operatorId: 0,
-          },
-        ],
-      };
+      if (eventDetails.gameType == 6) {
+        let currentPlayer = 0;
+        for (let index = 1; index < 9; index++) {
+          const player1 = `player${currentPlayer + 1}`;
+          const player2 = `player${currentPlayer + 2}`;
+          const gameRequest = {
+            fight: {
+              fightNum: index.toString(),
+              eventId: response.data.eventId,
+            },
+            fightDetails: [
+              {
+                id: "",
+                side: 1,
+                owner: eventDetails[player1] ?? "",
+                breed: "",
+                weight: "",
+                tag: "",
+                imageBase64: "",
+                operatorId: 0,
+              },
+              {
+                id: "",
+                side: 0,
+                owner: eventDetails[player2] ?? "",
+                breed: "",
+                weight: "",
+                tag: "",
+                imageBase64: "",
+                operatorId: 0,
+              },
+            ],
+          };
+  
+          try {
+            const resgame = await createGame(
+              gameRequest,
+              currentSession.token,
+              currentSession.userId,
+              correlationId
+            );
+          } catch (error: any) {}
 
-      try {
-        const resgame = await createGame(
-          gameRequest,
-          currentSession.token,
-          currentSession.userId,
-          correlationId
-        );
-      } catch (error: any) {
+          currentPlayer += 2;
+        }
+      } else {
+        const gameRequest = {
+          fight: {
+            fightNum: "1",
+            eventId: response.data.eventId,
+          },
+          fightDetails: [
+            {
+              id: "",
+              side: 1,
+              owner: eventDetails.player1 ?? "",
+              breed: eventDetails.player1Other ?? "",
+              weight: "",
+              tag: "",
+              imageBase64: "",
+              operatorId: 0,
+            },
+            {
+              id: "",
+              side: 0,
+              owner: eventDetails.player2 ?? "",
+              breed: eventDetails.player2Other ?? "",
+              weight: "",
+              tag: "",
+              imageBase64: "",
+              operatorId: 0,
+            },
+          ],
+        };
+
+        try {
+          const resgame = await createGame(
+            gameRequest,
+            currentSession.token,
+            currentSession.userId,
+            correlationId
+          );
+        } catch (error: any) {}
       }
     } else {
       const copyRequest = JSON.parse(JSON.stringify(request));
@@ -106,6 +153,7 @@ const POST = async (req: NextRequest) => {
         await update(DB_COLLECTIONS.EVENTS, query, {
           ...previousData,
           ...eventDetails,
+          ...request
         });
       }
       if (request.eventStatusCode == 10 || request.eventStatusCode == 11)
@@ -125,7 +173,7 @@ const POST = async (req: NextRequest) => {
             correlationId
           );
         }
-        
+
         await luckTayaAxios.put(
           `/api/v1/SabongEvent/UpdateStatus`,
           eventStatusRequest,
@@ -137,60 +185,93 @@ const POST = async (req: NextRequest) => {
           }
         );
 
-
         if (eventStatusRequest.eventStatusCode === 12) {
-
-          const config = await findOne(DB_COLLECTIONS.CONFIG, { code: 'CFG0001' })
+          const config = await findOne(DB_COLLECTIONS.CONFIG, {
+            code: "CFG0001",
+          });
           if (config) {
-            const getBetSummarryResponse = await luckTayaAxios.get('api/v1/xAccountTransaction/GetTransByAcctNumByEventIdSummary', {
-              headers: {
-                "X-Correlation-ID": correlationId,
-                Authorization: `Bearer ${currentSession.token}`,
-              },
-              params: {
-                accountNumber: config.operatorAccountNumber,
-                eventId: parseInt(copyRequest.eventId)
+            const getBetSummarryResponse = await luckTayaAxios.get(
+              "api/v1/xAccountTransaction/GetTransByAcctNumByEventIdSummary",
+              {
+                headers: {
+                  "X-Correlation-ID": correlationId,
+                  Authorization: `Bearer ${currentSession.token}`,
+                },
+                params: {
+                  accountNumber: config.operatorAccountNumber,
+                  eventId: parseInt(copyRequest.eventId),
+                },
               }
-            });
+            );
 
             const getBetSummaryResponseData = getBetSummarryResponse.data;
 
-            const bets = getBetSummaryResponseData.find((e: any) => e.transTypeDesc === 'Bet');
-            const sales = getBetSummaryResponseData.find((e: any) => e.transTypeDesc === 'Win');
-            const draw = getBetSummaryResponseData.find((e: any) => e.transTypeDesc === 'Draw');
-            const cancelled = getBetSummaryResponseData.find((e: any) => e.transTypeDesc === 'Cancelled');
-            
-            const totalSales = (bets?.amount || 0) - (sales?.amount || 0) - (draw?.amount || 0) - (cancelled?.amount || 0);
+            const bets = getBetSummaryResponseData.find(
+              (e: any) => e.transTypeDesc === "Bet"
+            );
+            const sales = getBetSummaryResponseData.find(
+              (e: any) => e.transTypeDesc === "Win"
+            );
+            const draw = getBetSummaryResponseData.find(
+              (e: any) => e.transTypeDesc === "Draw"
+            );
+            const cancelled = getBetSummaryResponseData.find(
+              (e: any) => e.transTypeDesc === "Cancelled"
+            );
 
-            const maCommission = (totalSales * config.masterAgentCommision).toFixed(2)
-            const agentCommission = (parseFloat(maCommission) * config.agentCommission).toFixed(2)
+            const totalSales =
+              (bets?.amount || 0) -
+              (sales?.amount || 0) -
+              (draw?.amount || 0) -
+              (cancelled?.amount || 0);
+
+            const maCommission = (
+              totalSales * config.masterAgentCommision
+            ).toFixed(2);
+            const agentCommission = (
+              parseFloat(maCommission) * config.agentCommission
+            ).toFixed(2);
 
             console.log(maCommission, agentCommission);
 
-            const allMaAgents = await findAll(DB_COLLECTIONS.TAYA_AGENTS, { 'request.accountType': '3' })
+            const allMaAgents = await findAll(DB_COLLECTIONS.TAYA_AGENTS, {
+              "request.accountType": "3",
+            });
 
-            const allMaAgentsAccount = allMaAgents.map((e: any) => e.response.accountNumber)
+            const allMaAgentsAccount = allMaAgents.map(
+              (e: any) => e.response.accountNumber
+            );
 
-            const allAgentsAccount = await Promise.all(allMaAgentsAccount.map(async (e: any) => {
+            const allAgentsAccount = await Promise.all(
+              allMaAgentsAccount.map(async (e: any) => {
+                const agentsUnderMaAccount = await findAll(
+                  DB_COLLECTIONS.TAYA_AGENTS,
+                  { "request.masterAgentAccountNumber": String(e) }
+                );
 
-              const agentsUnderMaAccount = await findAll(DB_COLLECTIONS.TAYA_AGENTS, { 'request.masterAgentAccountNumber': String(e) })
-
-              return agentsUnderMaAccount.map((e: any) => e.response.accountNumber)
-            }))
+                return agentsUnderMaAccount.map(
+                  (e: any) => e.response.accountNumber
+                );
+              })
+            );
 
             const allTransfers = [
               ...allMaAgentsAccount.map((e: any) => ({
-              amount: parseFloat(maCommission),
-              account: e,
+                amount: parseFloat(maCommission),
+                account: e,
               })),
               ...allAgentsAccount.flat().map((d: any) => ({
-              amount: parseFloat(agentCommission),
-              account: d,
+                amount: parseFloat(agentCommission),
+                account: d,
               })),
             ];
 
             for (const transfer of allTransfers) {
-              await transferFromMaster(transfer.amount, transfer.account, correlationId);
+              await transferFromMaster(
+                transfer.amount,
+                transfer.account,
+                correlationId
+              );
             }
           }
         }
@@ -281,7 +362,7 @@ const createGame = (
     headers: {
       "X-Correlation-ID": correlationId,
       Authorization: `Bearer ${token}`,
-      "UserId": userId
+      UserId: userId,
     },
   });
 };

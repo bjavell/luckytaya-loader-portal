@@ -51,6 +51,8 @@ const Event = () => {
   const [fights, setFights] = useState([]);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [form, setForm] = useState();
+  const [speedShoots, setSpeedShoots] = useState<any>();
+
   const [selecteGameType, setSelecteGameType] = useState(1);
   const [feed, setFeed] = useState({
     isShowFeed: false,
@@ -84,7 +86,15 @@ const Event = () => {
         setEvents([]);
       });
   };
-
+  const getSpeedShootsInDb = async () => {
+    await localAxios
+      .get(`/api/event/by-type?type=6`)
+      .then((response) => {
+        const { data } = response;
+        setSpeedShoots(data);
+      })
+      .catch(() => {});
+  };
   const getStatus = async () => {
     await localAxios
       .get("/api/event/status")
@@ -164,26 +174,21 @@ const Event = () => {
       await getStatus();
       await getVenues();
       await localAxios
-      .get("/api/event/feed")
-      .then((response) => {
-        const data = response.data;
-        if(data){
-          setFeed({
-            isShowFeed : data.isShowFeed,
-            feedUrl : data.feedUrl
-          })
-        }
-      })
-      .catch((e) => {
-       
-      })
-      .finally(() => {
-      });
-    
+        .get("/api/event/feed")
+        .then((response) => {
+          const data = response.data;
+          if (data) {
+            setFeed({
+              isShowFeed: data.isShowFeed,
+              feedUrl: data.feedUrl,
+            });
+          }
+        })
+        .catch((e) => {})
+        .finally(() => {});
     };
 
     getData();
-    
   }, []);
 
   useEffect(() => {
@@ -196,6 +201,7 @@ const Event = () => {
   useEffect(() => {
     if (statuses && venues) {
       getEvents();
+      getSpeedShootsInDb();
     }
   }, [statuses, venues]);
 
@@ -258,6 +264,19 @@ const Event = () => {
         player1Other: form.player1Other?.value ?? "",
         player2Other: form.player2Other?.value ?? "",
         player3Other: form.player3Other?.value ?? "",
+        player4: form.player4?.value ?? "",
+        player5: form.player5?.value ?? "",
+        player6: form.player6?.value ?? "",
+        player7: form.player7?.value ?? "",
+        player8: form.player8?.value ?? "",
+        player9: form.player9?.value ?? "",
+        player10: form.player10?.value ?? "",
+        player11: form.player11?.value ?? "",
+        player12: form.player12?.value ?? "",
+        player13: form.player13?.value ?? "",
+        player14: form.player14?.value ?? "",
+        player15: form.player15?.value ?? "",
+        player16: form.player16?.value ?? "",
       },
     };
     await localAxios
@@ -428,15 +447,14 @@ const Event = () => {
               Show Feed
             </label>
             <FormField
-            name="feedUrl"
-            // label="URL"
-            value={feed.feedUrl == null ? "" : feed.feedUrl}
-            placeholder="Enter Feed Url"
-            type="text"
-          />
+              name="feedUrl"
+              // label="URL"
+              value={feed.feedUrl == null ? "" : feed.feedUrl}
+              placeholder="Enter Feed Url"
+              type="text"
+            />
           </div>
 
-          
           <div className="w-sm">
             <Button
               onClick={() => {}}
@@ -544,111 +562,35 @@ const Event = () => {
                     );
                   })}
                 </select>
-
+                {selecteGameType == 7 && (
+                  <React.Fragment>
+                    <label
+                      htmlFor="parentEventId"
+                      className="text-white font-sans font-light text-nowrap "
+                    >
+                      Parent Event
+                    </label>
+                    <select
+                      name="parentEventId"
+                      defaultValue={
+                        selectedEvent == null ? "" : selectedEvent.parentEventId
+                      }
+                      className="peer rounded-xlg py-4 px-4 bg-semiBlack shadow-sm font-sans font-light tacking-[5%] text-white invalid:border-red-500 invalid:[&.visited]:border invalid:[&.visited]:border-[#E74C3C]"
+                    >
+                      {speedShoots.map((item: any, index: any) => {
+                        return (
+                          <option key={`option-${index}`} value={item.eventId}>
+                            {item.eventName}
+                          </option>
+                        );
+                      })}
+                    </select>
+                  </React.Fragment>
+                )}
                 <PlayerInput
                   data={selectedEvent}
                   gameType={selecteGameType}
                 ></PlayerInput>
-                {selecteGameType == 4 && (
-                  <React.Fragment>
-                    <div className="flex flex-row items-center gap-4">
-                      <div className="flex flex-col w-full gap-4">
-                        <label
-                          htmlFor="player1"
-                          className="text-white font-sans font-light text-nowrap"
-                        >
-                          Player 1
-                        </label>
-                        <div className="flex flex-row items-center gap-4">
-                          <FormField
-                            name="player1"
-                            value={
-                              selectedEvent == null ? "" : selectedEvent.player1
-                            }
-                            // label="Player 1"
-                            placeholder="Name"
-                            type="text"
-                          />
-                          <FormField
-                            name="player1Other"
-                            value={
-                              selectedEvent == null
-                                ? ""
-                                : selectedEvent.player1Other
-                            }
-                            // label="Player 1"
-                            placeholder="Handicap"
-                            type="text"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex flex-row items-center gap-4">
-                      <div className="flex flex-col w-full gap-4">
-                        <label
-                          htmlFor="player1"
-                          className="text-white font-sans font-light text-nowrap"
-                        >
-                          Player 2
-                        </label>
-                        <div className="flex flex-row items-center gap-4">
-                          <FormField
-                            name="player2"
-                            value={
-                              selectedEvent == null ? "" : selectedEvent.player2
-                            }
-                            // label="Player 2"
-                            placeholder="Name"
-                            type="text"
-                          />
-                          <FormField
-                            name="player2Other"
-                            value={
-                              selectedEvent == null
-                                ? ""
-                                : selectedEvent.player2Other
-                            }
-                            // label="Player 2"
-                            placeholder="Handicap"
-                            type="text"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex flex-row items-center gap-4">
-                      <div className="flex flex-col w-full gap-4">
-                        <label
-                          htmlFor="player1"
-                          className="text-white font-sans font-light text-nowrap"
-                        >
-                          Player 3
-                        </label>
-                        <div className="flex flex-row items-center gap-4">
-                          <FormField
-                            name="player3"
-                            value={
-                              selectedEvent == null ? "" : selectedEvent.player3
-                            }
-                            // label="Player 3"
-                            placeholder="Name"
-                            type="text"
-                          />
-                          <FormField
-                            name="player3Other"
-                            value={
-                              selectedEvent == null
-                                ? ""
-                                : selectedEvent.player3Other
-                            }
-                            // label="Player 3"
-                            placeholder="Name"
-                            type="text"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </React.Fragment>
-                )}
               </React.Fragment>
               {!isJsonObjectEmpty(selectedEvent) && (
                 <React.Fragment>

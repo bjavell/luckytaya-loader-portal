@@ -114,7 +114,7 @@ const Fight = () => {
             break;
         }
       }
-    } catch (error) { }
+    } catch (error) {}
   }, [messages]);
 
   useEffect(() => {
@@ -130,7 +130,7 @@ const Fight = () => {
       setIsFightStatusModalOpen(false);
     }
 
-    return () => { };
+    return () => {};
   }, [isErrorMessageOpen]);
 
   const getEventStatus = (code: number): any => {
@@ -182,7 +182,7 @@ const Fight = () => {
           setIsGameAvailable(false);
         }
       })
-      .catch(() => { });
+      .catch(() => {});
   };
 
   useEffect(() => {
@@ -307,7 +307,7 @@ const Fight = () => {
 
   useEffect(() => {
     if (selectedEvent && fight) setupGame();
-    return () => { };
+    return () => {};
   }, [selectedEvent, fight]);
 
   const closeModal = () => {
@@ -492,7 +492,6 @@ const Fight = () => {
         setSelectedEventDet(item);
       });
   };
-
   useEffect(() => {
     if (selectedEventDet) {
       const { lastWinner, lastLoser } = selectedEventDet;
@@ -507,7 +506,7 @@ const Fight = () => {
       });
     }
 
-    return () => { };
+    return () => {};
   }, [selectedEventDet]);
 
   const handleEventChange = (e: any) => {
@@ -876,7 +875,7 @@ const Fight = () => {
     if (lastFight) {
       try {
         return (parseInt(lastFight.fight.fightNum) + 1).toString();
-      } catch (error) { }
+      } catch (error) {}
     }
     return "1";
   };
@@ -980,7 +979,6 @@ const Fight = () => {
       <div className="inline-flex justify-between items-center">
         <h1 className="text-xl">Gaming Control</h1>
         <div className="inline-flex">
-
           <Link
             key="game"
             href="/event/fights"
@@ -1157,7 +1155,7 @@ const Fight = () => {
             <br />
             <div className="justify-self-end">
               <Button
-                onClick={() => { }}
+                onClick={() => {}}
                 loadingText="Loading..."
                 type={"submit"}
               >
@@ -1196,7 +1194,7 @@ const Fight = () => {
                 type="number"
               />
               <Button
-                onClick={() => { }}
+                onClick={() => {}}
                 isLoading={isLoading}
                 loadingText="Loading..."
                 type={"submit"}
@@ -1232,7 +1230,7 @@ const Fight = () => {
               />
 
               <Button
-                onClick={() => { }}
+                onClick={() => {}}
                 isLoading={isLoading}
                 loadingText="Loading..."
                 type={"submit"}

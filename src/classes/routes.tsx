@@ -73,7 +73,7 @@ const sideBarEventRoutes = [{
     item: [{
         module: 'Gaming Control',
         ico: Game,
-        link: '/event/game'
+        link: '/declarator'
     },
     {
         module: 'Venue',

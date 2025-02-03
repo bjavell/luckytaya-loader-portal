@@ -34,6 +34,7 @@ const protectedRoutes = {
     "/players",
     "/loading-station",
     "/history/transfer",
+    "/finance/commission",
     "/profile"
   ],
 };

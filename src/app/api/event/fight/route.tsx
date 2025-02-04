@@ -13,12 +13,13 @@ const GET = async (req: NextRequest) => {
   let logResponse
   let status = 200
   try {
+
     correlationId = req.headers.get('x-correlation-id');
     const currentSession = await getCurrentSession();
-
+    const token = currentSession ? `Bearer ${currentSession.token}` : req.headers.get('Authorization')  
+ 
     const eventId = req.nextUrl.searchParams.get("eventId");
-
-    logRequest = {
+   logRequest = {
       url: {
         eventId
       }
@@ -28,7 +29,7 @@ const GET = async (req: NextRequest) => {
       {
         headers: {
           'X-Correlation-ID': correlationId,
-          Authorization: `Bearer ${currentSession.token}`,
+          Authorization: `${token}`,
         },
       }
     );
@@ -41,6 +42,7 @@ const GET = async (req: NextRequest) => {
     logResponse = data
     return NextResponse.json(data);
   } catch (e: any) {
+   
     logger.error(api, {
       correlationId,
       error: e.message,

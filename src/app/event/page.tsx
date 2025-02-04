@@ -258,6 +258,7 @@ const Event = () => {
       fights: fights,
       details: {
         gameType: form.gameType.value,
+        parentEventId : form.parentEventId?.value ?? "",
         player1: selecteGameType == 1 ? "Pula" : form.player1?.value ?? "",
         player2: selecteGameType == 1 ? "Asul" : form.player2?.value ?? "",
         player3: form.player3?.value ?? "",

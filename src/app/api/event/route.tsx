@@ -45,7 +45,7 @@ const POST = async (req: NextRequest) => {
         eventId: response.data.eventId,
         eventName: response.data.eventName,
         ...eventDetails,
-        ...request
+        ...request,
       });
 
       if (eventDetails.gameType == 6) {
@@ -81,7 +81,7 @@ const POST = async (req: NextRequest) => {
               },
             ],
           };
-  
+
           try {
             const resgame = await createGame(
               gameRequest,
@@ -92,6 +92,60 @@ const POST = async (req: NextRequest) => {
           } catch (error: any) {}
 
           currentPlayer += 2;
+        }
+      } else if (eventDetails.gameType == 7) {
+        const parentEvent = await findOne(DB_COLLECTIONS.EVENTS, {
+          eventId: { $eq: parseInt(eventDetails.parentEventId) },
+        });
+        if (parentEvent) {
+          let currentPlayer = 0;
+          let gameNumber = 0;
+          for (let index = 1; index < 9; index++) {
+            const player1 = `player${currentPlayer + 1}`;
+            const player2 = `player${currentPlayer + 2}`;
+            for (let i = 0; i < 3; i++) {
+              gameNumber += 1;
+              const gameRequest = {
+                fight: {
+                  fightNum: gameNumber.toString(),
+                  eventId: response.data.eventId,
+                },
+                fightDetails: [
+                  {
+                    id: "",
+                    side: 1,
+                    owner: parentEvent[player1] ?? "",
+                    breed: "",
+                    weight: "",
+                    tag: "",
+                    imageBase64: "",
+                    operatorId: 0,
+                  },
+                  {
+                    id: "",
+                    side: 0,
+                    owner: parentEvent[player2] ?? "",
+                    breed: "",
+                    weight: "",
+                    tag: "",
+                    imageBase64: "",
+                    operatorId: 0,
+                  },
+                ],
+              };
+
+              try {
+                const resgame = await createGame(
+                  gameRequest,
+                  currentSession.token,
+                  currentSession.userId,
+                  correlationId
+                );
+              } catch (error: any) {}
+            }
+
+            currentPlayer += 2;
+          }
         }
       } else {
         const gameRequest = {
@@ -148,13 +202,31 @@ const POST = async (req: NextRequest) => {
       const previousData = await findOne(DB_COLLECTIONS.EVENTS, query);
 
       if (previousData) {
+        if (previousData.gameType == 6) {
+          const childData = await findOne(DB_COLLECTIONS.EVENTS, {
+            parentEventId: { $eq: previousData.eventId.toString() },
+          });
+          try {
+            const parentFightDetails = await getFightByEventId(
+              previousData.eventId,
+              currentSession.token,
+              correlationId
+            );
+            console.log(parentFightDetails, "hello1234");
+          } catch (error: any) {
+            console.log(error.response.data, "hello1235");
+          }
+          if (childData) {
+          }
+        }
+
         const eventDetails = request.details
           ? Object.assign({}, request.details)
           : {};
         await update(DB_COLLECTIONS.EVENTS, query, {
           ...previousData,
           ...eventDetails,
-          ...request
+          ...request,
         });
       }
 
@@ -208,12 +280,20 @@ const POST = async (req: NextRequest) => {
 
             const getBetSummaryResponseData = getBetSummarryResponse.data;
 
-            const bets = getBetSummaryResponseData.find((e: any) => e.transTypeDesc === 'Bet');
-            const sales = getBetSummaryResponseData.find((e: any) => e.transTypeDesc === 'Win');
-            const draw = getBetSummaryResponseData.find((e: any) => e.transTypeDesc === 'Draw');
-            const cancelled = getBetSummaryResponseData.find((e: any) => e.transTypeDesc === 'Cancelled');
+            const bets = getBetSummaryResponseData.find(
+              (e: any) => e.transTypeDesc === "Bet"
+            );
+            const sales = getBetSummaryResponseData.find(
+              (e: any) => e.transTypeDesc === "Win"
+            );
+            const draw = getBetSummaryResponseData.find(
+              (e: any) => e.transTypeDesc === "Draw"
+            );
+            const cancelled = getBetSummaryResponseData.find(
+              (e: any) => e.transTypeDesc === "Cancelled"
+            );
 
-          //  const totalSales = (bets?.amount || 0) - (sales?.amount || 0) - (draw?.amount || 0) - (cancelled?.amount || 0);
+            //  const totalSales = (bets?.amount || 0) - (sales?.amount || 0) - (draw?.amount || 0) - (cancelled?.amount || 0);
 
             const totalSales =
               (bets?.amount || 0) -
@@ -230,17 +310,15 @@ const POST = async (req: NextRequest) => {
 
             const commissions = {
               agentCommission: agentCommission,
-              maCommission: maCommission
-            }
+              maCommission: maCommission,
+            };
 
             const prevData = await findOne(DB_COLLECTIONS.EVENTS, query);
             await update(DB_COLLECTIONS.EVENTS, query, {
               ...prevData,
               commissions,
-              totalSales: totalSales.toFixed(2)
+              totalSales: totalSales.toFixed(2),
             });
-
-
 
             const allMaAgents = await findAll(DB_COLLECTIONS.TAYA_AGENTS, {
               "request.accountType": "3",
@@ -276,7 +354,11 @@ const POST = async (req: NextRequest) => {
 
             for (const transfer of allTransfers) {
               try {
-                await transferFromMaster(transfer.amount, transfer.account, correlationId);
+                await transferFromMaster(
+                  transfer.amount,
+                  transfer.account,
+                  correlationId
+                );
               } catch (error: any) {
                 logger.error(api, {
                   correlationId,
@@ -287,9 +369,6 @@ const POST = async (req: NextRequest) => {
             }
           }
         }
-
-
-
       }
     }
     logResponse = { message: "Successfully Logged In!" };
@@ -378,6 +457,22 @@ const createGame = (
       "X-Correlation-ID": correlationId,
       Authorization: `Bearer ${token}`,
       UserId: userId,
+    },
+  });
+};
+
+const getFightByEventId = (
+  eventId: any,
+  token: string,
+  correlationId: string | null
+) => {
+  return luckTayaMainAxios.get(`/api/event/fight`, {
+    params: {
+      eventId,
+    },
+    headers: {
+      "X-Correlation-ID": correlationId,
+      Authorization: `Bearer ${token}`,
     },
   });
 };

@@ -51,104 +51,10 @@ const GameComponent: React.FC<GameComponentProps> = ({
   setIsModalOpen,
   onDirectSetFightStatus,
   lastCall,
-  onCancelGame,betParentDetails
+  onCancelGame,
+  betParentDetails,
 }) => {
-  const renderOpenBetting = () => {
-    const isDisabled = true;
-    if (gameData) {
-      if (
-        gameData.event.eventStatusCode == 11 &&
-        gameData.fight.fightStatusCode == 10
-      )
-        return (
-          <Button
-            onClick={() => onDirectSetFightStatus(11)}
-            isLoading={isLoading}
-            loadingText="Loading..."
-            type={"button"}
-          >
-            Open Betting
-          </Button>
-        );
-      else if (
-        gameData.event.eventStatusCode == 11 &&
-        gameData.fight.fightStatusCode == 11
-      ) {
-        return (
-          <Button
-            onClick={() => onCancelGame(21)}
-            isLoading={isLoading}
-            loadingText="Loading..."
-            type={"button"}
-          >
-            Cancel Game
-          </Button>
-        );
-      }
-    }
-
-    if (isDisabled)
-      return (
-        <button disabled className="bg-gray13 p-3 rounded-xl">
-          Open Betting
-        </button>
-      );
-  };
-
-  const renderCloseBetting = () => {
-    const isDisabled = true;
-    if (gameData) {
-      if (
-        gameData.event.eventStatusCode == 11 &&
-        gameData.fight.fightStatusCode == 11
-      )
-        return (
-          <Button
-            onClick={() => onDirectSetFightStatus(12)}
-            isLoading={isLoading}
-            loadingText="Loading..."
-            type={"button"}
-          >
-            Close Betting
-          </Button>
-        );
-    }
-
-    if (isDisabled)
-      return (
-        <button disabled className="bg-gray13 p-3 rounded-xl">
-          Close Betting
-        </button>
-      );
-  };
-
-  const renderLastCall = () => {
-    const isDisabled = true;
-    if (gameData) {
-      if (
-        gameData.event.eventStatusCode == 11 &&
-        gameData.fight.fightStatusCode == 11
-      )
-        return (
-          <Button
-            onClick={() => lastCall()}
-            isLoading={isLoading}
-            loadingText="Loading..."
-            type={"button"}
-          >
-            Final Call
-          </Button>
-        );
-    }
-
-    if (isDisabled)
-      return (
-        <button disabled className="bg-gray13 p-3 rounded-xl">
-          Final Call
-        </button>
-      );
-  };
-
+  
   const getPlayer = (side: number) => {
     if (fightDetails) {
       const player = fightDetails?.find((x: any) => x.side == side);
@@ -271,15 +177,6 @@ const GameComponent: React.FC<GameComponentProps> = ({
               allowFullScreen
             ></iframe>
           </div>
-
-          {gameData && (
-            <div className="grid grid-cols-3 grid-rows-1 gap-4">
-              {renderOpenBetting()}
-              {renderLastCall()}
-              {renderCloseBetting()}
-              {/* {renderEventStatusButton()} */}
-            </div>
-          )}
           <br />
         </div>
         <div className="flex flex-col gap-5">
@@ -293,21 +190,24 @@ const GameComponent: React.FC<GameComponentProps> = ({
             <ThreeManTrend data={selectedEventDet}></ThreeManTrend>
           )}
           <div className="bg-gray13 rounded-xl w-full p-5 capitalize">
-            <MeronWala player={getPlayer(1)} type={1} parent={betParentDetails} data={betDetails} />
+            <MeronWala
+              player={getPlayer(1)}
+              type={1}
+              isPulaAsul={false}
+              parent={betParentDetails}
+              data={betDetails}
+            />
           </div>
 
           <div className="bg-gray13 rounded-xl w-full p-5 capitalize">
-            <MeronWala player={getPlayer(0)} type={0} parent={betParentDetails} data={betDetails} />
+            <MeronWala
+              player={getPlayer(0)}
+              type={0}
+              isPulaAsul={false}
+              parent={betParentDetails}
+              data={betDetails}
+            />
           </div>
-          <Button
-            onClick={() => {
-              setIsModalSendMessageOpen(true);
-            }}
-            loadingText="Loading..."
-            type={"button"}
-          >
-            Send Message
-          </Button>
         </div>
       </div>
     </React.Fragment>

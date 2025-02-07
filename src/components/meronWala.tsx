@@ -1,8 +1,8 @@
 import isJsonObjectEmpty from "@/util/isJsonObjectEmpty";
 import React from "react";
 
-const MeronWala = ({ player, type, data, parent }: any) => {
-  const color = type == 1 ? "meronColor" : "walaColor";
+const MeronWala = ({ player, type, data, parent ,isPulaAsul = true }: any) => {
+  const color = isPulaAsul ? (type == 1 ? "meronColor" : "walaColor") : "";
   const title = player;
   const getSafeData = (data: any, field: any) => {
     try {
@@ -30,9 +30,9 @@ const MeronWala = ({ player, type, data, parent }: any) => {
       <div className="p-2 ">
         <div className="inline-flex w-full justify-between">
           <div className="inline-flex gap-2 text-xl">
-            <div
+           {isPulaAsul && <div
               className={`${color} rounded-full h-5 w-5`}
-            ></div>
+            ></div>}
             {title}
           </div>
           {!isJsonObjectEmpty(parent) && (

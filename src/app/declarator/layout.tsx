@@ -5,7 +5,7 @@ import CommonLayout from "../layout/commonLayout";
 
 const GameLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
   return (
-    <CommonLayout slug="MAIN DASHBOARD" hasSideBar={false}>
+    <CommonLayout slug="MAIN DASHBOARD">
       {children}
     </CommonLayout>
   );

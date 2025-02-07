@@ -56,17 +56,20 @@ const ParentGameResult: React.FC<ParentGameResultProps> = ({
           <div className="grid grid-cols-3 grid-rows-1 gap-1">
             <MeronWalaWin
               type={1}
+              isPulaAsul={false}
               onClick={() => setWinSide(1)}
               playerName={getPlayerName(1)}
             />
             <MeronWalaWin
               type={0}
+              isPulaAsul={false}
               onClick={() => setWinSide(0)}
               playerName={getPlayerName(0)}
             />
             
             <MeronWalaWin
               type={2}
+              isPulaAsul={false}
               onClick={() => setWinSide(2)}
               playerName={"CANCEL"}
             />

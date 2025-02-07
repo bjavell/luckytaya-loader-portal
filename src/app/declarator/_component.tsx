@@ -317,13 +317,13 @@ const Fight = () => {
         let fightStatus = 10;
         let isChangeStatus = false;
         if (parentCurrentFight.fight.fightStatusCode == 10) {
-          if(status == 11){
+          if (status == 11) {
             fightStatus = 11;
-            isChangeStatus = true
+            isChangeStatus = true;
           }
         } else if (parentCurrentFight.fight.fightStatusCode == 11) {
           fightStatus = 12;
-          isChangeStatus = true
+          isChangeStatus = true;
         }
         if (isChangeStatus) {
           const request = {
@@ -727,20 +727,6 @@ const Fight = () => {
       });
   };
 
-  const onHandleLogout = async () => {
-    await localAxios
-      .post("/api/signout", {})
-      .then((response) => {
-        router.push("/login");
-      })
-      .catch((e) => {
-        const errorMessages = e.response.data.error;
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  };
-
   const onCancelGame = async (status: number) => {
     setIsCancelModalOpen(true);
   };
@@ -1007,37 +993,77 @@ const Fight = () => {
     }
     return "";
   };
+
+  const renderOpenBetting = () => {
+    const isDisabled = true;
+    if (!isJsonObjectEmpty(gameData)) {
+      if (
+        gameData.event.eventStatusCode == 11 &&
+        gameData.fight.fightStatusCode == 10
+      )
+        return (
+          <Button
+            onClick={() => onDirectSetFightStatus(11)}
+            isLoading={isLoading}
+            loadingText="Loading..."
+            type={"button"}
+          >
+            Open Betting
+          </Button>
+        );
+      else if (
+        gameData.event.eventStatusCode == 11 &&
+        gameData.fight.fightStatusCode == 11
+      ) {
+        return (
+          <Button
+            onClick={() => onCancelGame(21)}
+            isLoading={isLoading}
+            loadingText="Loading..."
+            type={"button"}
+          >
+            Cancel Game
+          </Button>
+        );
+      }
+    }
+
+    if (isDisabled)
+      return (
+        <button disabled className="bg-gray13 p-3 rounded-xl">
+          Open Betting
+        </button>
+      );
+  };
+
+  const renderCloseBetting = () => {
+    const isDisabled = true;
+    if (!isJsonObjectEmpty(gameData)) {
+      if (
+        gameData.event.eventStatusCode == 11 &&
+        gameData.fight.fightStatusCode == 11
+      )
+        return (
+          <Button
+            onClick={() => onDirectSetFightStatus(12)}
+            isLoading={isLoading}
+            loadingText="Loading..."
+            type={"button"}
+          >
+            Close Betting
+          </Button>
+        );
+    }
+
+    if (isDisabled)
+      return (
+        <button disabled className="bg-gray13 p-3 rounded-xl">
+          Close Betting
+        </button>
+      );
+  };
   return (
     <div className="flex flex-col gap-4 w-full">
-      <div className="inline-flex justify-between items-center">
-        <h1 className="text-xl">Gaming Control</h1>
-        <div className="inline-flex">
-          <Link
-            key="game"
-            href="/event/fights"
-            className={`p-4 hover:bg-cursedBlack hover:rounded-xlg hover:text-[#E7DE54] flex gap-2`}
-          >
-            <Image src={Game} alt="" className={`h-4 w-auto my-auto`} />
-            Game / Rack
-          </Link>
-          <Link
-            key="transactino_history"
-            href="/event/transaction_history"
-            className={`p-4 hover:bg-cursedBlack hover:rounded-xlg hover:text-[#E7DE54] flex gap-2`}
-          >
-            <Image src={Dashboard} alt="" className={`h-4 w-auto my-auto`} />
-            Transaction History
-          </Link>
-          <button
-            onClick={() => onHandleLogout()}
-            className="p-4 text-red hover:bg-cursedBlack hover:rounded-xlg hover:text-[#E7DE54] flex gap-2"
-          >
-            <Image src={Logout} alt="" className={`h-4 w-auto my-auto`} />{" "}
-            Logout
-          </button>
-        </div>
-      </div>
-
       <ConfirmationModal
         isOpen={isErrorMessageOpen}
         isOkOnly={true}
@@ -1046,56 +1072,76 @@ const Fight = () => {
         message={errorMessage}
       ></ConfirmationModal>
 
-      <div className="flex gap-3 items-center">
-        <label
-          htmlFor="venueId"
-          className="text-white font-sans font-light text-nowrap "
-        >
-          Select Event
-        </label>
-        <select
-          onChange={handleEventChange}
-          name="venueId"
-          className="peer rounded-xlg py-4 px-4 bg-semiBlack shadow-sm font-sans font-light tacking-[5%] text-white invalid:border-red-500 invalid:[&.visited]:border invalid:[&.visited]:border-[#E74C3C]"
-        >
-          {events.map((item, index): any => {
-            return (
-              <option key={`option-${index}`} value={index}>
-                {item.eventName}
-              </option>
-            );
-          })}
-        </select>
+      <div className="flex justify-between">
+        <div className="flex gap-3 items-center">
+          <label
+            htmlFor="venueId"
+            className="text-white font-sans font-light text-nowrap "
+          >
+            Select Event
+          </label>
+          <select
+            onChange={handleEventChange}
+            name="venueId"
+            className="peer rounded-xlg py-4 px-4 bg-semiBlack shadow-sm font-sans font-light tacking-[5%] text-white invalid:border-red-500 invalid:[&.visited]:border invalid:[&.visited]:border-[#E74C3C]"
+          >
+            {events.map((item, index): any => {
+              return (
+                <option key={`option-${index}`} value={index}>
+                  {item.eventName}
+                </option>
+              );
+            })}
+          </select>
 
-        <label
-          htmlFor="venueId"
-          className="text-white font-sans font-light text-nowrap "
-        >
-          Select Game
-        </label>
-        <select
-          onChange={handleFightChange}
-          name="venueId"
-          className="peer rounded-xlg py-4 px-4 bg-semiBlack shadow-sm font-sans font-light tacking-[5%] text-white invalid:border-red-500 invalid:[&.visited]:border invalid:[&.visited]:border-[#E74C3C]"
-        >
-          {fights.map((item: any, index: any) => {
-            return (
-              <option key={`option-${index}`} value={index}>
-                {item.fight.fightNum}
-              </option>
-            );
-          })}
-        </select>
-        <Button
-          onClick={() => {
-            setIsCreateAnotherGame(true);
-          }}
-          type={"button"}
-        >
-          Add Game
-        </Button>
+          <label
+            htmlFor="venueId"
+            className="text-white font-sans font-light text-nowrap "
+          >
+            Select Game
+          </label>
+          <select
+            onChange={handleFightChange}
+            name="venueId"
+            className="peer rounded-xlg py-4 px-4 bg-semiBlack shadow-sm font-sans font-light tacking-[5%] text-white invalid:border-red-500 invalid:[&.visited]:border invalid:[&.visited]:border-[#E74C3C]"
+          >
+            {fights.map((item: any, index: any) => {
+              return (
+                <option key={`option-${index}`} value={index}>
+                  {item.fight.fightNum}
+                </option>
+              );
+            })}
+          </select>
+          <Button
+            onClick={() => {
+              setIsCreateAnotherGame(true);
+            }}
+            type={"button"}
+          >
+            Add Game
+          </Button>
+        </div>
+        <div>
+          {!isJsonObjectEmpty(gameData) && (
+            <div className="grid grid-cols-3 grid-rows-1 gap-4">
+              {renderOpenBetting()}
+              {/* {renderLastCall()} */}
+              {renderCloseBetting()}
+              {/* {renderEventStatusButton()} */}
+              <Button
+                onClick={() => {
+                  setIsModalSendMessageOpen(true);
+                }}
+                loadingText="Loading..."
+                type={"button"}
+              >
+                Send Message
+              </Button>
+            </div>
+          )}
+        </div>
       </div>
-
       <h1>
         {isLoading && isGameAvailable && <label>{"   "}Loading ...</label>}
       </h1>
@@ -1108,11 +1154,13 @@ const Fight = () => {
           <div className="grid grid-cols-2 grid-rows-1 gap-4">
             <MeronWalaWin
               type={1}
+              isPulaAsul={selectedEventDet?.gameType == 1}
               onClick={() => setWinSide(1)}
               playerName={getPlayerName(1)}
             />
             <MeronWalaWin
               type={0}
+              isPulaAsul={selectedEventDet?.gameType == 1}
               onClick={() => setWinSide(0)}
               playerName={getPlayerName(0)}
             />

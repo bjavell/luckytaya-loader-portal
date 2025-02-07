@@ -34,7 +34,7 @@ export default function PlayerInput({ gameType, data }: any) {
               htmlFor="player1"
               className="text-white font-sans font-light text-nowrap"
             >
-              Player 1
+              Player A
             </label>
             <div className="flex flex-row items-center gap-4">
               <FormField
@@ -60,7 +60,7 @@ export default function PlayerInput({ gameType, data }: any) {
               htmlFor="player1"
               className="text-white font-sans font-light text-nowrap"
             >
-              Player 2
+              Player B
             </label>
             <div className="flex flex-row items-center gap-4">
               <FormField
@@ -86,7 +86,7 @@ export default function PlayerInput({ gameType, data }: any) {
               htmlFor="player1"
               className="text-white font-sans font-light text-nowrap"
             >
-              Player 3
+              Player C
             </label>
             <div className="flex flex-row items-center gap-4">
               <FormField

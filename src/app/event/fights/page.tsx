@@ -13,6 +13,7 @@ import Modal from "@/components/modal";
 import GameUpload from "@/components/gameUpload";
 import ConfirmationModal from "@/components/confirmationModal";
 import { localAxios } from "@/util/localAxiosUtil";
+import isJsonObjectEmpty from "@/util/isJsonObjectEmpty";
 
 type SabongEvent = {
   entryDateTime: string;
@@ -48,56 +49,7 @@ const Fight = () => {
   const [isModalFightOpen, setIsModalFightOpen] = useState(false);
   const [fightList, setFightList] = useState<any>([]);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
-  // const [walaImage, setWalaImage] = useState("");
-  // const [meronImage, setMeronImage] = useState("");
-  // const handleFileChange = (
-  //   event: React.ChangeEvent<HTMLInputElement>,
-  //   type: any
-  // ) => {
-  //   const file = event.target.files?.[0]; // Get the selected file
-  //   if (file) {
-  //     const reader = new FileReader();
-
-  //     // Convert the image file to base64
-  //     reader.onloadend = () => {
-  //       if (reader.result) {
-  //         if (type == 1) setMeronImage(reader.result.toString());
-  //         else setWalaImage(reader.result.toString());
-  //       }
-  //     };
-
-  //     // Read the file as a data URL (Base64)
-  //     reader.readAsDataURL(file);
-  //   }
-  // };
-
-  // const imageInput = (id: any, type: any) => {
-  //   const image = type == 1 ? meronImage : walaImage;
-  //   return (
-  //     <div>
-  //       {" "}
-  //       <input
-  //         type="file"
-  //         id={id}
-  //         accept="image/*"
-  //         onChange={(e) => handleFileChange(e, type)}
-  //         className="mb-4"
-  //       />
-  //       {image ? (
-  //         <div>
-  //           <h3>Preview:</h3>
-  //           <img
-  //             src={image}
-  //             alt="Base64 Preview"
-  //             className="w-64 h-64 object-cover"
-  //           />
-  //         </div>
-  //       ) : (
-  //         <p>No image selected</p>
-  //       )}
-  //     </div>
-  //   );
-  // };
+  const [selectedEventDet, setSelectedEventDet] = useState<any>({});
 
   const getEventStatus = (code: number): any => {
     return statuses.find((x: any) => x.code == code);
@@ -113,6 +65,26 @@ const Fight = () => {
       })
       .catch(() => {
         setEvents([]);
+      });
+  };
+
+  useEffect(() => {
+    if (selectedEvent) {
+      getEventInDb(selectedEvent);
+    }
+    return () => {};
+  }, [selectedEvent]);
+
+  const getEventInDb = async (item: any) => {
+    await localAxios
+      .get(`/api/event/by-id?eventId=${item}`)
+      .then((response) => {
+        const { data } = response;
+        const { player1, player2, player3 } = data;
+        setSelectedEventDet({ ...response.data });
+      })
+      .catch(() => {
+        // setSelectedEventDet(item);
       });
   };
 
@@ -135,7 +107,6 @@ const Fight = () => {
       })
       .then((response) => {
         let data = response.data;
-        console.log(data,'hello--data')
         data = data.map((e: any) => {
           const stats = getEventStatus(e.fight.fightStatusCode);
           return {
@@ -276,9 +247,9 @@ const Fight = () => {
           id: form["meron-id"]?.value,
           side: 1,
           owner: form["meron-owner"].value ?? "",
-          breed: form["meron-breed"]?.value?? "",
+          breed: form["meron-breed"]?.value ?? "",
           weight: form["meron-weight"]?.value ?? "",
-          tag: form["meron-tag"]?.value?? "",
+          tag: form["meron-tag"]?.value ?? "",
           imageBase64: "",
           operatorId: 0,
         },
@@ -286,10 +257,10 @@ const Fight = () => {
           fightId: selectedFight?.fightId,
           id: form["wala-id"]?.value,
           side: 0,
-          owner: form["wala-owner"].value?? "",
-          breed: form["wala-breed"]?.value?? "",
-          weight: form["wala-weight"]?.value?? "",
-          tag: form["wala-tag"]?.value?? "",
+          owner: form["wala-owner"].value ?? "",
+          breed: form["wala-breed"]?.value ?? "",
+          weight: form["wala-weight"]?.value ?? "",
+          tag: form["wala-tag"]?.value ?? "",
           imageBase64: "",
           operatorId: 0,
         },
@@ -406,98 +377,87 @@ const Fight = () => {
         >
           <GameUpload onUpload={onUpload} />
         </Modal>
-        <div className="col-span-4 grid grid-cols-5 grid-rows-1 gap-2">
-          <label>Name 1</label>
-          <label>Name 2</label>
-          {/* <label>Age</label>
-          <label>Remarks</label> */}
+
+        <div className="grid grid-cols-2 grid-rows-1 gap-1">
+          <div>
+            <label>Player/Team A</label>
+            <div className="grid grid-cols-2 grid-rows-1 gap-1">
+              <input hidden value={1} name="meron-side" />
+              <input
+                hidden
+                value={getFightDetailValue(1, "id")}
+                name="meron-id"
+              />
+
+              <FormField
+                name="meron-owner"
+                label=""
+                placeholder="Enter Name 1"
+                type="text"
+                value={getFightDetailValue(1, "owner")}
+              />
+              {selectedEventDet?.gameType == 2 && (
+                <FormField
+                  name="meron-breed"
+                  label=""
+                  placeholder="Enter Name 2"
+                  value={getFightDetailValue(1, "breed")}
+                  type="text"
+                />
+              )}
+              {selectedEventDet?.gameType != 2 && <div></div>}
+              <div className="col-span-2"></div>
+
+              <div className="col-span-2"></div>
+            </div>
+          </div>
+
+          <div>
+            <label>Player/Team B</label>
+
+            <div className="grid grid-cols-2 grid-rows-1 gap-1">
+              <input hidden value={0} name="wala-side" />
+              <input
+                hidden
+                value={getFightDetailValue(0, "id")}
+                name="wala-id"
+              />
+              <FormField
+                name="wala-owner"
+                label=""
+                placeholder="Enter Name 1"
+                value={getFightDetailValue(0, "owner")}
+                type="text"
+              />
+              {selectedEventDet?.gameType == 2 && (
+                <FormField
+                  name="wala-breed"
+                  label=""
+                  placeholder="Enter Name 2"
+                  value={getFightDetailValue(0, "breed")}
+                  type="text"
+                />
+              )}
+              {selectedEventDet?.gameType != 2 && <div></div>}
+              <div className="col-span-2"></div>
+            </div>
+          </div>
         </div>
-        <div className="grid grid-cols-5 grid-rows-1 gap-0 items-center">
-          <div className="col-span-4 grid grid-cols-4 grid-rows-1 gap-1">
-            <input hidden value={1} name="meron-side" />
-            <input
-              hidden
-              value={getFightDetailValue(1, "id")}
-              name="meron-id"
-            />
-
-            <FormField
-              name="meron-owner"
-              label=""
-              placeholder="Enter Name 1"
-              type="text"
-              value={getFightDetailValue(1, "owner")}
-            />
-            <FormField
-              name="meron-breed"
-              label=""
-              placeholder="Enter Name 2"
-              value={getFightDetailValue(1, "breed")}
-              type="text"
-            />
-            <div className="col-span-2"></div>
-            {/* <FormField
-              name="meron-weight"
-              label=""
-              placeholder="Enter Age"
-              value={getFightDetailValue(1, "weight")}
-              type="text"
-            />
-            <FormField
-              name="meron-tag"
-              label=""
-              placeholder="Enter Remarks"
-              value={getFightDetailValue(1, "tag")}
-              type="text"
-            /> */}
-
-            <input hidden value={0} name="wala-side" />
-            <input hidden value={getFightDetailValue(0, "id")} name="wala-id" />
-            <FormField
-              name="wala-owner"
-              label=""
-              placeholder="Enter Name 1"
-              value={getFightDetailValue(0, "owner")}
-              type="text"
-            />
-            <FormField
-              name="wala-breed"
-              label=""
-              placeholder="Enter Name 2"
-              value={getFightDetailValue(0, "breed")}
-              type="text"
-            />
-            <div className="col-span-2"></div>
-            {/* <FormField
-              name="wala-weight"
-              label=""
-              placeholder="Enter Age"
-              value={getFightDetailValue(0, "weight")}
-              type="text"
-            />
-            <FormField
-              name="wala-tag"
-              label=""
-              placeholder="Enter Remarks"
-              value={getFightDetailValue(0, "tag")}
-              type="text"
-            /> */}
-          </div>
-          <div className="justify-self-center">
-            <Button
-              onClick={() => {}}
-              isLoading={isLoading}
-              loadingText="Loading..."
-              type={"submit"}
-            >
-              Add Game
-            </Button>
-          </div>
+        <br />
+        <div className="">
+          <Button
+            onClick={() => {}}
+            isLoading={isLoading}
+            loadingText="Loading..."
+            type={"submit"}
+          >
+            Add Game
+          </Button>
         </div>
       </Form>
     );
   };
-  
+
   useEffect(() => {
     if (errorMessage != "") setIsErrorMessageOpen(true);
   }, [errorMessage]);

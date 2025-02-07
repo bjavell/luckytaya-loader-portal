@@ -135,6 +135,7 @@ const Fight = () => {
       })
       .then((response) => {
         let data = response.data;
+        console.log(data,'hello--data')
         data = data.map((e: any) => {
           const stats = getEventStatus(e.fight.fightStatusCode);
           return {

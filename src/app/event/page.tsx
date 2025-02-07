@@ -49,6 +49,7 @@ const Event = () => {
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
   const [sortBy, setSortBy] = useState(options[0].value);
   const [fights, setFights] = useState([]);
+  const [filteredFights, setFilteredFights] = useState([]);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [form, setForm] = useState();
   const [speedShoots, setSpeedShoots] = useState<any>();
@@ -123,15 +124,16 @@ const Event = () => {
       })
       .then((response) => {
         let data = response.data;
-        data = data
+        setFights(data);
+        const filtered = data
           .filter(
             (x: any) =>
               x.fight.fightStatusCode == 10 || x.fight.fightStatusCode == 11
           )
           .map((x: any) => {
             return x.fight;
-          });
-        setFights(data);
+          }); 
+          setFilteredFights(filtered)
       })
       .catch((e) => {
         console.log(e);
@@ -159,7 +161,6 @@ const Event = () => {
     await localAxios
       .get(`/api/event/by-id?eventId=${item.eventId}`)
       .then((response) => {
-        console.log({ ...item, ...response.data }, "hello09");
         setSelectedEvent({ ...item, ...response.data });
       })
       .catch(() => {
@@ -218,7 +219,7 @@ const Event = () => {
       form.eventStatusCodeNew.value == 12 &&
       !isForced
     ) {
-      if (fights.length > 0) {
+      if (setFilteredFights.length > 0) {
         // setIsModalOpen(false);
         setIsLoginModalOpen(true);
         setIsLoading(false);

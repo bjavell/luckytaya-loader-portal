@@ -1,6 +1,7 @@
+import isJsonObjectEmpty from "@/util/isJsonObjectEmpty";
 import React from "react";
 
-const MeronWala = ({player, type, data }: any) => {
+const MeronWala = ({ player, type, data, parent }: any) => {
   const color = type == 1 ? "meronColor" : "walaColor";
   const title = player;
   const getSafeData = (data: any, field: any) => {
@@ -11,26 +12,34 @@ const MeronWala = ({player, type, data }: any) => {
     }
   };
 
+  const calculateOddPercentage = (data: any) => {
+    const numerator = parseFloat(getSafeData(data, `s${type}a`));
+    const denominator =
+      parseFloat(getSafeData(data, "s1a")) +
+      parseFloat(getSafeData(data, "s0a"));
 
-  const calculateOddPercentage = (data:any) => {
-
-    const numerator = parseFloat(getSafeData(data, `s${type}a`))
-    const denominator = parseFloat(getSafeData(data, 's1a')) + parseFloat(getSafeData(data, 's0a'))
-
-    if(numerator === 0 || denominator === 0) {
-      return '0 %'
+    if (numerator === 0 || denominator === 0) {
+      return "0 %";
     }
 
-    return `${((numerator / denominator) * 100).toFixed(0)} %`
-  }
-
+    return `${((numerator / denominator) * 100).toFixed(0)} %`;
+  };
 
   return (
     <div className="p-2  rounded-lg bg-cursedBlack">
       <div className="p-2 ">
-        <div className="inline-flex gap-2 w-full">
-          <div className={`${color} rounded-full h-5 w-5 label-header1`}></div>
-          {title}
+        <div className="inline-flex w-full justify-between">
+          <div className="inline-flex gap-2 text-xl">
+            <div
+              className={`${color} rounded-full h-5 w-5`}
+            ></div>
+            {title}
+          </div>
+          {!isJsonObjectEmpty(parent) && (
+            <div className="">
+              Bet : {getSafeData(parent, `s${type}a`)} <br />
+            </div>
+          )}
         </div>
         <div className="col card rounded-[20] ">
           <br />

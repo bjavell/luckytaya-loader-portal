@@ -1,8 +1,7 @@
 import React from "react";
 
 const MeronWalaWin = ({ type, onClick,playerName }: any) => {
-  const color = type == 1 ? "meronColor" : "walaColor";
-  const title = type == 1 ? "Pula" : "Asul";
+  const color = type == 1 ? "meronColor" : type == 0 ? "walaColor": "cancelColor";
 
   return (
     <div className="p-2  rounded-lg bg-cursedBlack cursor-pointer" onClick={onClick}>

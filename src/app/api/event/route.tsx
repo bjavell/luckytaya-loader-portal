@@ -83,7 +83,7 @@ const POST = async (req: NextRequest) => {
           };
 
           try {
-            const resgame = await createGame(
+            const resgame = await createUpdateGame(
               gameRequest,
               currentSession.token,
               currentSession.userId,
@@ -135,7 +135,7 @@ const POST = async (req: NextRequest) => {
               };
 
               try {
-                const resgame = await createGame(
+                const resgame = await createUpdateGame(
                   gameRequest,
                   currentSession.token,
                   currentSession.userId,
@@ -178,7 +178,7 @@ const POST = async (req: NextRequest) => {
         };
 
         try {
-          const resgame = await createGame(
+          const resgame = await createUpdateGame(
             gameRequest,
             currentSession.token,
             currentSession.userId,
@@ -206,17 +206,88 @@ const POST = async (req: NextRequest) => {
           const childData = await findOne(DB_COLLECTIONS.EVENTS, {
             parentEventId: { $eq: previousData.eventId.toString() },
           });
+          let childFights: any;
           try {
-            const parentFightDetails = await getFightByEventId(
-              previousData.eventId,
+            childFights = await getFightByEventId(
+              childData?.eventId,
               currentSession.token,
               correlationId
             );
-            console.log(parentFightDetails, "hello1234");
-          } catch (error: any) {
-            console.log(error.response.data, "hello1235");
-          }
-          if (childData) {
+            childFights = childFights.data;
+          } catch (error: any) {}
+          let currentPlayer = 0;
+          for (let index = 1; index < 9; index++) {
+            const currentFight = fights.find(
+              (x: any) => x.fight.fightNum == index
+            );
+            if (currentFight) {
+              const { fight, fightDetails } = currentFight;
+              const player1 = request?.details[`player${currentPlayer + 1}`];
+              const player2 = request?.details[`player${currentPlayer + 2}`];
+
+              const dbPlayer1 = fightDetails.find((x: any) => x.side == 1);
+              const dbPlayer2 = fightDetails.find((x: any) => x.side == 0);
+
+              if (player1 != dbPlayer1?.owner || player2 != dbPlayer2?.owner) {
+                dbPlayer1.owner = player1;
+                dbPlayer2.owner = player2;
+
+                const fightGameRequest = {
+                  fight,
+                  fightDetails: [dbPlayer1, dbPlayer2],
+                };
+
+                try {
+                  await createUpdateGame(
+                    fightGameRequest,
+                    currentSession.token,
+                    currentSession.userId,
+                    correlationId
+                  );
+                } catch (error: any) {
+                  console.log(error.response.data, "parent");
+                }
+                const start = ((index * 3) - 3) + 1
+                const end = start + 3;
+                for (let x = start; x < end; x++) {
+                  const childFight = childFights.find(
+                    (xx: any) => xx.fight.fightNum == x
+                  );
+                  console.log(start,end)
+                  if (childFight) {
+                    const {
+                      fight: chldFight,
+                      fightDetails: childFightDetails,
+                    } = childFight;
+
+                    const dbPlayer1 = childFightDetails.find(
+                      (x: any) => x.side == 1
+                    );
+                    const dbPlayer2 = childFightDetails.find(
+                      (x: any) => x.side == 0
+                    );
+                    dbPlayer1.owner = player1;
+                    dbPlayer2.owner = player2;
+                    const fightGameChildRequest = {
+                      fight: chldFight,
+                      fightDetails: [dbPlayer1, dbPlayer2],
+                    };
+
+                    try {
+                      await createUpdateGame(
+                        fightGameChildRequest,
+                        currentSession.token,
+                        currentSession.userId,
+                        correlationId
+                      );
+                    } catch (error: any) {
+                      console.log(error.response.data, "child");
+                    }
+                  }
+                }
+              }
+            }
+            currentPlayer += 2;
           }
         }
 
@@ -446,7 +517,7 @@ const fightRequest = async (
   });
 };
 
-const createGame = (
+const createUpdateGame = (
   request: any,
   token: string,
   userId: string,

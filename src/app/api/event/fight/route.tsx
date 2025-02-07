@@ -7,28 +7,29 @@ import axios from "axios";
 import logger from "@/lib/logger";
 
 const GET = async (req: NextRequest) => {
-  const api = "GET EVENT FIGHT"
-  let correlationId
-  let logRequest
-  let logResponse
-  let status = 200
+  const api = "GET EVENT FIGHT";
+  let correlationId;
+  let logRequest;
+  let logResponse;
+  let status = 200;
   try {
-
-    correlationId = req.headers.get('x-correlation-id');
+    correlationId = req.headers.get("x-correlation-id");
     const currentSession = await getCurrentSession();
-    const token = currentSession ? `Bearer ${currentSession.token}` : req.headers.get('Authorization')  
- 
+    const token = currentSession
+      ? `Bearer ${currentSession.token}`
+      : req.headers.get("Authorization");
+
     const eventId = req.nextUrl.searchParams.get("eventId");
-   logRequest = {
+    logRequest = {
       url: {
-        eventId
-      }
-    }
+        eventId,
+      },
+    };
     const response = await luckTayaAxios.get(
       `/api/v1/SabongFight/WithDetailsByEventIdV2/${eventId}`,
       {
         headers: {
-          'X-Correlation-ID': correlationId,
+          "X-Correlation-ID": correlationId,
           Authorization: `${token}`,
         },
       }
@@ -39,23 +40,26 @@ const GET = async (req: NextRequest) => {
       return bDate.getTime() - aDate.getTime();
     });
 
-    logResponse = data
+    logResponse = data;
+
     return NextResponse.json(data);
   } catch (e: any) {
-   
     logger.error(api, {
       correlationId,
       error: e.message,
-      errorStack: e.stack
-    })
+      errorStack: e.stack,
+    });
 
-    status = 500
-    logResponse = formatGenericErrorResponse(e)
-    return NextResponse.json({
-      error: logResponse
-    }, {
-      status: 500
-    })
+    status = 500;
+    logResponse = formatGenericErrorResponse(e);
+    return NextResponse.json(
+      {
+        error: logResponse,
+      },
+      {
+        status: 500,
+      }
+    );
   } finally {
     logger.info(api, {
       correlationId,
@@ -63,48 +67,50 @@ const GET = async (req: NextRequest) => {
         status,
         request: logRequest,
         response: logResponse,
-      }
-    })
-
+      },
+    });
   }
 };
+
 const POST = async (req: NextRequest) => {
-  const api = "POST EVENT FIGHT"
-  let correlationId
-  let logRequest
-  let logResponse
-  let status = 200
+  const api = "POST EVENT FIGHT";
+  let correlationId;
+  let logRequest;
+  let logResponse;
+  let status = 200;
   let fightResult: any;
   let isContinue = true;
   let result: any;
   const currentSession = await getCurrentSession();
-  const request = await req.json(); 
+  const request = await req.json();
   const { fightDetails, fight } = request;
-  
-  const token = currentSession ? `Bearer ${currentSession.token}` : req.headers.get('Authorization')  
-  const userId = currentSession ? `${currentSession.userId}` : req.headers.get('UserId')
 
-  console.log(request)
+  const token = currentSession
+    ? `Bearer ${currentSession.token}`
+    : req.headers.get("Authorization");
+  const userId = currentSession
+    ? `${currentSession.userId}`
+    : req.headers.get("UserId");
   try {
     logRequest = {
       fightDetails,
-      fight
-    }
-    correlationId = req.headers.get('x-correlation-id');
+      fight,
+    };
+    correlationId = req.headers.get("x-correlation-id");
     fight.eventId = parseInt(fight.eventId);
     fight.fightNum = parseInt(fight.fightNum);
     if (fight.fightId && fight.fightId != 0) {
       fight.fightId = parseInt(fight.fightId);
       fightResult = await luckTayaAxios.put(`/api/v1/SabongFight`, fight, {
         headers: {
-          'X-Correlation-ID': correlationId,
+          "X-Correlation-ID": correlationId,
           Authorization: `${token}`,
         },
       });
     } else {
       fightResult = await luckTayaAxios.post(`/api/v1/SabongFight`, fight, {
         headers: {
-          'X-Correlation-ID': correlationId,
+          "X-Correlation-ID": correlationId,
           Authorization: `${token}`,
         },
       });
@@ -148,7 +154,7 @@ const POST = async (req: NextRequest) => {
         element.picture = "";
         await luckTayaAxios.put(`/api/v1/SabongFightDetail`, element, {
           headers: {
-            'X-Correlation-ID': correlationId,
+            "X-Correlation-ID": correlationId,
             Authorization: `${token}`,
           },
         });
@@ -160,27 +166,30 @@ const POST = async (req: NextRequest) => {
         element.picture = "";
         await luckTayaAxios.post(`/api/v1/SabongFightDetail/`, element, {
           headers: {
-            'X-Correlation-ID': correlationId,
+            "X-Correlation-ID": correlationId,
             Authorization: `${token}`,
           },
         });
       }
     }
     return NextResponse.json({ message: "Successfully Logged In!" });
-  }  catch (e: any) {
+  } catch (e: any) {
     logger.error(api, {
       correlationId,
       error: e.message,
-      errorStack: e.stack
-    })
+      errorStack: e.stack,
+    });
 
-    status = 500
-    logResponse = formatGenericErrorResponse(e)
-    return NextResponse.json({
-      error: logResponse
-    }, {
-      status: 500
-    })
+    status = 500;
+    logResponse = formatGenericErrorResponse(e);
+    return NextResponse.json(
+      {
+        error: logResponse,
+      },
+      {
+        status: 500,
+      }
+    );
   } finally {
     logger.info(api, {
       correlationId,
@@ -188,9 +197,8 @@ const POST = async (req: NextRequest) => {
         status,
         request: logRequest,
         response: logResponse,
-      }
-    })
-
+      },
+    });
   }
 };
 

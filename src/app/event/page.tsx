@@ -123,7 +123,7 @@ const Event = () => {
         },
       })
       .then((response) => {
-        let data = response.data;
+        const data = response.data;
         setFights(data);
         const filtered = data
           .filter(

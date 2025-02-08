@@ -209,13 +209,11 @@ const POST = async (req: NextRequest) => {
           let childFights: any;
           try {
             
-            console.log(previousData,'000000000000')
             childFights = await getFightByEventId(
               childData?.eventId,
               currentSession.token,
               correlationId
             );
-            console.log(childData,childFights,'000000000000')
             childFights = childFights.data;
           } catch (error: any) {}
           let currentPlayer = 0;
@@ -292,8 +290,6 @@ const POST = async (req: NextRequest) => {
             currentPlayer += 2;
           }
         }
-
-        console.log(eventStatusRequest,'eventSTatus222------')
         const eventDetails = request.details
           ? Object.assign({}, request.details)
           : {};
@@ -321,7 +317,6 @@ const POST = async (req: NextRequest) => {
             correlationId
           );
         }
-        console.log(eventStatusRequest,'eventSTatus555------')
         await luckTayaAxios.put(
           `/api/v1/SabongEvent/UpdateStatus`,
           eventStatusRequest,
@@ -448,7 +443,6 @@ const POST = async (req: NextRequest) => {
     logResponse = { message: "Successfully Logged In!" };
     return NextResponse.json({ message: "Successfully Logged In!" });
   } catch (e: any) {
-    console.log(e,'eventSTatus999------')
     logger.error(api, {
       correlationId,
       error: e.message,

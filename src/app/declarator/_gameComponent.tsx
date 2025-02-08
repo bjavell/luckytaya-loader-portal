@@ -64,7 +64,15 @@ const GameComponent: React.FC<GameComponentProps> = ({
     }
     return "";
   };
-
+  const getCustomPlayer = (side: number,type : any) => {
+    if (fightDetails) {
+      const player = fightDetails?.find((x: any) => x.side == side);
+      if (player) {
+        return `${player.owner} ${type == 1 ? <br/> : ""} ${player.breed}`;
+      }
+    }
+    return "";
+  };
   const renderResultButton = () => {
     const isDisabled = true;
     if (gameData) {
@@ -184,7 +192,7 @@ const GameComponent: React.FC<GameComponentProps> = ({
             selectedEventDet?.gameType != 4 &&
             selectedEventDet?.gameType != 6 &&
             selectedEventDet?.gameType != 7 && (
-              <Trend data={gameData?.trends}></Trend>
+              <Trend  player1={getCustomPlayer(1,selectedEventDet?.gameType)} player2={getCustomPlayer(0,selectedEventDet?.gameType)} isPulaAsul={ selectedEventDet?.gameType == 1} data={gameData?.trends}></Trend>
             )}
           {!isJsonObjectEmpty(gameData) && selectedEventDet?.gameType == 4 && (
             <ThreeManTrend data={selectedEventDet}></ThreeManTrend>

@@ -208,11 +208,14 @@ const POST = async (req: NextRequest) => {
           });
           let childFights: any;
           try {
+            
+            console.log(previousData,'000000000000')
             childFights = await getFightByEventId(
               childData?.eventId,
               currentSession.token,
               correlationId
             );
+            console.log(childData,childFights,'000000000000')
             childFights = childFights.data;
           } catch (error: any) {}
           let currentPlayer = 0;
@@ -227,7 +230,6 @@ const POST = async (req: NextRequest) => {
 
               const dbPlayer1 = fightDetails.find((x: any) => x.side == 1);
               const dbPlayer2 = fightDetails.find((x: any) => x.side == 0);
-              if(fight.fightStatusCode != 10) continue;
               if (player1 != dbPlayer1?.owner || player2 != dbPlayer2?.owner) {
                 dbPlayer1.owner = player1;
                 dbPlayer2.owner = player2;

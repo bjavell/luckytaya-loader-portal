@@ -15,7 +15,13 @@ const GET = async (req: NextRequest) => {
     correlationId = req.headers.get('x-correlation-id');
     const type = req.nextUrl.searchParams.get("type");
     const query = {"gameType" : {$eq : type}};
-    const data = await findAll(DB_COLLECTIONS.EVENTS,query);
+    let data = await findAll(DB_COLLECTIONS.EVENTS,query);
+
+    if(type == "6"){
+      const child =await findAll(DB_COLLECTIONS.EVENTS,{"gameType" : {$eq : "7"}, "parentEventId" : {$exists: true}});
+      const parentIds = child.map((x:any)=> x.parentEventId);
+      data = data.filter((x:any)=> !parentIds.includes(x.eventId.toString()))
+    }
     logResponse = data
 
     return NextResponse.json(data);

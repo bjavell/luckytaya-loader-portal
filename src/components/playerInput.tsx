@@ -100,7 +100,7 @@ export default function PlayerInput({ gameType, data }: any) {
                 name="player3Other"
                 value={data == null ? "" : data.player3Other}
                 // label="Player 3"
-                placeholder="Name"
+                placeholder="Handicap"
                 type="text"
               />
             </div>

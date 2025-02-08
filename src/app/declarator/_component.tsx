@@ -117,12 +117,12 @@ const Fight = () => {
             ) {
               setBetDetails(betDetail);
             }
-            if (
-              parentFight.fight.fightId == parseMessage.FightId &&
-              parentFight.event.eventId == parseMessage.EventId
-            ) {
-              setParentBetDetails(betDetail);
-            }
+            // if (
+            //   parentFight.fight.fightId == parseMessage.FightId &&
+            //   parentFight.event.eventId == parseMessage.EventId
+            // ) {
+            //   setParentBetDetails(betDetail);
+            // }
             break;
           // last call
           case 22:
@@ -199,6 +199,7 @@ const Fight = () => {
         if (data.length > 0) {
           setFight(getFightWithStatus(data[0].fight));
           setFightDetails(data[0].fightDetails);
+          setIsGameAvailable(true);
         } else {
           setTimeout(() => {
             setIsCreateAnotherGame(true);
@@ -231,52 +232,52 @@ const Fight = () => {
     }
   };
 
-  useEffect(() => {
-    if (!isJsonObjectEmpty(parentEvent)) {
-      if (!isJsonObjectEmpty(gameData)) {
-        const fightNumForParent = Math.ceil(
-          parseInt(gameData.fight.fightNum) / 3
-        );
-        const lastFightForParent = fightNumForParent - 1;
-        const parentCurrentFight = parentEvent.find(
-          (x: any) => x.fight.fightNum == fightNumForParent
-        );
-        const parentLastFight = parentEvent.find(
-          (x: any) => x.fight.fightNum == lastFightForParent
-        );
-        setParentFight(parentCurrentFight);
-        setParentPreviousFight(parentLastFight ?? parentCurrentFight);
+  // useEffect(() => {
+  //   if (!isJsonObjectEmpty(parentEvent)) {
+  //     if (!isJsonObjectEmpty(gameData)) {
+  //       const fightNumForParent = Math.ceil(
+  //         parseInt(gameData.fight.fightNum) / 3
+  //       );
+  //       const lastFightForParent = fightNumForParent - 1;
+  //       const parentCurrentFight = parentEvent.find(
+  //         (x: any) => x.fight.fightNum == fightNumForParent
+  //       );
+  //       const parentLastFight = parentEvent.find(
+  //         (x: any) => x.fight.fightNum == lastFightForParent
+  //       );
+  //       setParentFight(parentCurrentFight);
+  //       setParentPreviousFight(parentLastFight ?? parentCurrentFight);
 
-        getParentBetDetails(parentCurrentFight);
-        if (parentLastFight) {
-          if (parentLastFight.fight.fightStatusCode == 12) {
-            setIsParentModalOpen(true);
-          }
-        }
-      }
-    }
+  //       getParentBetDetails(parentCurrentFight);
+  //       if (parentLastFight) {
+  //         if (parentLastFight.fight.fightStatusCode == 12) {
+  //           setIsParentModalOpen(true);
+  //         }
+  //       }
+  //     }
+  //   }
 
-    return () => {};
-  }, [parentEvent]);
-  const getParentBetDetails = async (det: any) => {
-    if (!isJsonObjectEmpty(det)) {
-      const parentBet = await localAxios.get("/api/event/betDetails", {
-        params: {
-          fightId: det.fight.fightId,
-        },
-      });
-      setParentBetDetails(parentBet.data);
-    }
-  };
+  //   return () => {};
+  // }, [parentEvent]);
+  // const getParentBetDetails = async (det: any) => {
+  //   if (!isJsonObjectEmpty(det)) {
+  //     const parentBet = await localAxios.get("/api/event/betDetails", {
+  //       params: {
+  //         fightId: det.fight.fightId,
+  //       },
+  //     });
+  //     setParentBetDetails(parentBet.data);
+  //   }
+  // };
 
-  useEffect(() => {
-    const debouncedGetParent = debounce(getParent, 300);
-    debouncedGetParent();
+  // useEffect(() => {
+  //   const debouncedGetParent = debounce(getParent, 300);
+  //   debouncedGetParent();
 
-    return () => {
-      debouncedGetParent.cancel();
-    };
-  }, [selectedEventDet, fightDetails, gameData]);
+  //   return () => {
+  //     debouncedGetParent.cancel();
+  //   };
+  // }, [selectedEventDet, fightDetails, gameData]);
 
   useEffect(() => {
     const getData = async () => {
@@ -307,39 +308,39 @@ const Fight = () => {
     };
   }, [selectedEvent, statuses]);
 
-  const setParentStatus = async (status: number, fightNum: any) => {
-    if (!isJsonObjectEmpty(parentEvent)) {
-      const fightNumForParent = Math.ceil(parseInt(fightNum) / 3);
-      const parentCurrentFight = parentEvent.find(
-        (x: any) => x.fight.fightNum == fightNumForParent
-      );
-      if (parentCurrentFight) {
-        let fightStatus = 10;
-        let isChangeStatus = false;
-        if (parentCurrentFight.fight.fightStatusCode == 10) {
-          if (status == 11) {
-            fightStatus = 11;
-            isChangeStatus = true;
-          }
-        } else if (parentCurrentFight.fight.fightStatusCode == 11) {
-          fightStatus = 12;
-          isChangeStatus = true;
-        }
-        if (isChangeStatus) {
-          const request = {
-            reason: "",
-            fightId: parentCurrentFight.fight.fightId,
-            fightStatusCode: fightStatus,
-            event: parentCurrentFight,
-          };
-          await localAxios
-            .post("/api/event/fight/setStatus", request)
-            .then((result) => {})
-            .catch((e) => {});
-        }
-      }
-    }
-  };
+  // const setParentStatus = async (status: number, fightNum: any) => {
+  //   if (!isJsonObjectEmpty(parentEvent)) {
+  //     const fightNumForParent = Math.ceil(parseInt(fightNum) / 3);
+  //     const parentCurrentFight = parentEvent.find(
+  //       (x: any) => x.fight.fightNum == fightNumForParent
+  //     );
+  //     if (parentCurrentFight) {
+  //       let fightStatus = 10;
+  //       let isChangeStatus = false;
+  //       if (parentCurrentFight.fight.fightStatusCode == 10) {
+  //         if (status == 11) {
+  //           fightStatus = 11;
+  //           isChangeStatus = true;
+  //         }
+  //       } else if (parentCurrentFight.fight.fightStatusCode == 11) {
+  //         fightStatus = 12;
+  //         isChangeStatus = true;
+  //       }
+  //       if (isChangeStatus) {
+  //         const request = {
+  //           reason: "",
+  //           fightId: parentCurrentFight.fight.fightId,
+  //           fightStatusCode: fightStatus,
+  //           event: parentCurrentFight,
+  //         };
+  //         await localAxios
+  //           .post("/api/event/fight/setStatus", request)
+  //           .then((result) => {})
+  //           .catch((e) => {});
+  //       }
+  //     }
+  //   }
+  // };
 
   const setupGame = async () => {
     setIsLoading(true);
@@ -486,22 +487,22 @@ const Fight = () => {
       setErrorMessage("Please Enter Reason");
       return;
     }
-    let request;
-    if (isParent) {
-      request = {
-        reason: form.reason.value,
-        fightId: parentFight.fight.fightId,
-        fightStatusCode: 21,
-        event: parentFight,
-      };
-    } else {
-      request = {
-        reason: form.reason.value,
-        fightId: gameData.fight.fightId,
-        fightStatusCode: 21,
-        event: selectedEvent,
-      };
-    }
+    // let request;
+    // if (isParent) {
+    //   request = {
+    //     reason: form.reason.value,
+    //     fightId: parentFight.fight.fightId,
+    //     fightStatusCode: 21,
+    //     event: parentFight,
+    //   };
+    // } else {
+    const request = {
+      reason: form.reason.value,
+      fightId: gameData.fight.fightId,
+      fightStatusCode: 21,
+      event: selectedEvent,
+    };
+    // }
     callCancelApi(request);
     setIsLoadingWithScreen(true);
   };
@@ -511,10 +512,10 @@ const Fight = () => {
       .post("/api/event/fight/setStatus", request)
       .then(() => {
         // alert("Successfully Saved");
-        if (!isParent) setParentStatus(21, gameData.fight.fightNum);
+        // if (!isParent) setParentStatus(21, gameData.fight.fightNum);
         refreshFight(true);
         setIsFightStatusModalOpen(false);
-        setIsParentModalOpen(false);
+        // setIsParentModalOpen(false);
       })
       .catch((e) => {
         const errorMessages = e.response.data.error;
@@ -620,54 +621,54 @@ const Fight = () => {
       });
   };
 
-  const onParentCancel = () => {
-    setParentWinningSide(-1);
-    setIsParentConfirmModalOpen(false);
-  };
-  const onParentConfirm = async () => {
-    setIsLoadingWithScreen(true);
-    const request = {
-      fightId: parentPreviousFight.fight.fightId,
-      winSide: parentWinningSide,
-      details: {
-        gameType: 6,
-        eventId: parentPreviousFight.event.eventId,
-        // winnerName: findIndexInPlayer(getPlayerName(winningSide)),
-        // loserName: findIndexInPlayer(getPlayerName(winningSide == 1 ? 0 : 1)),
-      },
-    };
+  // const onParentCancel = () => {
+  //   setParentWinningSide(-1);
+  //   setIsParentConfirmModalOpen(false);
+  // };
+  // const onParentConfirm = async () => {
+  //   setIsLoadingWithScreen(true);
+  //   const request = {
+  //     fightId: parentPreviousFight.fight.fightId,
+  //     winSide: parentWinningSide,
+  //     details: {
+  //       gameType: 6,
+  //       eventId: parentPreviousFight.event.eventId,
+  //       // winnerName: findIndexInPlayer(getPlayerName(winningSide)),
+  //       // loserName: findIndexInPlayer(getPlayerName(winningSide == 1 ? 0 : 1)),
+  //     },
+  //   };
 
-    await localAxios
-      .post("/api/event/fight/result", request)
-      .then(() => {
-        setErrorMessage("");
-        getEventInDb(selectedEvent);
-        setIsParentModalOpen(false);
-        // alert("Successfully Saved");
-        // refreshFight()
-      })
-      .catch((e) => {
-        const errorMessages = e.response.data.error;
-        if (errorMessages) {
-          if (errorMessages["Not found"]) {
-            setErrorMessage(errorMessages["Not found"][0]);
-          } else if (errorMessages["Bad request"]) {
-            setErrorMessage(errorMessages["Bad request"][0]);
-          } else if (errorMessages["Unexpexted Error"]) {
-            setErrorMessage(errorMessages["Unexpexted Error"][0]);
-          } else {
-            setErrorMessage("Oops! something went wrong");
-          }
-        } else {
-          setErrorMessage("Oops! something went wrong");
-        }
-      })
-      .finally(() => {
-        onParentCancel();
-        refreshFight(true);
-        setIsLoadingWithScreen(false);
-      });
-  };
+  //   await localAxios
+  //     .post("/api/event/fight/result", request)
+  //     .then(() => {
+  //       setErrorMessage("");
+  //       getEventInDb(selectedEvent);
+  //       setIsParentModalOpen(false);
+  //       // alert("Successfully Saved");
+  //       // refreshFight()
+  //     })
+  //     .catch((e) => {
+  //       const errorMessages = e.response.data.error;
+  //       if (errorMessages) {
+  //         if (errorMessages["Not found"]) {
+  //           setErrorMessage(errorMessages["Not found"][0]);
+  //         } else if (errorMessages["Bad request"]) {
+  //           setErrorMessage(errorMessages["Bad request"][0]);
+  //         } else if (errorMessages["Unexpexted Error"]) {
+  //           setErrorMessage(errorMessages["Unexpexted Error"][0]);
+  //         } else {
+  //           setErrorMessage("Oops! something went wrong");
+  //         }
+  //       } else {
+  //         setErrorMessage("Oops! something went wrong");
+  //       }
+  //     })
+  //     .finally(() => {
+  //       onParentCancel();
+  //       refreshFight(true);
+  //       setIsLoadingWithScreen(false);
+  //     });
+  // };
 
   const getEventInDb = async (item: any) => {
     await localAxios
@@ -743,7 +744,7 @@ const Fight = () => {
     await localAxios
       .post("/api/event/fight/setStatus", request)
       .then(() => {
-        setParentStatus(status, gameData.fight.fightNum);
+        // setParentStatus(status, gameData.fight.fightNum);
         refreshFight(status == 21);
         setIsFightStatusModalOpen(false);
       })
@@ -778,7 +779,7 @@ const Fight = () => {
       .post("/api/event/fight/setStatus", request)
       .then(() => {
         // alert("Successfully Saved");
-        setParentStatus(fightStatusCode, gameData.fight.fightNum);
+        // setParentStatus(fightStatusCode, gameData.fight.fightNum);
         refreshFight(fightStatusCode == 21);
         setIsFightStatusModalOpen(false);
       })
@@ -1168,13 +1169,13 @@ const Fight = () => {
         </div>
       </Modal>
 
-      <Modal size="medium" isOpen={isParentModalOpen} onClose={() => {}}>
+      {/* <Modal size="medium" isOpen={isParentModalOpen} onClose={() => {}}>
         <ParentGameResult
           setWinSide={setParentWinSide}
           eventData={parentEvent}
           fightNum={gameData?.fight?.fightNum}
         ></ParentGameResult>
-      </Modal>
+      </Modal> */}
 
       {isCreateAnotherGame && (
         <Modal
@@ -1210,14 +1211,14 @@ const Fight = () => {
                 value={playerNames.player1FirstName}
               />
               {selectedEventDet?.gameType == 2 && (
-                  <FormField
-                    name="meron-breed"
-                    label=""
-                    placeholder="Enter Name 2"
-                    type="text"
-                    value={playerNames.player1LastName}
-                  />
-                )}
+                <FormField
+                  name="meron-breed"
+                  label=""
+                  placeholder="Enter Name 2"
+                  type="text"
+                  value={playerNames.player1LastName}
+                />
+              )}
               <input hidden value={0} name="wala-side" />
               <input hidden name="wala-id" />
               <FormField
@@ -1228,14 +1229,14 @@ const Fight = () => {
                 value={playerNames.player2FirstName}
               />
               {selectedEventDet?.gameType == 2 && (
-                  <FormField
-                    name="wala-breed"
-                    label=""
-                    placeholder="Enter Name 2"
-                    type="text"
-                    value={playerNames.player2LastName}
-                  />
-                )}
+                <FormField
+                  name="wala-breed"
+                  label=""
+                  placeholder="Enter Name 2"
+                  type="text"
+                  value={playerNames.player2LastName}
+                />
+              )}
             </div>
             <br />
             <div className="justify-self-end">
@@ -1334,12 +1335,12 @@ const Fight = () => {
         message="Are you sure you want to set Result?"
       ></ConfirmationModal>
 
-      <ConfirmationModal
+      {/* <ConfirmationModal
         isOpen={isParentConfirmModalOpen}
         onCancel={onParentCancel}
         onConfirm={onParentConfirm}
         message="Are you sure you want to set Result (Parent)?"
-      ></ConfirmationModal>
+      ></ConfirmationModal> */}
 
       {isLoadingWithScreen && (
         <LoadingSpinner size="w-20 h-20" color="border-blue" />

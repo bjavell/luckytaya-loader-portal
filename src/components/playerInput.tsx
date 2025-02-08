@@ -256,7 +256,7 @@ export default function PlayerInput({ gameType, data }: any) {
     return (
       <React.Fragment>
         <div className="grid grid-cols-2 grid-rows-16 gap-4">
-          {Array.from({ length: 16 }, (_, index) => index + 1).map((num) =>
+          {Array.from({ length: 32 }, (_, index) => index + 1).map((num) =>
             players(num)
           )}
         </div>

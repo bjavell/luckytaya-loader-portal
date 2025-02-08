@@ -35,11 +35,11 @@ const MeronWala = ({ player, type, data, parent ,isPulaAsul = true }: any) => {
             ></div>}
             {title}
           </div>
-          {!isJsonObjectEmpty(parent) && (
+          {/* {!isJsonObjectEmpty(parent) && (
             <div className="">
               Bet : {getSafeData(parent, `s${type}a`)} <br />
             </div>
-          )}
+          )} */}
         </div>
         <div className="col card rounded-[20] ">
           <br />

@@ -50,7 +50,7 @@ const POST = async (req: NextRequest) => {
 
       if (eventDetails.gameType == 6) {
         let currentPlayer = 0;
-        for (let index = 1; index < 9; index++) {
+        for (let index = 1; index < 17; index++) {
           const player1 = `player${currentPlayer + 1}`;
           const player2 = `player${currentPlayer + 2}`;
           const gameRequest = {
@@ -100,7 +100,7 @@ const POST = async (req: NextRequest) => {
         if (parentEvent) {
           let currentPlayer = 0;
           let gameNumber = 0;
-          for (let index = 1; index < 9; index++) {
+          for (let index = 1; index < 17; index++) {
             const player1 = `player${currentPlayer + 1}`;
             const player2 = `player${currentPlayer + 2}`;
             for (let i = 0; i < 3; i++) {
@@ -217,7 +217,7 @@ const POST = async (req: NextRequest) => {
             childFights = childFights.data;
           } catch (error: any) {}
           let currentPlayer = 0;
-          for (let index = 1; index < 9; index++) {
+          for (let index = 1; index < 17; index++) {
             const currentFight = fights.find(
               (x: any) => x.fight.fightNum == index
             );

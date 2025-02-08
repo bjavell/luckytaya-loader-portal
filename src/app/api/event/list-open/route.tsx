@@ -40,11 +40,11 @@ const GET = async (req: NextRequest) => {
       const eventInDB = await findOne(DB_COLLECTIONS.EVENTS, {
         eventId: { $eq: parseInt(element.eventId) },
       });
-      if(eventInDB){
-        if(eventInDB.gameType == 6){
-          removeEvents.push(element.eventId)
-        }
-      }
+      // if(eventInDB){
+      //   if(eventInDB.gameType == 6){
+      //     removeEvents.push(element.eventId)
+      //   }
+      // }
     }
 
     data = data.filter((x:any)=> !removeEvents.includes(x.eventId));

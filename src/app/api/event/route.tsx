@@ -227,7 +227,7 @@ const POST = async (req: NextRequest) => {
 
               const dbPlayer1 = fightDetails.find((x: any) => x.side == 1);
               const dbPlayer2 = fightDetails.find((x: any) => x.side == 0);
-
+              if(fight.fightStatusCode != 10) continue;
               if (player1 != dbPlayer1?.owner || player2 != dbPlayer2?.owner) {
                 dbPlayer1.owner = player1;
                 dbPlayer2.owner = player2;
@@ -238,6 +238,7 @@ const POST = async (req: NextRequest) => {
                 };
 
                 try {
+                  
                   await createUpdateGame(
                     fightGameRequest,
                     currentSession.token,
@@ -253,7 +254,6 @@ const POST = async (req: NextRequest) => {
                   const childFight = childFights.find(
                     (xx: any) => xx.fight.fightNum == x
                   );
-                  console.log(start,end)
                   if (childFight) {
                     const {
                       fight: chldFight,
@@ -291,6 +291,7 @@ const POST = async (req: NextRequest) => {
           }
         }
 
+        console.log(eventStatusRequest,'eventSTatus222------')
         const eventDetails = request.details
           ? Object.assign({}, request.details)
           : {};
@@ -318,7 +319,7 @@ const POST = async (req: NextRequest) => {
             correlationId
           );
         }
-
+        console.log(eventStatusRequest,'eventSTatus555------')
         await luckTayaAxios.put(
           `/api/v1/SabongEvent/UpdateStatus`,
           eventStatusRequest,
@@ -445,6 +446,7 @@ const POST = async (req: NextRequest) => {
     logResponse = { message: "Successfully Logged In!" };
     return NextResponse.json({ message: "Successfully Logged In!" });
   } catch (e: any) {
+    console.log(e,'eventSTatus999------')
     logger.error(api, {
       correlationId,
       error: e.message,
@@ -483,9 +485,10 @@ const cancelFights = async (
   for (let index = 0; index < fights.length; index++) {
     const element = fights[index];
     const request = {
-      fightId: element.fightId,
-      fightStatusCode: element.fightStatusCode == 10 ? "20" : "21",
+      fightId: element.fight.fightId,
+      fightStatusCode: element.fight.fightStatusCode == 10 ? 20 : 21,
     };
+    if(element.fightStatusCode == 22 || element.fightStatusCode == 22) continue;
     requests.push(fightRequest(url, request, token, correlation));
   }
   try {

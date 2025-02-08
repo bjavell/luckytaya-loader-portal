@@ -58,8 +58,6 @@ const POST = async (req: NextRequest) => {
                 })
             }
         }
-
-        console.log(responseData, 'hello')
         await setSession(responseData)
         logResponse = { 'message': 'Successfully Verified!' }
         return NextResponse.json(logResponse)

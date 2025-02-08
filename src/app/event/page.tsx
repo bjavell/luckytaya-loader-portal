@@ -161,6 +161,8 @@ const Event = () => {
     await localAxios
       .get(`/api/event/by-id?eventId=${item.eventId}`)
       .then((response) => {
+
+        delete response.data.eventStatusCode;
         setSelectedEvent({ ...item, ...response.data });
       })
       .catch(() => {
@@ -242,6 +244,7 @@ const Event = () => {
       setErrorMessage("Please Select Date");
       return;
     }
+    
     const request = {
       eventId: form.eventId.value,
       venueId: form.venueId.value,

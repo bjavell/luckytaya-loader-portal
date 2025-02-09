@@ -27,27 +27,27 @@ const GET = async (req: NextRequest) => {
       },
     });
 
-    let data = response.data.sort((a: any, b: any) => {
+    const data = response.data.sort((a: any, b: any) => {
       const bDate = new Date(b.eventDate);
       const aDate = new Date(a.eventDate);
       return bDate.getTime() - aDate.getTime();
     });
 
-    const removeEvents: number[] = [];
-    for (let index = 0; index < data.length; index++) {
-      const element = data[index];
+    // const removeEvents: number[] = [];
+    // for (let index = 0; index < data.length; index++) {
+    //   const element = data[index];
       
-      const eventInDB = await findOne(DB_COLLECTIONS.EVENTS, {
-        eventId: { $eq: parseInt(element.eventId) },
-      });
-      // if(eventInDB){
-      //   if(eventInDB.gameType == 6){
-      //     removeEvents.push(element.eventId)
-      //   }
-      // }
-    }
+    //   const eventInDB = await findOne(DB_COLLECTIONS.EVENTS, {
+    //     eventId: { $eq: parseInt(element.eventId) },
+    //   });
+    //   // if(eventInDB){
+    //   //   if(eventInDB.gameType == 6){
+    //   //     removeEvents.push(element.eventId)
+    //   //   }
+    //   // }
+    // }
 
-    data = data.filter((x:any)=> !removeEvents.includes(x.eventId));
+    // data = data.filter((x:any)=> !removeEvents.includes(x.eventId));
 
     logResponse = data
     return NextResponse.json(data);

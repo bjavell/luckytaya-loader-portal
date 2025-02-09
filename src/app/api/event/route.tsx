@@ -11,7 +11,7 @@ import { transferFromMaster } from "@/common/transaction";
 
 const POST = async (req: NextRequest) => {
   const api = "POST EVENT";
-  let correlationId: string | null = '';
+  let correlationId: string | null = "";
   let logRequest;
   let logResponse;
   let status = 200;
@@ -43,46 +43,148 @@ const POST = async (req: NextRequest) => {
 
       const dbResult = await insert(DB_COLLECTIONS.EVENTS, {
         eventId: response.data.eventId,
+        eventName: response.data.eventName,
         ...eventDetails,
+        ...request,
       });
 
-      const gameRequest = {
-        fight: {
-          fightNum: "1",
-          eventId: response.data.eventId,
-        },
-        fightDetails: [
-          {
-            id: "",
-            side: 1,
-            owner: eventDetails.player1 ?? "",
-            breed: eventDetails.player1Other ?? "",
-            weight: "",
-            tag: "",
-            imageBase64: "",
-            operatorId: 0,
-          },
-          {
-            id: "",
-            side: 0,
-            owner: eventDetails.player2 ?? "",
-            breed: eventDetails.player2Other ?? "",
-            weight: "",
-            tag: "",
-            imageBase64: "",
-            operatorId: 0,
-          },
-        ],
-      };
+      if (eventDetails.gameType == 6) {
+        let currentPlayer = 0;
+        for (let index = 1; index < 17; index++) {
+          const player1 = `player${currentPlayer + 1}`;
+          const player2 = `player${currentPlayer + 2}`;
+          const gameRequest = {
+            fight: {
+              fightNum: index.toString(),
+              eventId: response.data.eventId,
+            },
+            fightDetails: [
+              {
+                id: "",
+                side: 1,
+                owner: eventDetails[player1] ?? "",
+                breed: "",
+                weight: "",
+                tag: "",
+                imageBase64: "",
+                operatorId: 0,
+              },
+              {
+                id: "",
+                side: 0,
+                owner: eventDetails[player2] ?? "",
+                breed: "",
+                weight: "",
+                tag: "",
+                imageBase64: "",
+                operatorId: 0,
+              },
+            ],
+          };
 
-      try {
-        const resgame = await createGame(
-          gameRequest,
-          currentSession.token,
-          currentSession.userId,
-          correlationId
-        );
-      } catch (error: any) {
+          try {
+            const resgame = await createUpdateGame(
+              gameRequest,
+              currentSession.token,
+              currentSession.userId,
+              correlationId
+            );
+          } catch (error: any) {}
+
+          currentPlayer += 2;
+        }
+      } else if (eventDetails.gameType == 7) {
+        const parentEvent = await findOne(DB_COLLECTIONS.EVENTS, {
+          eventId: { $eq: parseInt(eventDetails.parentEventId) },
+        });
+        if (parentEvent) {
+          let currentPlayer = 0;
+          let gameNumber = 0;
+          for (let index = 1; index < 17; index++) {
+            const player1 = `player${currentPlayer + 1}`;
+            const player2 = `player${currentPlayer + 2}`;
+            for (let i = 0; i < 3; i++) {
+              gameNumber += 1;
+              const gameRequest = {
+                fight: {
+                  fightNum: gameNumber.toString(),
+                  eventId: response.data.eventId,
+                },
+                fightDetails: [
+                  {
+                    id: "",
+                    side: 1,
+                    owner: parentEvent[player1] ?? "",
+                    breed: "",
+                    weight: "",
+                    tag: "",
+                    imageBase64: "",
+                    operatorId: 0,
+                  },
+                  {
+                    id: "",
+                    side: 0,
+                    owner: parentEvent[player2] ?? "",
+                    breed: "",
+                    weight: "",
+                    tag: "",
+                    imageBase64: "",
+                    operatorId: 0,
+                  },
+                ],
+              };
+
+              try {
+                const resgame = await createUpdateGame(
+                  gameRequest,
+                  currentSession.token,
+                  currentSession.userId,
+                  correlationId
+                );
+              } catch (error: any) {}
+            }
+
+            currentPlayer += 2;
+          }
+        }
+      } else {
+        const gameRequest = {
+          fight: {
+            fightNum: "1",
+            eventId: response.data.eventId,
+          },
+          fightDetails: [
+            {
+              id: "",
+              side: 1,
+              owner: eventDetails.player1 ?? "",
+              breed: eventDetails.player1Other ?? "",
+              weight: "",
+              tag: "",
+              imageBase64: "",
+              operatorId: 0,
+            },
+            {
+              id: "",
+              side: 0,
+              owner: eventDetails.player2 ?? "",
+              breed: eventDetails.player2Other ?? "",
+              weight: "",
+              tag: "",
+              imageBase64: "",
+              operatorId: 0,
+            },
+          ],
+        };
+
+        try {
+          const resgame = await createUpdateGame(
+            gameRequest,
+            currentSession.token,
+            currentSession.userId,
+            correlationId
+          );
+        } catch (error: any) {}
       }
     } else {
       const copyRequest = JSON.parse(JSON.stringify(request));
@@ -100,14 +202,104 @@ const POST = async (req: NextRequest) => {
       const previousData = await findOne(DB_COLLECTIONS.EVENTS, query);
 
       if (previousData) {
+        if (previousData.gameType == 6) {
+          const childData = await findOne(DB_COLLECTIONS.EVENTS, {
+            parentEventId: { $eq: previousData.eventId.toString() },
+          });
+          let childFights: any;
+          try {
+            
+            childFights = await getFightByEventId(
+              childData?.eventId,
+              currentSession.token,
+              correlationId
+            );
+            childFights = childFights.data;
+          } catch (error: any) {}
+          let currentPlayer = 0;
+          for (let index = 1; index < 17; index++) {
+            const currentFight = fights.find(
+              (x: any) => x.fight.fightNum == index
+            );
+            if (currentFight) {
+              const { fight, fightDetails } = currentFight;
+              const player1 = request?.details[`player${currentPlayer + 1}`];
+              const player2 = request?.details[`player${currentPlayer + 2}`];
+
+              const dbPlayer1 = fightDetails.find((x: any) => x.side == 1);
+              const dbPlayer2 = fightDetails.find((x: any) => x.side == 0);
+              if (player1 != dbPlayer1?.owner || player2 != dbPlayer2?.owner) {
+                dbPlayer1.owner = player1;
+                dbPlayer2.owner = player2;
+
+                const fightGameRequest = {
+                  fight,
+                  fightDetails: [dbPlayer1, dbPlayer2],
+                };
+
+                try {
+                  
+                  await createUpdateGame(
+                    fightGameRequest,
+                    currentSession.token,
+                    currentSession.userId,
+                    correlationId
+                  );
+                } catch (error: any) {
+                  console.log(error.response.data, "parent");
+                }
+                const start = ((index * 3) - 3) + 1
+                const end = start + 3;
+                for (let x = start; x < end; x++) {
+                  const childFight = childFights.find(
+                    (xx: any) => xx.fight.fightNum == x
+                  );
+                  if (childFight) {
+                    const {
+                      fight: chldFight,
+                      fightDetails: childFightDetails,
+                    } = childFight;
+
+                    const dbPlayer1 = childFightDetails.find(
+                      (x: any) => x.side == 1
+                    );
+                    const dbPlayer2 = childFightDetails.find(
+                      (x: any) => x.side == 0
+                    );
+                    dbPlayer1.owner = player1;
+                    dbPlayer2.owner = player2;
+                    const fightGameChildRequest = {
+                      fight: chldFight,
+                      fightDetails: [dbPlayer1, dbPlayer2],
+                    };
+
+                    try {
+                      await createUpdateGame(
+                        fightGameChildRequest,
+                        currentSession.token,
+                        currentSession.userId,
+                        correlationId
+                      );
+                    } catch (error: any) {
+                      console.log(error.response.data, "child");
+                    }
+                  }
+                }
+              }
+            }
+            currentPlayer += 2;
+          }
+        }
         const eventDetails = request.details
           ? Object.assign({}, request.details)
           : {};
         await update(DB_COLLECTIONS.EVENTS, query, {
           ...previousData,
           ...eventDetails,
+          ...request,
         });
       }
+
       if (request.eventStatusCode == 10 || request.eventStatusCode == 11)
         response = await luckTayaAxios.put(`/api/v1/SabongEvent/V2`, request, {
           headers: {
@@ -125,7 +317,6 @@ const POST = async (req: NextRequest) => {
             correlationId
           );
         }
-        
         await luckTayaAxios.put(
           `/api/v1/SabongEvent/UpdateStatus`,
           eventStatusRequest,
@@ -137,60 +328,113 @@ const POST = async (req: NextRequest) => {
           }
         );
 
-
         if (eventStatusRequest.eventStatusCode === 12) {
-
-          const config = await findOne(DB_COLLECTIONS.CONFIG, { code: 'CFG0001' })
+          const config = await findOne(DB_COLLECTIONS.CONFIG, {
+            code: "CFG0001",
+          });
           if (config) {
-            const getBetSummarryResponse = await luckTayaAxios.get('api/v1/xAccountTransaction/GetTransByAcctNumByEventIdSummary', {
-              headers: {
-                "X-Correlation-ID": correlationId,
-                Authorization: `Bearer ${currentSession.token}`,
-              },
-              params: {
-                accountNumber: config.operatorAccountNumber,
-                eventId: parseInt(copyRequest.eventId)
+            const getBetSummarryResponse = await luckTayaAxios.get(
+              "api/v1/xAccountTransaction/GetTransByAcctNumByEventIdSummary",
+              {
+                headers: {
+                  "X-Correlation-ID": correlationId,
+                  Authorization: `Bearer ${currentSession.token}`,
+                },
+                params: {
+                  accountNumber: config.operatorAccountNumber,
+                  eventId: parseInt(copyRequest.eventId),
+                },
               }
-            });
+            );
 
             const getBetSummaryResponseData = getBetSummarryResponse.data;
 
-            const bets = getBetSummaryResponseData.find((e: any) => e.transTypeDesc === 'Bet');
-            const sales = getBetSummaryResponseData.find((e: any) => e.transTypeDesc === 'Win');
-            const draw = getBetSummaryResponseData.find((e: any) => e.transTypeDesc === 'Draw');
-            const cancelled = getBetSummaryResponseData.find((e: any) => e.transTypeDesc === 'Cancelled');
-            
-            const totalSales = (bets?.amount || 0) - (sales?.amount || 0) - (draw?.amount || 0) - (cancelled?.amount || 0);
+            const bets = getBetSummaryResponseData.find(
+              (e: any) => e.transTypeDesc === "Bet"
+            );
+            const sales = getBetSummaryResponseData.find(
+              (e: any) => e.transTypeDesc === "Win"
+            );
+            const draw = getBetSummaryResponseData.find(
+              (e: any) => e.transTypeDesc === "Draw"
+            );
+            const cancelled = getBetSummaryResponseData.find(
+              (e: any) => e.transTypeDesc === "Cancelled"
+            );
 
-            const maCommission = (totalSales * config.masterAgentCommision).toFixed(2)
-            const agentCommission = (parseFloat(maCommission) * config.agentCommission).toFixed(2)
+            //  const totalSales = (bets?.amount || 0) - (sales?.amount || 0) - (draw?.amount || 0) - (cancelled?.amount || 0);
 
-            console.log(maCommission, agentCommission);
+            const totalSales =
+              (bets?.amount || 0) -
+              (sales?.amount || 0) -
+              (draw?.amount || 0) -
+              (cancelled?.amount || 0);
 
-            const allMaAgents = await findAll(DB_COLLECTIONS.TAYA_AGENTS, { 'request.accountType': '3' })
+            const maCommission = (
+              totalSales * config.masterAgentCommision
+            ).toFixed(2);
+            const agentCommission = (
+              parseFloat(maCommission) * config.agentCommission
+            ).toFixed(2);
 
-            const allMaAgentsAccount = allMaAgents.map((e: any) => e.response.accountNumber)
+            const commissions = {
+              agentCommission: agentCommission,
+              maCommission: maCommission,
+            };
 
-            const allAgentsAccount = await Promise.all(allMaAgentsAccount.map(async (e: any) => {
+            const prevData = await findOne(DB_COLLECTIONS.EVENTS, query);
+            await update(DB_COLLECTIONS.EVENTS, query, {
+              ...prevData,
+              commissions,
+              totalSales: totalSales.toFixed(2),
+            });
 
-              const agentsUnderMaAccount = await findAll(DB_COLLECTIONS.TAYA_AGENTS, { 'request.masterAgentAccountNumber': String(e) })
+            const allMaAgents = await findAll(DB_COLLECTIONS.TAYA_AGENTS, {
+              "request.accountType": "3",
+            });
 
-              return agentsUnderMaAccount.map((e: any) => e.response.accountNumber)
-            }))
+            const allMaAgentsAccount = allMaAgents.map(
+              (e: any) => e.response.accountNumber
+            );
+
+            const allAgentsAccount = await Promise.all(
+              allMaAgentsAccount.map(async (e: any) => {
+                const agentsUnderMaAccount = await findAll(
+                  DB_COLLECTIONS.TAYA_AGENTS,
+                  { "request.masterAgentAccountNumber": String(e) }
+                );
+
+                return agentsUnderMaAccount.map(
+                  (e: any) => e.response.accountNumber
+                );
+              })
+            );
 
             const allTransfers = [
               ...allMaAgentsAccount.map((e: any) => ({
-              amount: parseFloat(maCommission),
-              account: e,
+                amount: parseFloat(maCommission),
+                account: e,
               })),
               ...allAgentsAccount.flat().map((d: any) => ({
-              amount: parseFloat(agentCommission),
-              account: d,
+                amount: parseFloat(agentCommission),
+                account: d,
               })),
             ];
 
             for (const transfer of allTransfers) {
-              await transferFromMaster(transfer.amount, transfer.account, correlationId);
+              try {
+                await transferFromMaster(
+                  transfer.amount,
+                  transfer.account,
+                  correlationId
+                );
+              } catch (error: any) {
+                logger.error(api, {
+                  correlationId,
+                  error: error.message,
+                  errorStack: error.stack,
+                });
+              }
             }
           }
         }
@@ -237,9 +481,10 @@ const cancelFights = async (
   for (let index = 0; index < fights.length; index++) {
     const element = fights[index];
     const request = {
-      fightId: element.fightId,
-      fightStatusCode: element.fightStatusCode == 10 ? "20" : "21",
+      fightId: element.fight.fightId,
+      fightStatusCode: element.fight.fightStatusCode == 10 ? 20 : 21,
     };
+    if(element.fightStatusCode == 22 || element.fightStatusCode == 22) continue;
     requests.push(fightRequest(url, request, token, correlation));
   }
   try {
@@ -271,7 +516,7 @@ const fightRequest = async (
   });
 };
 
-const createGame = (
+const createUpdateGame = (
   request: any,
   token: string,
   userId: string,
@@ -281,7 +526,23 @@ const createGame = (
     headers: {
       "X-Correlation-ID": correlationId,
       Authorization: `Bearer ${token}`,
-      "UserId": userId
+      UserId: userId,
+    },
+  });
+};
+
+const getFightByEventId = (
+  eventId: any,
+  token: string,
+  correlationId: string | null
+) => {
+  return luckTayaMainAxios.get(`/api/event/fight`, {
+    params: {
+      eventId,
+    },
+    headers: {
+      "X-Correlation-ID": correlationId,
+      Authorization: `Bearer ${token}`,
     },
   });
 };

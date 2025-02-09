@@ -3,6 +3,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { luckTayaAxios } from "@/util/axiosUtil";
 import { formatGenericErrorResponse } from "@/util/commonResponse";
 import logger from "@/lib/logger";
+import { findOne } from "@/util/dbUtil";
+import { DB_COLLECTIONS } from "@/classes/constants";
 
 const GET = async (req: NextRequest) => {
   const api = "GET OPEN EVENT LIST"
@@ -30,6 +32,23 @@ const GET = async (req: NextRequest) => {
       const aDate = new Date(a.eventDate);
       return bDate.getTime() - aDate.getTime();
     });
+
+    // const removeEvents: number[] = [];
+    // for (let index = 0; index < data.length; index++) {
+    //   const element = data[index];
+      
+    //   const eventInDB = await findOne(DB_COLLECTIONS.EVENTS, {
+    //     eventId: { $eq: parseInt(element.eventId) },
+    //   });
+    //   // if(eventInDB){
+    //   //   if(eventInDB.gameType == 6){
+    //   //     removeEvents.push(element.eventId)
+    //   //   }
+    //   // }
+    // }
+
+    // data = data.filter((x:any)=> !removeEvents.includes(x.eventId));
+
     logResponse = data
     return NextResponse.json(data);
   } catch (e: any) {

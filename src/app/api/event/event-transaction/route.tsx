@@ -4,6 +4,8 @@ import { luckTayaAxios } from "@/util/axiosUtil";
 import { formatGenericErrorResponse } from "@/util/commonResponse";
 import axios from "axios";
 import logger from "@/lib/logger";
+import { DB_COLLECTIONS } from "@/classes/constants";
+import { findOne } from "@/util/dbUtil";
 
 const GET = async (req: NextRequest) => {
   const api = "GET EVENT TRANSACTION"
@@ -66,6 +68,12 @@ const GET = async (req: NextRequest) => {
         if (wala) {
           data[index].wala = `${wala.owner} ${wala.breed}`;
         }
+      }
+
+      const userData = await findOne(DB_COLLECTIONS.TAYA_USERS, { 'accountNumber': data[index].accountNumber })
+      data[index].playerName = ''
+      if (userData) {
+        data[index].playerName = `${userData.firstname} ${userData.lastname}`;
       }
     }
 

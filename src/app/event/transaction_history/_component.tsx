@@ -2,16 +2,9 @@
 
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { format, formatDate, getDate } from "date-fns";
-import MeronWala from "@/components/meronWala";
-import Button from "@/components/button";
-import Modal from "@/components/modal";
-import MeronWalaWin from "@/components/meronWalaWin";
+import { formatDate } from "date-fns";
 import { useWebSocketContext } from "@/context/webSocketContext";
-import ConfirmationModal from "@/components/confirmationModal";
 import LoadingSpinner from "@/components/loadingSpinner";
-import Form from "@/components/form";
-import FormField from "@/components/formField";
 import Tables from "@/components/tables";
 import { formatDynamicNumber, formatMoney } from "@/util/textUtil";
 import { localAxios } from "@/util/localAxiosUtil";
@@ -146,7 +139,7 @@ const TransactionHistory = () => {
         >
           {events.map((item, index): any => {
             return (
-              <option key={`option-${index}`} value={index}>                
+              <option key={`option-${index}`} value={index}>
                 {formatDate(item.eventDate, "MM/dd/yyyy")} - {item.eventName} -{" "}
                 {eventStatus(item.eventStatusCode)}
               </option>
@@ -204,9 +197,17 @@ const TransactionHistory = () => {
               {
                 key: "accountNumber",
                 label: "Account Number",
-                format: (val:string)=> {
-                  return formatDynamicNumber(val)
-                }
+
+                customValue: (item) => {
+                  return (
+                    <>
+                      {item.playerName}
+                      <br />
+                      {formatDynamicNumber(item.accountNumber)}
+                    </>
+                  );
+                  // spliitedVal[0] + ' | ' + formatAccountNumber
+                },
               },
               {
                 key: "fightNum",

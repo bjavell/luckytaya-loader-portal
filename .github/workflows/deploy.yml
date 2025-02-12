@@ -20,6 +20,9 @@ jobs:
     - run: |
         echo "Checking location"
         ls
+        cd ..
+        ls
+        cd ..
         cd /home/dev/luckytaya-loader-portal
         git pull origin dev
         npm install

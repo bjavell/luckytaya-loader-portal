@@ -16,7 +16,7 @@ jobs:
     - name: Set up SSH for Backoffice
       uses: webfactory/ssh-agent@v0.5.3
       with:
-        ssh-private-key: ${{ secrets.GITHUB_DEPLOY_KEY }}
+        ssh-private-key: ${{ secrets.LUCKY_TAYA_DEV }}
 
     - name: Deploy to Backoffice
       run: |
@@ -39,7 +39,7 @@ jobs:
     - name: Set up SSH for Admin
       uses: webfactory/ssh-agent@v0.5.3
       with:
-        ssh-private-key: ${{ secrets.GITHUB_DEPLOY_KEY }}
+        ssh-private-key: ${{ secrets.LUCKY_TAYA_DEV }}
 
     - name: Deploy to Admin
       run: |

@@ -20,7 +20,9 @@ jobs:
 
     - name: Deploy to Backoffice
       run: |
-        which pm2
+        ssh -T -v -o StrictHostKeyChecking=no dev@136.158.92.61 << 'EOF'
+          which pm2
+        EOF
         
       # npm install
       # npm run build:agent

@@ -18,7 +18,8 @@ jobs:
       with:
         ssh-private-key: ${{ secrets.LUCKY_TAYA_DEV }}  # Ensure this secret is defined in your repository settings
     - run: |
-        echo "Checking SSH connection..."
+        echo "Checking location"
+        ls
         cd /home/dev/luckytaya-loader-portal
         git pull origin dev
         npm install

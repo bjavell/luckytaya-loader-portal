@@ -11,27 +11,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Set up SSH for Backoffice
-      uses: webfactory/ssh-agent@v0.5.3
+      uses: webfactory/ssh-agent@v0.9.0
       with:
-        ssh-private-key: ${{ secrets.LUCKY_TAYA_DEV }}
-
-    - name: Debug SSH Agent (List Loaded Keys)
-      run: |
-        ssh-add -L
-
-    - name: Deploy to Backoffice
-      run: |
+        ssh-private-key: ${{ secrets.LUCKY_TAYA_DEV }}  # Ensure this secret is defined in your repository settings
+    - run: |
         echo "Checking SSH connection..."
-        ssh -T -v -o StrictHostKeyChecking=no dev@136.158.92.61 << 'EOF'
-          cd /home/dev/luckytaya-loader-portal
-          git pull origin dev
-          npm install
-          npm run build:agent
-          pm2 restart luckytaya-backoffice
-        EOF
+        cd /home/dev/luckytaya-loader-portal
+        git pull origin dev
+        npm install
+        npm run build:agent
+        pm2 restart luckytaya-backoffice
 
   # Job 2: Deploy to Admin
   deploy-admin:
@@ -45,14 +37,10 @@ jobs:
       uses: webfactory/ssh-agent@v0.5.3
       with:
         ssh-private-key: ${{ secrets.LUCKY_TAYA_DEV }}
-
-    - name: Deploy to Admin
-      run: |
+    - run: |
         echo "Checking SSH connection..."
-        ssh -T -v -o StrictHostKeyChecking=no dev@136.158.92.61 << 'EOF'
-          cd /home/dev/luckytaya-admin-portal/luckytaya-loader-portal
-          git pull origin dev
-          npm install
-          npm run build:admin
-          pm2 restart luckytaya-admin
-        EOF
+        cd /home/dev/luckytaya-loader-portal
+        git pull origin dev
+        npm install
+        npm run build:admin
+        pm2 restart luckytaya-admin

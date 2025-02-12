@@ -37,4 +37,4 @@ jobs:
           npm install
           npm run build:admin
           pm2 restart luckytaya-admin
-        EOF
+        EOF 

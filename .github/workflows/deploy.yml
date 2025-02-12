@@ -29,11 +29,11 @@ jobs:
         EOF
 
     - name: Deploy to Admin
-    run: |
-      ssh -o StrictHostKeyChecking=dev@136.158.92.61 << 'EOF'
-        cd /home/dev/luckytaya-admin-portal/luckytaya-loader-portal
-        git pull origin dev
-        npm install
-        npm run build:admin
-        pm2 restart luckytaya-admin
-      EOF
+      run: |
+        ssh -o StrictHostKeyChecking=dev@136.158.92.61 << 'EOF'
+          cd /home/dev/luckytaya-admin-portal/luckytaya-loader-portal
+          git pull origin dev
+          npm install
+          npm run build:admin
+          pm2 restart luckytaya-admin
+        EOF

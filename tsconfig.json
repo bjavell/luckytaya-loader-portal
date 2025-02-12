@@ -32,9 +32,10 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
+    "backofficebuild/types/**/*.ts",
     "build/types/**/*.ts",
     "next-env.d.ts",
-    "backofficebuild/types/**/*.ts"
+    "adminbuild/types/**/*.ts"
   ],
   "exclude": [
     "node_modules"

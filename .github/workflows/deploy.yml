@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - dev  # Deploy on push to main branch (adjust if necessary)
+  workflow_dispatch:  # Deploy manually
 
 jobs:
   deploy:

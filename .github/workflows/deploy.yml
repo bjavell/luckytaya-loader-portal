@@ -23,7 +23,7 @@ jobs:
         npm install
         npm run build:agent
         cp -r public backofficebuild/standalone && cp -r backofficebuild/static backofficebuild/standalone/static
-        sudo pm2 restart luckytaya-backoffice
+        sudo /usr/bin/pm2 restart luckytaya-backoffice
 
 
 

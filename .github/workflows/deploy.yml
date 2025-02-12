@@ -25,7 +25,7 @@ jobs:
     - name: Deploy to Backoffice
       run: |
         echo "Checking SSH connection..."
-        ssh -T -v -o StrictHostKeyChecking=no dev@136.158.92.61 << 'EOF'
+        ssh -T -v -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa dev@136.158.92.61 << 'EOF'
           cd /home/dev/luckytaya-loader-portal
           git pull origin dev
           npm install

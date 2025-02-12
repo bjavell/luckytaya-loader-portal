@@ -17,6 +17,10 @@ jobs:
       uses: webfactory/ssh-agent@v0.5.3
       with:
         ssh-private-key: ${{ secrets.LUCKY_TAYA_DEV }}
+        
+    - name: Debug SSH Agent (List Loaded Keys)
+      run: |
+        ssh-add -L
 
     - name: Deploy to Backoffice
       run: |

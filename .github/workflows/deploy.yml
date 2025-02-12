@@ -64,4 +64,4 @@ jobs:
           git pull origin dev
           npm install --silent
           npm run build:agent --silent
-          echo ${{secrets.SERVERPASS}} | sudo -S pm2 restart luckytaya-backoffice
+          echo ${{secrets.SERVERPASS}} | sudo -S pm2 restart luckytaya-admin

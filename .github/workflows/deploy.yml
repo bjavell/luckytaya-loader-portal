@@ -3,25 +3,24 @@ name: Deploy to VPS
 on:
   push:
     branches:
-      - dev  # Deploy on push to main branch (adjust if necessary)
-  workflow_dispatch:  # Deploy manually
+      - dev  # Deploy on push to dev branch (adjust as necessary)
 
 jobs:
-  deploy:
+  # Job 1: Deploy to Backoffice
+  deploy-backoffice:
     runs-on: ubuntu-latest
-    
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    - name: Set up SSH
+    - name: Set up SSH for Backoffice
       uses: webfactory/ssh-agent@v0.5.3
       with:
-        ssh-private-key: ${{ secrets.LUCKY_TAYA_DEV }}
+        ssh-private-key: ${{ secrets.GITHUB_DEPLOY_KEY }}
 
     - name: Deploy to Backoffice
       run: |
-        ssh -o StrictHostKeyChecking=dev@136.158.92.61 << 'EOF'
+        ssh -o StrictHostKeyChecking=no dev@136.158.92.61 << 'EOF'
           cd /home/dev/luckytaya-loader-portal
           git pull origin dev
           npm install
@@ -29,12 +28,25 @@ jobs:
           pm2 restart luckytaya-backoffice
         EOF
 
+  # Job 2: Deploy to Admin
+  deploy-admin:
+    runs-on: ubuntu-latest
+    needs: deploy-backoffice  # This ensures this job runs after 'deploy-backoffice'
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up SSH for Admin
+      uses: webfactory/ssh-agent@v0.5.3
+      with:
+        ssh-private-key: ${{ secrets.GITHUB_DEPLOY_KEY }}
+
     - name: Deploy to Admin
       run: |
-        ssh -o StrictHostKeyChecking=dev@136.158.92.61 << 'EOF'
+        ssh -o StrictHostKeyChecking=no dev@136.158.92.61 << 'EOF'
           cd /home/dev/luckytaya-admin-portal/luckytaya-loader-portal
           git pull origin dev
           npm install
           npm run build:admin
           pm2 restart luckytaya-admin
-        EOF 
+        EOF

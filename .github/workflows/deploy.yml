@@ -20,7 +20,7 @@ jobs:
 
     - name: Deploy to Backoffice
       run: |
-        ssh -o StrictHostKeyChecking=no dev@136.158.92.61 << 'EOF'
+        ssh -v -o StrictHostKeyChecking=no dev@136.158.92.61 << 'EOF'
           cd /home/dev/luckytaya-loader-portal
           git pull origin dev
           npm install
@@ -43,7 +43,7 @@ jobs:
 
     - name: Deploy to Admin
       run: |
-        ssh -o StrictHostKeyChecking=no dev@136.158.92.61 << 'EOF'
+        ssh -v -o StrictHostKeyChecking=no dev@136.158.92.61 << 'EOF'
           cd /home/dev/luckytaya-admin-portal/luckytaya-loader-portal
           git pull origin dev
           npm install

@@ -35,4 +35,5 @@ jobs:
           git pull origin dev
           npm install --silent
           npm run build:agent --silent
-          pm2 restart luckytaya-backoffice
+          cp -r public backofficebuild/standalone && cp -r backofficebuild/static backofficebuild/standalone/static
+          sudo pm2 restart luckytaya-backoffice

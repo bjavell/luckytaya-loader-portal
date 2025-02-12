@@ -32,6 +32,6 @@ jobs:
           echo "Checking SSH connection..."
           cd /home/dev/luckytaya-loader-portal
           git pull origin dev
-          npm install
-          npm run build:agent
+          npm install --silent
+          npm run build:agent --silent
           pm2 restart luckytaya-backoffice

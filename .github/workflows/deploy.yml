@@ -1,6 +1,7 @@
 name: Deploy to VPS
 
 on:
+  workflow_dispatch:  # Deploy manually
   push:
     branches:
       - dev  # Deploy on push to dev branch (adjust as necessary)

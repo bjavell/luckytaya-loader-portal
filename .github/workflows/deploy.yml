@@ -1,0 +1,39 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches:
+      - dev  # Deploy on push to main branch (adjust if necessary)
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up SSH
+      uses: webfactory/ssh-agent@v0.5.3
+      with:
+        ssh-private-key: ${{ secrets.LUCKY_TAYA_DEV }}
+
+    - name: Deploy to Backoffice
+      run: |
+        ssh -o StrictHostKeyChecking=dev@136.158.92.61 << 'EOF'
+          cd /home/dev/luckytaya-loader-portal
+          git pull origin dev
+          npm install
+          npm run build:agent
+          pm2 restart luckytaya-backoffice
+        EOF
+
+    - name: Deploy to Admin
+    run: |
+      ssh -o StrictHostKeyChecking=dev@136.158.92.61 << 'EOF'
+        cd /home/dev/luckytaya-admin-portal/luckytaya-loader-portal
+        git pull origin dev
+        npm install
+        npm run build:admin
+        pm2 restart luckytaya-admin
+      EOF

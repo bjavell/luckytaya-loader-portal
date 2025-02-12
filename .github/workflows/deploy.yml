@@ -20,10 +20,12 @@ jobs:
 
     - name: Deploy to Backoffice
       run: |
-        npm install
-        npm run build:agent
-        cp -r public backofficebuild/standalone && cp -r backofficebuild/static backofficebuild/standalone/static
-        sudo /usr/bin/pm2 restart luckytaya-backoffice
+        which pm2
+        
+      # npm install
+      # npm run build:agent
+      # cp -r public backofficebuild/standalone && cp -r backofficebuild/static backofficebuild/standalone/static
+      # sudo /usr/bin/pm2 restart luckytaya-backoffice
 
 
 

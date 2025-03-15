@@ -1,6 +1,6 @@
 "use server";
 import { NextRequest, NextResponse } from "next/server";
-import { luckTayaAxios, luckTayaMainAxios } from "@/util/axiosUtil";
+import { luckTayaAxios, luckTayaMainAxios, otsEngine } from "@/util/axiosUtil";
 import { formatGenericErrorResponse } from "@/util/commonResponse";
 import { getCurrentSession } from "@/context/auth";
 import logger from "@/lib/logger";
@@ -25,7 +25,7 @@ const POST = async (req: NextRequest) => {
     const currentSession = await getCurrentSession();
     const fights = request.fights;
     delete request.fights;
-    request.venueId = parseInt(request.venueId);
+    // request.venueId = parseInt(request.venueId);
     let response;
     if (!request.eventId) {
       delete request.eventId;
@@ -34,16 +34,27 @@ const POST = async (req: NextRequest) => {
         ? Object.assign({}, request.details)
         : {};
       delete request.details;
-      response = await luckTayaAxios.post(`/api/v1/SabongEvent/V2`, request, {
+        
+      response = await otsEngine.post(`${process.env.OTS_GAME_URL}/game/event/add`, request, {
         headers: {
-          "X-Correlation-ID": correlationId,
-          Authorization: `Bearer ${currentSession.token}`,
-        },
+          'X-Correlation-ID': correlationId
+        }
       });
 
+      if(!response.data.success) {
+        throw new Error(response.data.errors.message);
+      } 
+
+
+      // response = await luckTayaAxios.post(`/api/v1/SabongEvent/V2`, request, {
+      //   headers: {
+      //     "X-Correlation-ID": correlationId,
+      //     Authorization: `Bearer ${currentSession.token}`,
+      //   },
+      // });
+
       const dbResult = await insert(DB_COLLECTIONS.EVENTS, {
-        eventId: response.data.eventId,
-        eventName: response.data.eventName,
+        eventId: response.data.data.eventId,
         ...eventDetails,
         ...request,
       });
@@ -148,34 +159,53 @@ const POST = async (req: NextRequest) => {
           }
         }
       } else {
+
         const gameRequest = {
-          fight: {
-            fightNum: "1",
-            eventId: response.data.eventId,
-          },
-          fightDetails: [
+          eventId: response.data.data.eventId,
+          venueId: request.venueId,
+          type: eventDetails.gameType,
+          players: [
             {
-              id: "",
+              id: 1,
               side: 1,
-              owner: eventDetails.player1 ?? "",
-              breed: eventDetails.player1Other ?? "",
-              weight: "",
-              tag: "",
-              imageBase64: "",
-              operatorId: 0,
+              
             },
             {
-              id: "",
-              side: 0,
-              owner: eventDetails.player2 ?? "",
-              breed: eventDetails.player2Other ?? "",
-              weight: "",
-              tag: "",
-              imageBase64: "",
-              operatorId: 0,
-            },
-          ],
-        };
+              id: 2,
+              side: 2,
+              
+            }
+          ]
+        }
+
+        // const gameRequest = {
+        //   fight: {
+        //     fightNum: "1",
+        //     eventId: response.data.eventId,
+        //   },
+        //   fightDetails: [
+        //     {
+        //       id: "",
+        //       side: 1,
+        //       owner: eventDetails.player1 ?? "",
+        //       breed: eventDetails.player1Other ?? "",
+        //       weight: "",
+        //       tag: "",
+        //       imageBase64: "",
+        //       operatorId: 0,
+        //     },
+        //     {
+        //       id: "",
+        //       side: 0,
+        //       owner: eventDetails.player2 ?? "",
+        //       breed: eventDetails.player2Other ?? "",
+        //       weight: "",
+        //       tag: "",
+        //       imageBase64: "",
+        //       operatorId: 0,
+        //     },
+        //   ],
+        // };
 
         try {
           const resgame = await createUpdateGame(
@@ -184,21 +214,25 @@ const POST = async (req: NextRequest) => {
             currentSession.userId,
             correlationId
           );
-        } catch (error: any) {}
+        } catch (error: any) {
+
+          console.log(error)
+
+        }
       }
     } else {
       const copyRequest = JSON.parse(JSON.stringify(request));
-      request.eventId = parseInt(request.eventId);
-      request.venueId = parseInt(request.venueId);
-      request.eventStatusCode = parseInt(request.eventStatusCode);
+      request.eventId = request.eventId;
+      request.venueId = request.venueId
+      // request.eventStatusCode = parseInt(request.eventStatusCode);
 
       delete request.eventStatusCodeNew;
       const eventStatusRequest = {
-        eventId: parseInt(copyRequest.eventId),
-        eventStatusCode: parseInt(copyRequest.eventStatusCodeNew),
+        eventId: copyRequest.eventId,
+        eventStatusCode: copyRequest.eventStatusCodeNew,
       };
 
-      const query = { eventId: parseInt(copyRequest.eventId) };
+      const query = { eventId: copyRequest.eventId };
       const previousData = await findOne(DB_COLLECTIONS.EVENTS, query);
 
       if (previousData) {
@@ -317,16 +351,27 @@ const POST = async (req: NextRequest) => {
             correlationId
           );
         }
-        await luckTayaAxios.put(
-          `/api/v1/SabongEvent/UpdateStatus`,
-          eventStatusRequest,
-          {
-            headers: {
-              "X-Correlation-ID": correlationId,
-              Authorization: `Bearer ${currentSession.token}`,
-            },
+
+        await otsEngine.post(`${process.env.OTS_GAME_URL}/game/event/update`, {
+          eventId: eventStatusRequest.eventId,
+          status: "Open"
+        }, {
+          headers: {
+            'X-Correlation-ID': correlationId
           }
-        );
+        });
+
+
+        // await luckTayaAxios.put(
+        //   `/api/v1/SabongEvent/UpdateStatus`,
+        //   eventStatusRequest,
+        //   {
+        //     headers: {
+        //       "X-Correlation-ID": correlationId,
+        //       Authorization: `Bearer ${currentSession.token}`,
+        //     },
+        //   }
+        // );
 
         if (eventStatusRequest.eventStatusCode === 12) {
           const config = await findOne(DB_COLLECTIONS.CONFIG, {
@@ -516,19 +561,29 @@ const fightRequest = async (
   });
 };
 
-const createUpdateGame = (
+const createUpdateGame = async (
   request: any,
   token: string,
   userId: string,
   correlationId: string | null
 ) => {
-  return luckTayaMainAxios.post("/api/event/fight", request, {
+  // return luckTayaMainAxios.post("/api/event/fight", request, {
+  //   headers: {
+  //     "X-Correlation-ID": correlationId,
+  //     Authorization: `Bearer ${token}`,
+  //     UserId: userId,
+  //   },
+  // });
+
+
+  const response = await otsEngine.post(`${process.env.OTS_GAME_URL}/game/add`, request, {
     headers: {
-      "X-Correlation-ID": correlationId,
-      Authorization: `Bearer ${token}`,
-      UserId: userId,
-    },
+      'X-Correlation-ID': correlationId
+    }
   });
+
+
+  return response
 };
 
 const getFightByEventId = (

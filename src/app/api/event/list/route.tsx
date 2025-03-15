@@ -1,12 +1,12 @@
 import { getCurrentSession } from "@/context/auth";
 import { NextRequest, NextResponse } from "next/server";
-import { luckTayaAxios } from "@/util/axiosUtil";
+import { luckTayaAxios, otsEngine } from "@/util/axiosUtil";
 import { formatGenericErrorResponse } from "@/util/commonResponse";
 import logger from "@/lib/logger";
 
 const GET = async (req: NextRequest) => {
   const api = "GET EVENT LIST"
-  let correlationId
+  let correlationId: string | null = null;
   let logRequest
   let logResponse
   let status = 200
@@ -18,14 +18,50 @@ const GET = async (req: NextRequest) => {
     //     dateTimeFrom: req.nextUrl.searchParams.get('startDate'),
     //     dateTimeTo: req.nextUrl.searchParams.get('endDate'),
     // }
-    const response = await luckTayaAxios.get(`/api/v1/SabongEvent/V2`, {
+
+
+    const response = await otsEngine.get(`${process.env.OTS_GAME_URL}/game/event/all`, {
       headers: {
-        'X-Correlation-ID': correlationId,
-        Authorization: `Bearer ${currentSession.token}`,
+        'X-Correlation-ID': correlationId
       },
     });
 
-    const data = response.data.sort((a: any, b: any) => {
+
+    // const response = await luckTayaAxios.get(`/api/v1/SabongEvent/V2`, {
+    //   headers: {
+    //     'X-Correlation-ID': correlationId,
+    //     Authorization: `Bearer ${currentSession.token}`,
+    //   },
+    // });
+
+    const updatedResponse = await Promise.all(response.data.data.event.map(async (event: any) => {
+      try {
+
+        const venueResponse = await otsEngine.get(`${process.env.OTS_GAME_URL}/game/venue`, {
+          headers: {
+            'X-Correlation-ID': correlationId
+          },
+          params:{
+            venueId: event.venueId
+          }
+        });
+        console.log(venueResponse.data)
+  
+        return {
+          ...event,
+          venueName: venueResponse.data.data.venueName
+        }
+      } catch (e){
+        console.log('error',e)
+        return {
+          ...event,
+          venueName: 'N/A'
+        }
+      }
+    }))
+
+
+    const data = updatedResponse.sort((a: any, b: any) => {
       const bDate = new Date(b.eventDate);
       const aDate = new Date(a.eventDate);
       return bDate.getTime() - aDate.getTime();

@@ -1,6 +1,6 @@
 import { getCurrentSession } from "@/context/auth";
 import { NextRequest, NextResponse } from "next/server";
-import { luckTayaAxios } from "@/util/axiosUtil";
+import { luckTayaAxios, otsEngine } from "@/util/axiosUtil";
 import { formatGenericErrorResponse } from "@/util/commonResponse";
 import logger from "@/lib/logger";
 
@@ -12,14 +12,27 @@ const GET = async (req: NextRequest) => {
   let status = 200
   try {
     correlationId = req.headers.get('x-correlation-id');
-    const currentSession = await getCurrentSession();
-    const response = await luckTayaAxios.get(`/api/v1/SabongVenue`, {
+
+    
+
+    const response = await otsEngine.get(`${process.env.OTS_GAME_URL}/game/venue/all`, {
       headers: {
-        'X-Correlation-ID': correlationId,
-        Authorization: `Bearer ${currentSession.token}`,
+        'X-Correlation-ID': correlationId
       },
     });
-    const data = response.data.filter((x:any)=>x.venueId >= 10 && x.venueId <=21)
+
+    const data = response.data.data.venue
+
+
+
+    // const currentSession = await getCurrentSession();
+    // const response = await luckTayaAxios.get(`/api/v1/SabongVenue`, {
+    //   headers: {
+    //     'X-Correlation-ID': correlationId,
+    //     Authorization: `Bearer ${currentSession.token}`,
+    //   },
+    // });
+    // const data = response.data.filter((x:any)=>x.venueId >= 10 && x.venueId <=21)
     logResponse = data
     return NextResponse.json(data);
   } catch (e: any) {

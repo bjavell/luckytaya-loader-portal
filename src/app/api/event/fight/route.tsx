@@ -1,10 +1,11 @@
 "use server";
 import { NextRequest, NextResponse } from "next/server";
-import { luckTayaAxios } from "@/util/axiosUtil";
+import { luckTayaAxios, otsEngine } from "@/util/axiosUtil";
 import { formatGenericErrorResponse } from "@/util/commonResponse";
 import { getCurrentSession } from "@/context/auth";
 import axios from "axios";
 import logger from "@/lib/logger";
+import { fi } from "date-fns/locale";
 
 const GET = async (req: NextRequest) => {
   const api = "GET EVENT FIGHT";
@@ -25,18 +26,30 @@ const GET = async (req: NextRequest) => {
         eventId,
       },
     };
-    const response = await luckTayaAxios.get(
-      `/api/v1/SabongFight/WithDetailsByEventIdV2/${eventId}`,
-      {
-        headers: {
-          "X-Correlation-ID": correlationId,
-          Authorization: `${token}`,
-        },
+    
+
+    const response = await otsEngine.get(`${process.env.OTS_GAME_URL}/game/all`,{
+      headers: {
+        'X-Correlation-ID': correlationId
+      },
+      params: {
+        eventId: eventId
       }
-    );
-    const data = response.data.sort((a: any, b: any) => {
-      const bDate = new Date(b.fight.entryDateTime);
-      const aDate = new Date(a.fight.entryDateTime);
+    });
+
+
+    // const response = await luckTayaAxios.get(
+    //   `/api/v1/SabongFight/WithDetailsByEventIdV2/${eventId}`,
+    //   {
+    //     headers: {
+    //       "X-Correlation-ID": correlationId,
+    //       Authorization: `${token}`,
+    //     },
+    //   }
+    // );
+    const data = response.data.data.games.sort((a: any, b: any) => {
+      const bDate = new Date(b.createdDate);
+      const aDate = new Date(a.createdDate);
       return bDate.getTime() - aDate.getTime();
     });
 
@@ -97,23 +110,51 @@ const POST = async (req: NextRequest) => {
       fight,
     };
     correlationId = req.headers.get("x-correlation-id");
-    fight.eventId = parseInt(fight.eventId);
-    fight.fightNum = parseInt(fight.fightNum);
+    fight.eventId = fight.eventId;
+    fight.fightNum = fight.fightNum;
     if (fight.fightId && fight.fightId != 0) {
-      fight.fightId = parseInt(fight.fightId);
-      fightResult = await luckTayaAxios.put(`/api/v1/SabongFight`, fight, {
-        headers: {
-          "X-Correlation-ID": correlationId,
-          Authorization: `${token}`,
-        },
-      });
+      fight.fightId = fight.fightId;
+
+      
+
+      fightResult = await otsEngine.post(`${process.env.OTS_GAME_URL}/game/add`,
+      {
+        eventId: fight.eventId,
+        gameNumber: fight.fightNum,
+
+      },
+      
+      {
+      headers: {
+        'X-Correlation-ID': correlationId
+      }
+    });
+      // fightResult = await luckTayaAxios.put(`/api/v1/SabongFight`, fight, {
+      //   headers: {
+      //     "X-Correlation-ID": correlationId,
+      //     Authorization: `${token}`,
+      //   },
+      // });
     } else {
-      fightResult = await luckTayaAxios.post(`/api/v1/SabongFight`, fight, {
-        headers: {
-          "X-Correlation-ID": correlationId,
-          Authorization: `${token}`,
+
+      fightResult = await otsEngine.post(`${process.env.OTS_GAME_URL}/game/add`,
+        {
+          eventId: fight.eventId,
+          venueId: fight.venueId,
+          gameNumber: fight.fightNum,
+          players: fightDetails
         },
-      });
+        {
+        headers: {
+          'X-Correlation-ID': correlationId
+        }})
+
+      // fightResult = await luckTayaAxios.post(`/api/v1/SabongFight`, fight, {
+      //   headers: {
+      //     "X-Correlation-ID": correlationId,
+      //     Authorization: `${token}`,
+      //   },
+      // });
     }
 
     fightResult = fightResult.data;
@@ -164,12 +205,12 @@ const POST = async (req: NextRequest) => {
         delete element.id;
         delete element.imageBase64;
         element.picture = "";
-        await luckTayaAxios.post(`/api/v1/SabongFightDetail/`, element, {
-          headers: {
-            "X-Correlation-ID": correlationId,
-            Authorization: `${token}`,
-          },
-        });
+        // await luckTayaAxios.post(`/api/v1/SabongFightDetail/`, element, {
+        //   headers: {
+        //     "X-Correlation-ID": correlationId,
+        //     Authorization: `${token}`,
+        //   },
+        // });
       }
     }
     return NextResponse.json({ message: "Successfully Logged In!" });

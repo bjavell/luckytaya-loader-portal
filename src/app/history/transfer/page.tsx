@@ -83,59 +83,57 @@ const Commisson = () => {
             </Form>
             <div className="flex flex-col">
                 <Tables
-                    primaryId="id"
+                    primaryId="historyId"
                     headers={[
                         {
-                            key: 'transactionDateTime',
+                            key: 'createdDate',
                             label: 'date',
                             format: (val: string) => {
                                 const formatDate = new Date(val)
                                 return format(formatDate, 'yyyy-MM-dd hh:mm:ss a')
                             }
                         }, {
-                            key: 'transactionNumber',
+                            key: 'historyId',
                             label: 'txn id',
                             format: (val: string) => {
                                 return formatDynamicNumber(val)
                             }
                         }, {
-                            key: 'fromFullName',
-                            concatKey: ['fromAccountNumber'],
+                            key: 'otherDetails',
                             customValue: (item) => {
                                 return (
                                     <>
-                                        {item.fromFullName}
+                                        {item.otherDetails.from.firstName} {item.otherDetails.from.lastName}
                                         <br />
-                                        {formatDynamicNumber(item.fromAccountNumber)}
+                                        {formatDynamicNumber(item.fromUserId )}
                                     </>
                                 )
                                 // spliitedVal[0] + ' | ' + formatAccountNumber
                             }
                         }, {
-                            key: 'toFullName',
+                            key: 'otherDetails',
                             label: 'receiver',
                             customValue: (item) => {
                                 return (
                                     <>
-                                        {item.toFullName}
-                                        <br />
-                                        {formatDynamicNumber(item.toAccountNumber)}
+                                    {item.otherDetails.to.firstName} {item.otherDetails.to.lastName}
+                                    <br />
+                                    {formatDynamicNumber(item.toUserId )}
                                     </>
                                 )
                                 // spliitedVal[0] + ' | ' + formatAccountNumber
                             }
                         }, {
-                            key: 'amount',
+                            key: 'otherDetails',
                             label: 'amount',
                             customValueClass: 'text-semiYellow',
-                            format: (val: string) => {
-                                return formatMoney(val)
+                            format: (val: any) => {
+                                return formatMoney(val.amount)
                             }
                         }, {
-                            key: 'transactionDesc',
-                            concatKey: ['transCategoryDesc'],
-                            concatSeparator: ' ',
-                            label: 'type'
+                            key: 'otherDetails',
+                            label: 'type',
+                            
                         },
                     ]}
                     items={transactions}

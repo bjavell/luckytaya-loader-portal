@@ -96,10 +96,10 @@ const Commisson = () => {
                             key: 'historyId',
                             label: 'txn id',
                             format: (val: string) => {
-                                return formatDynamicNumber(val)
+                                return val
                             }
                         }, {
-                            key: 'otherDetails',
+                            key: 'otherDetails.from.firstName',
                             customValue: (item) => {
                                 return (
                                     <>
@@ -111,7 +111,7 @@ const Commisson = () => {
                                 // spliitedVal[0] + ' | ' + formatAccountNumber
                             }
                         }, {
-                            key: 'otherDetails',
+                            key: 'otherDetails.to.firstName',
                             label: 'receiver',
                             customValue: (item) => {
                                 return (
@@ -124,14 +124,16 @@ const Commisson = () => {
                                 // spliitedVal[0] + ' | ' + formatAccountNumber
                             }
                         }, {
-                            key: 'otherDetails',
+                            key: 'otherDetails.amount',
                             label: 'amount',
                             customValueClass: 'text-semiYellow',
                             format: (val: any) => {
-                                return formatMoney(val.amount)
+                                return formatMoney(val)
                             }
                         }, {
-                            key: 'otherDetails',
+                            key: 'transactionType',
+                            concatKey: ['otherDetails.action'],
+                            concatSeparator: ' | ',
                             label: 'type',
                             
                         },

@@ -185,7 +185,7 @@ const Players = () => {
                                         concatSeparator: ' '
                                     },
                                     {
-                                        key: 'accountNumber',
+                                        key: 'aspnetuserId',
                                         label: 'account number',
                                         format: (val:string) => {
                                             return formatDynamicNumber(val)
@@ -258,7 +258,7 @@ const Players = () => {
                                             concatSeparator: ' '
                                         },
                                         {
-                                            key: 'accountNumber',
+                                            key: 'aspnetuserId',
                                             label: 'account number',
                                             format: (val:string) => {
                                                 return formatDynamicNumber(val)
@@ -301,7 +301,7 @@ const Players = () => {
                                         concatSeparator: ' '
                                     },
                                     {
-                                        key: 'accountNumber',
+                                        key: 'aspnetuserId',
                                         label: 'account number',
                                         format: (val:string) => {
                                             return formatDynamicNumber(val)

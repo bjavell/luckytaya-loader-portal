@@ -1,7 +1,7 @@
 import { DB_COLLECTIONS } from "@/classes/constants"
 import { getCurrentSession } from "@/context/auth"
 import logger from "@/lib/logger"
-import { luckTayaAxios } from "@/util/axiosUtil"
+import { luckTayaAxios, otsEngine } from "@/util/axiosUtil"
 import { formatGenericErrorResponse } from "@/util/commonResponse"
 import { findAll, findOne } from "@/util/dbUtil"
 import { NextRequest, NextResponse } from "next/server"
@@ -9,7 +9,7 @@ import { NextRequest, NextResponse } from "next/server"
 
 const GET = async (req: NextRequest) => {
     const api = "GET USER MEMBER"
-    let correlationId
+    let correlationId: string | null = "";
     let logRequest
     let logResponse
     let status = 200
@@ -55,28 +55,64 @@ const GET = async (req: NextRequest) => {
                 //console.log(directMemberResponse.data)
                 const getAllAgentOfMasterAgents = await findAll(DB_COLLECTIONS.TAYA_AGENTS, {})
 
-                filteredDirectMemberResponse = directMemberResponse.data.map((member: any) => {
-                    const matchItem = getAllAgentOfMasterAgents.find((agent: any) => Number(agent.response.accountNumber) === Number(member.accountNumber))
-                    //console.log(matchItem)
+                filteredDirectMemberResponse = await Promise.all(directMemberResponse.data.map(async (member: any) => {
+                    const matchItem = await getAllAgentOfMasterAgents.find(async (agent: any) => Number(agent.response.accountNumber) === Number(member.accountNumber));
+                    const otsWalletResponse = await otsEngine.get(`${process.env.OTS_WALLET_URL}/wallet/balance`, {
+                        headers: {
+                            'X-Correlation-ID': correlationId
+                        },
+                        params: {
+                            userId: member.aspnetuserId
+                        }
+                    });
+
+                    member.balance = otsWalletResponse.data.data.balance;
                     if (matchItem) {
+                       
                         return {
                             ...member,
                             email: matchItem.response.email || '-'
-                        }
+                        };
                     }
                     return {
                         ...member,
                         email: '-'
-                    }
-                })
+                    };
+                }));
 
-                filteredOrphanAccounts = orphanMemberResponse.data.filter((orphanAccount: any) => orphanAccount.accountType === 3)
+                const tempFilteredOrphanAccounts = orphanMemberResponse.data.filter((orphanAccount: any) => orphanAccount.accountType === 3)
+            
+                filteredOrphanAccounts = await Promise.all(tempFilteredOrphanAccounts.map(async (orphan: any) => {
+                    const otsWalletResponse = await otsEngine.get(`${process.env.OTS_WALLET_URL}/wallet/balance`, {
+                        headers: {
+                            'X-Correlation-ID': correlationId
+                        },
+                        params: {
+                            userId: orphan.aspnetuserId
+                        }
+                    });
+
+                    orphan.balance = otsWalletResponse.data.data.balance;
+
+                    return orphan;
+                }));
             } else {
                 const getAllAgentOfMasterAgents = await findAll(DB_COLLECTIONS.TAYA_AGENTS, { 'request.masterAgentAccountNumber': String(currentSession.accountNumber) })
 
-                filteredDirectMemberResponse = directMemberResponse.data.map((member: any) => {
+                filteredDirectMemberResponse = await Promise.all(directMemberResponse.data.map(async(member: any) => {
 
-                    const matchItem = getAllAgentOfMasterAgents.find((agent: any) => agent.response.accountNumber === member.accountNumber)
+                    const matchItem = getAllAgentOfMasterAgents.find(async(agent: any) => agent.response.accountNumber === member.accountNumber)
+
+                    const otsWalletResponse = await otsEngine.get(`${process.env.OTS_WALLET_URL}/wallet/balance`, {
+                        headers: {
+                            'X-Correlation-ID': correlationId
+                        },
+                        params: {
+                            userId: member.aspnetuserId
+                        }
+                    });
+
+                    member.balance = otsWalletResponse.data.data.balance;
                     if (matchItem) {
                         return {
                             ...member,
@@ -87,11 +123,20 @@ const GET = async (req: NextRequest) => {
                         ...member,
                         email: '-'
                     }
-                })
+                }))
 
-                filteredOrphanAccounts = orphanMemberResponse.data.map((orphan: any) => {
+                filteredOrphanAccounts = await (await Promise.all(orphanMemberResponse.data.map(async (orphan: any) => {
+                    const otsWalletResponse = await otsEngine.get(`${process.env.OTS_WALLET_URL}/wallet/balance`, {
+                        headers: {
+                            'X-Correlation-ID': correlationId
+                        },
+                        params: {
+                            userId: orphan.aspnetuserId
+                        }
+                    });
 
-                    const matchItem = getAllAgentOfMasterAgents.find((agent: any) => agent.response.accountNumber === orphan.accountNumber)
+                    orphan.balance = otsWalletResponse.data.data.balance;
+                    const matchItem = getAllAgentOfMasterAgents.find(async (agent: any) => agent.response.accountNumber === orphan.accountNumber)
                     if (matchItem) {
                         return {
                             ...orphan,
@@ -102,7 +147,7 @@ const GET = async (req: NextRequest) => {
                         ...orphan,
                         email: '-'
                     }
-                })
+                })))
                     .filter((orphan: any) =>
                         getAllAgentOfMasterAgents.some((agent: any) => {
                             //console.log(orphan, agent, orphan.accountNumber === agent.response.accountNumber)

@@ -459,10 +459,12 @@ const POST = async (req: NextRequest) => {
               ...allMaAgentsAccount.map((e: any) => ({
                 amount: parseFloat(maCommission),
                 account: e,
+                userId: e.response.userId
               })),
               ...allAgentsAccount.flat().map((d: any) => ({
                 amount: parseFloat(agentCommission),
                 account: d,
+                userId: d.response.userId
               })),
             ];
 

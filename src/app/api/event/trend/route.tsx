@@ -1,6 +1,6 @@
 import { getCurrentSession } from "@/context/auth";
 import { NextRequest, NextResponse } from "next/server";
-import { luckTayaAxios } from "@/util/axiosUtil";
+import { luckTayaAxios, otsEngine } from "@/util/axiosUtil";
 import { formatGenericErrorResponse } from "@/util/commonResponse";
 import logger from "@/lib/logger";
 
@@ -17,15 +17,25 @@ const GET = async (req: NextRequest) => {
  
     const eventId = req.nextUrl.searchParams.get("eventId");
 
-    const response = await luckTayaAxios.get(`/api/v1/SabongFightResult/Trending/${eventId}`, {
+    // const response = await luckTayaAxios.get(`/api/v1/SabongFightResult/Trending/${eventId}`, {
+    //   headers: {
+    //     'X-Correlation-ID': correlationId,
+    //     Authorization: `Bearer ${currentSession.token}`,
+    //   },
+    // });
+
+    const response = await otsEngine.get(`${process.env.OTS_GAME_URL}/game/trend`, {
       headers: {
-        'X-Correlation-ID': correlationId,
-        Authorization: `Bearer ${currentSession.token}`,
+        'X-Correlation-ID': correlationId
       },
+      params: {
+        eventId
+      }
     });
 
-    logResponse = response.data
-    return NextResponse.json(response.data);
+
+    logResponse = response.data.data
+    return NextResponse.json(response.data.data);
   } catch (e: any) {
     logger.error(api, {
       correlationId,

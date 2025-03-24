@@ -1,6 +1,6 @@
 "use server";
 import { NextRequest, NextResponse } from "next/server";
-import { luckTayaAxios } from "@/util/axiosUtil";
+import { luckTayaAxios, otsEngine } from "@/util/axiosUtil";
 import { formatGenericErrorResponse } from "@/util/commonResponse";
 import { getCurrentSession } from "@/context/auth";
 import logger from "@/lib/logger";
@@ -22,16 +22,16 @@ const POST = async (req: NextRequest) => {
     };
 
     const currentSession = await getCurrentSession();
-    request.fightStatusCode = parseInt(request.fightStatusCode);
-    request.fightId = parseInt(request.fightId);
+    request.fightStatusCode = request.fightStatusCode;
+    request.fightId = request.fightId;
     // fightId: gameData.fight.fightId,
     // fightStatusCode: status,
     // parentEventId : selectedEventDet?.gameType?.parentEventId,
     // fightNum : gameData.fight.fightNum,
     // eventId : gameData.event.eventId
     const updateRequest = {
-      fightStatusCode: parseInt(request.fightStatusCode),
-      fightId: parseInt(request.fightId),
+      fightStatusCode: request.fightStatusCode,
+      fightId: request.fightId,
     };
 
     const token = currentSession
@@ -72,18 +72,38 @@ const POST = async (req: NextRequest) => {
 const setStatus = async (
   token: string,
   request: any,
-  correlationId: string
+  correlationId: string,
 ) => {
-  const response = await luckTayaAxios.put(
-    `/api/v1/SabongFight/UpdateStatus`,
-    request,
-    {
-      headers: {
-        "X-Correlation-ID": correlationId,
-        Authorization: token,
-      },
+  // const response = await luckTayaAxios.put(
+  //   `/api/v1/SabongFight/UpdateStatus`,
+  //   request,
+  //   {
+  //     headers: {
+  //       "X-Correlation-ID": correlationId,
+  //       Authorization: token,
+  //     },
+  //   }
+  // );
+
+  let url = ''
+
+  if(request.fightStatusCode  == 'Open') {
+    url = `${process.env.OTS_GAME_URL}/game/bet/open`
+  } else {
+    url = `${process.env.OTS_GAME_URL}/game/bet/close`
+  }
+
+  const response = await otsEngine.post(url, {
+    gameId: request.fightId 
+  },{
+    headers: {
+      'X-Correlation-ID': correlationId
     }
-  );
+  });
+
+
+
+
   // cancelled event
   if (request.fightStatusCode == 21) {
     await luckTayaAxios.get(

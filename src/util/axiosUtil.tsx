@@ -164,7 +164,7 @@ otsEngine.interceptors.response.use(
             uri: error.config.params,
             method: error.config.method,
             request: logRequest,
-            response: error.response.data
+            response: error.response?.data
         })
         return Promise.reject(error);
     }

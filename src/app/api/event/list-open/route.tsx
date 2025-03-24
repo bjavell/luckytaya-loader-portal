@@ -1,6 +1,6 @@
 import { getCurrentSession } from "@/context/auth";
 import { NextRequest, NextResponse } from "next/server";
-import { luckTayaAxios } from "@/util/axiosUtil";
+import { luckTayaAxios, otsEngine } from "@/util/axiosUtil";
 import { formatGenericErrorResponse } from "@/util/commonResponse";
 import logger from "@/lib/logger";
 import { findOne } from "@/util/dbUtil";
@@ -20,14 +20,22 @@ const GET = async (req: NextRequest) => {
     //     dateTimeFrom: req.nextUrl.searchParams.get('startDate'),
     //     dateTimeTo: req.nextUrl.searchParams.get('endDate'),
     // }
-    const response = await luckTayaAxios.get(`/api/v1/SabongEvent/V2/EventWithStatusOpen`, {
+    // const response = await luckTayaAxios.get(`/api/v1/SabongEvent/V2/EventWithStatusOpen`, {
+    //   headers: {
+    //     'X-Correlation-ID': correlationId,
+    //     Authorization: `Bearer ${currentSession.token}`,
+    //   },
+    // });
+
+    
+    const response = await otsEngine.get(`${process.env.OTS_GAME_URL}/game/event/all`, {
       headers: {
-        'X-Correlation-ID': correlationId,
-        Authorization: `Bearer ${currentSession.token}`,
+        'X-Correlation-ID': correlationId
       },
     });
 
-    const data = response.data.sort((a: any, b: any) => {
+
+    const data = response.data.data.event.sort((a: any, b: any) => {
       const bDate = new Date(b.eventDate);
       const aDate = new Date(a.eventDate);
       return bDate.getTime() - aDate.getTime();

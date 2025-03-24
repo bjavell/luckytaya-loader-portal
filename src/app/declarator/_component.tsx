@@ -138,7 +138,7 @@ const Fight = () => {
             break;
         }
       }
-    } catch (error) {}
+    } catch (error) { }
   }, [messages]);
 
   useEffect(() => {
@@ -154,7 +154,7 @@ const Fight = () => {
       setIsFightStatusModalOpen(false);
     }
 
-    return () => {};
+    return () => { };
   }, [isErrorMessageOpen]);
 
   const getEventStatus = (code: number): any => {
@@ -197,8 +197,8 @@ const Fight = () => {
         setLastFight(lastFight);
         setFights(data);
         if (data.length > 0) {
-          setFight(getFightWithStatus(data[0].fight));
-          setFightDetails(data[0].fightDetails);
+          setFight(data[0]);
+          setFightDetails(data[0].players);
           setIsGameAvailable(true);
         } else {
           setTimeout(() => {
@@ -207,7 +207,7 @@ const Fight = () => {
           setIsGameAvailable(false);
         }
       })
-      .catch(() => {});
+      .catch(() => { });
   };
 
   useEffect(() => {
@@ -365,7 +365,7 @@ const Fight = () => {
       fight: fight,
       venue: location.data,
       totalFight: fightList.data.length,
-      trends: trends.data,
+      trends: trends.data
     };
 
     const bet = await localAxios.get("/api/event/betDetails", {
@@ -383,16 +383,26 @@ const Fight = () => {
     if (!gameData) return;
     setIsLoadingWithScreen(true);
     if (isRefreshFight) await getFights(selectedEvent.eventId);
+    const location = await localAxios.get("/api/event/locationById", {
+      params: {
+        venueId: selectedEvent.venueId,
+      },
+    });
 
     const bet = await localAxios
       .get("/api/event/fight/byId", {
         params: {
-          fightId: gameData.fight.fightId,
+          fightId: gameData.fight.gameId,
         },
       })
       .then((response) => {
         const data = response.data;
-        setGameData(data);
+        const game = {
+          event: selectedEvent,
+          fight: data,
+          venue: location.data,
+        }
+        setGameData(game);
         if (data.length > 0) {
           setFight(getFightWithStatus(data[0].fight));
           setFightDetails(data[0].fightDetails);
@@ -417,7 +427,7 @@ const Fight = () => {
 
   useEffect(() => {
     if (selectedEvent && fight) setupGame();
-    return () => {};
+    return () => { };
   }, [selectedEvent, fight]);
 
   const closeModal = () => {
@@ -696,7 +706,7 @@ const Fight = () => {
       });
     }
 
-    return () => {};
+    return () => { };
   }, [selectedEventDet]);
 
   const handleEventChange = (e: any) => {
@@ -732,10 +742,10 @@ const Fight = () => {
     setIsCancelModalOpen(true);
   };
 
-  const onDirectSetFightStatus = async (status: number) => {
+  const onDirectSetFightStatus = async (status: string) => {
     setIsLoadingWithScreen(true);
     const request = {
-      fightId: gameData.fight.fightId,
+      fightId: gameData.fight.gameId,
       fightStatusCode: status,
       // parentEventId : selectedEventDet?.gameType?.parentEventId,
       // fightNum : gameData.fight.fightNum,
@@ -745,7 +755,7 @@ const Fight = () => {
       .post("/api/event/fight/setStatus", request)
       .then(() => {
         // setParentStatus(status, gameData.fight.fightNum);
-        refreshFight(status == 21);
+        refreshFight(status == 'Cancelled');
         setIsFightStatusModalOpen(false);
       })
       .catch((e) => {
@@ -895,7 +905,7 @@ const Fight = () => {
     if (lastFight) {
       try {
         return (parseInt(lastFight.fight.fightNum) + 1).toString();
-      } catch (error) {}
+      } catch (error) { }
     }
     return "1";
   };
@@ -957,7 +967,7 @@ const Fight = () => {
 
   const getLastGameFirstName = (side: number, lastFght: any, evnt: any) => {
     if (!isJsonObjectEmpty(lastFght)) {
-      const player = lastFght.fightDetails.find((x: any) => x.side == side);
+      const player = lastFght.players.find((x: any) => x.side == side);
       if (player) {
         if (evnt?.gameType == 4) {
           if (
@@ -977,7 +987,7 @@ const Fight = () => {
 
   const getLastGameLastName = (side: number, lastFght: any, evnt: any) => {
     if (!isJsonObjectEmpty(lastFght)) {
-      const player = lastFght.fightDetails.find((x: any) => x.side == side);
+      const player = lastFght.players.find((x: any) => x.side == side);
       if (player) {
         if (evnt?.gameType == 4) {
           if (
@@ -999,12 +1009,12 @@ const Fight = () => {
     const isDisabled = true;
     if (!isJsonObjectEmpty(gameData)) {
       if (
-        gameData.event.eventStatusCode == 11 &&
-        gameData.fight.fightStatusCode == 10
+        gameData.event.status == 'Open' &&
+        gameData.fight.status == 'Waiting'
       )
         return (
           <Button
-            onClick={() => onDirectSetFightStatus(11)}
+            onClick={() => onDirectSetFightStatus('Open')}
             isLoading={isLoading}
             loadingText="Loading..."
             type={"button"}
@@ -1013,8 +1023,8 @@ const Fight = () => {
           </Button>
         );
       else if (
-        gameData.event.eventStatusCode == 11 &&
-        gameData.fight.fightStatusCode == 11
+        gameData.event.status == 'Open' &&
+        gameData.fight.fightStatusCode == 'Open'
       ) {
         return (
           <Button
@@ -1041,12 +1051,12 @@ const Fight = () => {
     const isDisabled = true;
     if (!isJsonObjectEmpty(gameData)) {
       if (
-        gameData.event.eventStatusCode == 11 &&
-        gameData.fight.fightStatusCode == 11
+        gameData.event.status == 'Open' &&
+        gameData.fight.status == 'Open'
       )
         return (
           <Button
-            onClick={() => onDirectSetFightStatus(12)}
+            onClick={() => onDirectSetFightStatus('Close')}
             isLoading={isLoading}
             loadingText="Loading..."
             type={"button"}
@@ -1109,7 +1119,7 @@ const Fight = () => {
             {fights.map((item: any, index: any) => {
               return (
                 <option key={`option-${index}`} value={index}>
-                  {item.fight.fightNum}
+                  {item.gameNumber}
                 </option>
               );
             })}
@@ -1241,7 +1251,7 @@ const Fight = () => {
             <br />
             <div className="justify-self-end">
               <Button
-                onClick={() => {}}
+                onClick={() => { }}
                 loadingText="Loading..."
                 type={"submit"}
               >
@@ -1280,7 +1290,7 @@ const Fight = () => {
                 type="number"
               />
               <Button
-                onClick={() => {}}
+                onClick={() => { }}
                 isLoading={isLoading}
                 loadingText="Loading..."
                 type={"submit"}
@@ -1316,7 +1326,7 @@ const Fight = () => {
               />
 
               <Button
-                onClick={() => {}}
+                onClick={() => { }}
                 isLoading={isLoading}
                 loadingText="Loading..."
                 type={"submit"}

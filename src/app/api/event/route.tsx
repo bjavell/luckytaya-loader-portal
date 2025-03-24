@@ -164,15 +164,28 @@ const POST = async (req: NextRequest) => {
           eventId: response.data.data.eventId,
           venueId: request.venueId,
           type: eventDetails.gameType,
+          gameNumber: 1,
           players: [
             {
               id: 1,
               side: 1,
+              owner: eventDetails.player1 ?? "",
+              breed: eventDetails.player1Other ?? "",
+              weight: "",
+              tag: "",
+              imageBase64: "",
+              operatorId: 0,
               
             },
             {
               id: 2,
-              side: 2,
+              side: 0,
+              owner: eventDetails.player2 ?? "",
+              breed: eventDetails.player2Other ?? "",
+              weight: "",
+              tag: "",
+              imageBase64: "",
+              operatorId: 0,
               
             }
           ]

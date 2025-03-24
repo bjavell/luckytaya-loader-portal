@@ -159,7 +159,7 @@ const GameComponent: React.FC<GameComponentProps> = ({
                   <label>Total Games {gameData.totalFight}</label>
                 </div>
                 <div>
-                  <label>Game # {gameData.fight.fightNum}</label>
+                  <label>Game # {gameData.fight.gameNumber }</label>
                 </div>
               </div>
 
@@ -167,7 +167,7 @@ const GameComponent: React.FC<GameComponentProps> = ({
                 {renderEventStatusButton()}
                 <br />
                 <div className="bg-cursedBlack text-center p-3 rounded-xl">
-                  Game : {fightStatus(gameData.fight.fightStatusCode)}
+                  Game : {gameData.fight.status }
                 </div>
               </div>
             </div>

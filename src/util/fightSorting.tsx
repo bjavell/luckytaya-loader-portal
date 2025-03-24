@@ -42,9 +42,9 @@ const fightSortV2 = (
   if (isWaitingOpenOnly)
     data = data.filter(
       (x: any) =>
-        x.fight.fightStatusCode == 10 ||
-        x.fight.fightStatusCode == 11 ||
-        x.fight.fightStatusCode == 12
+        x.status == 'Waiting' ||
+        x.status == 'Open' ||
+        x.status == 'Close'
     );
 
   switch (sortBy) {
@@ -81,7 +81,7 @@ const getLastFight = (
   data: any
 ) => {
 
-  data = data.sort((a: any, b: any) => b.fight.fightNum - a.fight.fightNum);
+  data = data.sort((a: any, b: any) => b.gameNumber  - a.gameNumber );
   return data[0];
 
 };

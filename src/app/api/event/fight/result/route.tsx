@@ -1,6 +1,6 @@
 "use server";
 import { NextRequest, NextResponse } from "next/server";
-import { luckTayaAxios } from "@/util/axiosUtil";
+import { luckTayaAxios, otsEngine } from "@/util/axiosUtil";
 import { formatGenericErrorResponse } from "@/util/commonResponse";
 import { getCurrentSession } from "@/context/auth";
 import logger from "@/lib/logger";
@@ -22,32 +22,48 @@ const POST = async (req: NextRequest) => {
       ...request
     }
 
-    request.winSide = parseInt(request.winSide);
-    request.fightId = parseInt(request.fightId);
+    // request.winSide = parseInt(request.winSide);
+    // request.fightId = parseInt(request.fightId);
     const sabongRequest = {
       winSide : request.winSide,
       fightId : request.fightId
     }
-    const response = await luckTayaAxios.post(
-      `/api/v1/SabongFightResultEntry`,
-      sabongRequest,
-      {
-        headers: {
-          'X-Correlation-ID': correlationId,
-          Authorization: `Bearer ${currentSession.token}`,
-        },
-      }
-    );
+    // const response = await luckTayaAxios.post(
+    //   `/api/v1/SabongFightResultEntry`,
+    //   sabongRequest,
+    //   {
+    //     headers: {
+    //       'X-Correlation-ID': correlationId,
+    //       Authorization: `Bearer ${currentSession.token}`,
+    //     },
+    //   }
+    // );
 
-    await luckTayaAxios.get(
-      `/api/v1/SabongRemit/Remit?fightId=${request.fightId}`,
-      {
-        headers: {
-          'X-Correlation-ID': correlationId,
-          Authorization: `Bearer ${currentSession.token}`,
-        },
+    // await luckTayaAxios.get(
+    //   `/api/v1/SabongRemit/Remit?fightId=${request.fightId}`,
+    //   {
+    //     headers: {
+    //       'X-Correlation-ID': correlationId,
+    //       Authorization: `Bearer ${currentSession.token}`,
+    //     },
+    //   }
+    // );
+
+
+    const response = await otsEngine.post(`${process.env.OTS_GAME_URL}/game/declare`, {
+      gameId: request.fightId,
+      winner: Number(request.winSide)
+    }, {
+      headers: {
+        'X-Correlation-ID': correlationId
       }
-    );
+    });
+
+    if(!response.data.success) {
+      throw new Error(response.data.errors.message);
+    } 
+
+
     if(request.details.gameType == 4){
       try {
         const {details} = request;

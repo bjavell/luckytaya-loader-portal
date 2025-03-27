@@ -178,7 +178,7 @@ const POST = async (req: NextRequest) => {
               
             },
             {
-              id: 2,
+              id: 0,
               side: 0,
               owner: eventDetails.player2 ?? "",
               breed: eventDetails.player2Other ?? "",

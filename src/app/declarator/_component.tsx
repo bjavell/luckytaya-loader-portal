@@ -24,6 +24,7 @@ import Game from "@/assets/images/Game.png";
 import GameComponent from "./_gameComponent";
 import { debounce } from "lodash";
 import ParentGameResult from "./_parentGameResult";
+import { otsEngine } from "@/util/axiosUtil";
 
 type SabongEvent = {
   entryDateTime: string;
@@ -103,6 +104,33 @@ const Fight = () => {
   const [webRtcStream, setWebRtcStream] = useState(
     process.env.NEXT_PUBLIC_WEB_RTC_URL
   );
+
+  
+  const [allBets, setAllBets] = useState([])
+
+
+  useEffect(() => {
+    if(fight) {
+
+      const eventSource = new EventSource(`http://localhost:3001/bet/all/sse?gameId=${fight?.gameId}`);
+      eventSource.onmessage = function (event) {
+        const response = JSON.parse(event.data);
+        console.log(response)
+        setAllBets(response);
+      };
+      
+      
+      eventSource.onerror = function () {
+        console.error('EventSource failed.');
+        eventSource.close();
+      };
+      
+      return () => {
+        eventSource.close();
+      };
+    }
+  }, [fight])
+
 
   useEffect(() => {
     try {
@@ -192,7 +220,7 @@ const Fight = () => {
         },
       })
       .then((response) => {
-        const data = fightSortV2("fightStatusCode", response.data, true);
+        const data = fightSortV2("status", response.data, true);
         const lastFight = getLastFight(response.data);
         setLastFight(lastFight);
         setFights(data);
@@ -368,13 +396,24 @@ const Fight = () => {
       trends: trends.data
     };
 
-    const bet = await localAxios.get("/api/event/betDetails", {
-      params: {
-        fightId: fight.fightId,
-      },
-    });
+    // const bet = await localAxios.get("/api/event/betDetails", {
+    //   params: {
+    //     fightId: fight.fightId,
+    //   },
+    // });
 
-    setBetDetails(bet.data);
+
+    
+    // const response = await otsEngine.get(`${process.env.OTS_BET_URL}/all/sse`, {
+    
+    //   params: {
+    //     gameId: fight.fightId
+    //   }
+    // });
+
+    // const responData = response.data.data
+
+    // setBetDetails(responData.data);
     setGameData(game);
     setIsLoading(false);
   };
@@ -584,7 +623,7 @@ const Fight = () => {
   const onConfirm = async () => {
     setIsLoadingWithScreen(true);
     const request = {
-      fightId: gameData.fight.fightId,
+      fightId: gameData.fight.gameId ,
       winSide: winningSide,
       details: {
         gameType: selectedEventDet.gameType,
@@ -848,9 +887,11 @@ const Fight = () => {
       fight: {
         fightNum: form["fightNum"].value,
         eventId: selectedEvent.eventId,
+        venueId: selectedEvent.venueId
       },
       fightDetails: [
         {
+          id: 1,
           side: 1,
           owner: form["meron-owner"].value ?? "",
           breed: form["meron-breed"]?.value ?? "",
@@ -860,6 +901,7 @@ const Fight = () => {
           operatorId: 0,
         },
         {
+          id: 0,
           side: 0,
           owner: form["wala-owner"].value ?? "",
           breed: form["wala-breed"]?.value ?? "",
@@ -904,7 +946,7 @@ const Fight = () => {
   const getLastGameNumber = () => {
     if (lastFight) {
       try {
-        return (parseInt(lastFight.fight.fightNum) + 1).toString();
+        return (parseInt(lastFight.gameNumber ) + 1).toString();
       } catch (error) { }
     }
     return "1";
@@ -1024,7 +1066,7 @@ const Fight = () => {
         );
       else if (
         gameData.event.status == 'Open' &&
-        gameData.fight.fightStatusCode == 'Open'
+        gameData.fight.status  == 'Open'
       ) {
         return (
           <Button
@@ -1363,7 +1405,7 @@ const Fight = () => {
           setIsModalSendMessageOpen={setIsModalSendMessageOpen}
           webRtcStream={webRtcStream}
           selectedEventDet={selectedEventDet}
-          betDetails={betDetails}
+          betDetails={allBets}
           setIsModalOpen={setIsModalOpen}
           isLoading={isLoading}
           onDirectSetFightStatus={onDirectSetFightStatus}

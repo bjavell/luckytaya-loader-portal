@@ -77,8 +77,8 @@ const GameComponent: React.FC<GameComponentProps> = ({
     const isDisabled = true;
     if (gameData) {
       if (
-        gameData.event.eventStatusCode == 11 &&
-        gameData.fight.fightStatusCode == 12
+        gameData.event.status == 'Open' &&
+        gameData.fight.status == 'Close'
       )
         return (
           <Button
@@ -103,28 +103,28 @@ const GameComponent: React.FC<GameComponentProps> = ({
 
   const renderEventStatusButton = () => {
     if (gameData) {
-      if (gameData.event.eventStatusCode == 11) {
+      if (gameData.event.status == 'Open') {
         return renderResultButton();
       }
-      switch (gameData.event.eventStatusCode) {
-        case 10:
+      switch (gameData.event.status) {
+        case 'Waiting':
           <div className="bg-cursedBlack text-center p-3 rounded-xl">
             Waiting
           </div>;
 
-        case 11:
+        case 'Open':
           return (
             <div className="bg-cursedBlack text-center p-3 rounded-xl">
               Started
             </div>
           );
-        case 12:
+        case 'Close':
           return (
             <div className="bg-cursedBlack text-center p-3 rounded-xl">
               Closed
             </div>
           );
-        case 21:
+        case 'Cancelled':
           return (
             <div className="bg-cursedBlack text-center p-3 rounded-xl">
               Cancelled
@@ -199,6 +199,7 @@ const GameComponent: React.FC<GameComponentProps> = ({
           )}
           <div className="bg-gray13 rounded-xl w-full p-5 capitalize">
             <MeronWala
+            dataByPlayer={betDetails?.stats}
               player={getPlayer(1)}
               type={1}
               isPulaAsul={false}
@@ -209,6 +210,7 @@ const GameComponent: React.FC<GameComponentProps> = ({
 
           <div className="bg-gray13 rounded-xl w-full p-5 capitalize">
             <MeronWala
+            dataByPlayer={betDetails?.stats}
               player={getPlayer(0)}
               type={0}
               isPulaAsul={false}

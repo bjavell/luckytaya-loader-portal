@@ -48,16 +48,16 @@ const fightSortV2 = (
     );
 
   switch (sortBy) {
-    case "entryDateTime":
+    case "createdDate ":
       return data.sort(
         (a: any, b: any) =>
           new Date(b.fight[sortBy]).getTime() -
           new Date(a.fight[sortBy]).getTime()
       );
-    case "fightStatusCode":
+    case "status":
       return data.sort((a: any, b: any) => {
-        if (a.fight.fightStatusCode == b.fight.fightStatusCode) {
-          return a.fight.fightNum - b.fight.fightNum;
+        if (a.fight.status == b.fight.status) {
+          return a.fight.gameNumber  - b.fight.gameNumber ;
         }
 
         if (isWaitingOpenOnly)

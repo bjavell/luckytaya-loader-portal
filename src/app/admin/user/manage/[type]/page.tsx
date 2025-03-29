@@ -170,7 +170,7 @@ const Players = () => {
             onUserSearch(search, status, searchAccountType, accountStatus)
         }
 
-    }, [players])
+    }, [])
 
     const openModal = (data: any) => {
         setModalData(data)
@@ -230,7 +230,7 @@ const Players = () => {
 
     const onUserSearch = (value: string, status: string, srchAcctType: string, accountStatus: string) => {
         const filter = players.filter((player: any) => {
-            return (`${player?.firstname} ${player?.lastname}`.toUpperCase().includes(value) || String(player?.accountNumber)?.includes(value)
+            return (`${player?.firstname} ${player?.lastname}`.toUpperCase().includes(value) || String(player?.id)?.includes(value)
                 || player?.phoneNumber?.toUpperCase().includes(value) ||
                 player?.email?.toUpperCase().includes(value) ||
                 player?.username?.toUpperCase().includes(value)) &&
@@ -354,7 +354,7 @@ const Players = () => {
                                 <FormField name={"username"} value={modalData.firstname} label="Username" customLabelClass="text-xs" readonly />
                             </div>
                             <div className="flex">
-                                <FormField name={"accountNumber"} value={formatDynamicNumber(modalData.accountNumber)} label="Account Number" customLabelClass="text-xs" readonly />
+                                <FormField name={"accountNumber"} value={formatDynamicNumber(modalData.id)} label="Account Number" customLabelClass="text-xs" readonly />
                                 <FormField name={"accountBalance"} value={formatMoney(`${modalData.accountBalance}`)} label="Account Balance" customLabelClass="text-xs" readonly />
                             </div>
                             <div className="flex">
@@ -450,7 +450,7 @@ const Players = () => {
             <Modal isOpen={isShowTransactionHistoryModal} onClose={closeTransactionHistoryModal} size="large">
                 <div className="flex flex-col items-end gap-4">
                     <div className="flex w-full gap-4">
-                        <TransactionHistory reportType="player" accountNumber={modalData.accountNumber} />
+                        <TransactionHistory reportType="player" accountNumber={modalData.id} />
                     </div>
                     <div className="flex gap-4">
                         <Button
@@ -509,7 +509,7 @@ const Players = () => {
                     primaryId="accountNumber"
                     headers={[
                         {
-                            key: 'accountNumber',
+                            key: 'id',
                             label: 'account number',
                             format: (val: string) => {
                                 return formatDynamicNumber(val)

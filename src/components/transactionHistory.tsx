@@ -68,7 +68,7 @@ const TransactionHistory: NextPage<{ reportType: string, accountNumber?: number 
             if (transactionType === 'ALL') {
                 return true
             }
-            return transaction.transactionType === Number(transactionType)
+            return transaction.otherDetails.action === transactionType
         })
         setFilteredTransactions(filterTransaction)
     }, [transactions, transactionType])
@@ -102,22 +102,42 @@ const TransactionHistory: NextPage<{ reportType: string, accountNumber?: number 
         const csvRows = [
             headers.join(','), // Add header row
             ...filteredTransactions.map((transaction: any) => {
-                const formattedDate = format(new Date(transaction.transactionDateTime), 'yyyy-MM-dd hh:mm:ss a');
-                const sender = transaction.fromFullName + ' | ' + transaction.fromAccountNumber;
-                const receiver = transaction.toFullName + ' | ' + transaction.toAccountNumber;
-                const amount = transaction.amount;
+                const formattedDate = format(new Date(transaction.createdDate), 'yyyy-MM-dd hh:mm:ss a');
+                const sender = transaction.otherDetails.from.firstName + ' ' + transaction.otherDetails.from.lastName + ' | ' + transaction.fromUserId;
+                const receiver = transaction.otherDetails.to.firstName + ' ' + transaction.otherDetails.to.lastName  + ' | ' + transaction.toUserId;
+                const amount = transaction.otherDetails.amount;
                 let otherInfo = ''
 
-                if (transaction.otherInfo) {
-                    otherInfo = String(transaction.otherInfo).replaceAll('\n', ' | ')
+                // if (transaction.otherInfo) {
+                //     otherInfo = String(transaction.otherInfo).replaceAll('\n', ' | ')
+                // }
+
+                if (transaction.otherDetails) {
+                    if (transaction.otherDetails.gameId) {
+                        otherInfo = `Venue: ${transaction.game.venue.venueName} | Event: ${transaction.game.event.eventName} | Game Number: ${transaction.game.gameNumber}`
+                        if(transaction.bettedPlayer) {
+                            otherInfo += ` | Betted Player: ${transaction.bettedPlayer.owner}`
+                        } 
+                        if(transaction.winPlayer) {
+                            otherInfo += ` | Winner: ${transaction.winPlayer.owner}`
+                        }
+                        if(transaction.otherDetails.description) {
+                            otherInfo += ` | Description: ${transaction.otherDetails.description}`
+                        }
+                        otherInfo += ` | Before Balance: ${transaction.otherDetails.beforeBalance}`
+                        otherInfo += ` | After Balance: ${transaction.otherDetails.afterBalance}`
+
+                    }
                 }
+
+
                 return [
                     formattedDate,
-                    transaction.transactionNumber,
+                    transaction.historyId ,
                     sender,
                     receiver,
                     amount,
-                    transaction.transactionDesc,
+                    `${transaction.transactionType} - ${transaction.otherDetails.action}`,
                     otherInfo
                 ].join(',');
             })
@@ -194,11 +214,11 @@ const TransactionHistory: NextPage<{ reportType: string, accountNumber?: number 
                             <label htmlFor="accountType" className="text-white font-sans font-light text-nowrap">Transaction Type</label>
                             <select id="accountType" className="rounded-xlg py-4 px-4 bg-semiBlack font-sans font-light text-sm tacking-[5%] text-white" value={transactionType} onChange={(e) => setTransactionType(e.target.value)}>
                                 <option value='ALL'>Select Transaction Type</option>
-                                <option value='101'>Transfer</option>
-                                <option value='201'>Bet</option>
-                                <option value='202'>Win</option>
-                                <option value='203'>Draw</option>
-                                <option value='204'>Cancelled</option>
+                                <option value='Transfer'>Transfer</option>
+                                <option value='Bet'>Bet</option>
+                                <option value='Win'>Win</option>
+                                {/* <option value='203'>Draw</option> */}
+                                <option value='Cancelled'>Cancelled</option>
                             </select>
                         </div>
                         <FormField name="startDate" label="Start Date" placeholder="Enter Load To" value={startDate} onChange={(e) => setStartDate(e.target.value)} type="datetime-local" />

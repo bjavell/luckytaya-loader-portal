@@ -19,9 +19,13 @@ const GET = async (req: NextRequest) => {
         const reportType = req.nextUrl.searchParams.get('type')
         const accountNumber = req.nextUrl.searchParams.get('accountNumber')
 
-        const params = {
+        const params: { dateTimeFrom: string | null; dateTimeTo: string | null; userId?: string | null } = {
             dateTimeFrom: req.nextUrl.searchParams.get('startDate'),
             dateTimeTo: req.nextUrl.searchParams.get('endDate'),
+        }
+
+        if(accountNumber) {
+            params.userId = accountNumber
         }
 
         const uri = `/api/v1/xAccountTransaction/GetTransByDateV2`
@@ -48,10 +52,7 @@ const GET = async (req: NextRequest) => {
             headers: {
                 'X-Correlation-ID': correlationId
             },
-            params: {
-                dateTimeFrom: req.nextUrl.searchParams.get('startDate'),
-                dateTimeTo: req.nextUrl.searchParams.get('endDate'),
-            },
+            params
         });
 
 

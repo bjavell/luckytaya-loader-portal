@@ -69,6 +69,20 @@ function guidToNumber(): number {
     return parseInt(numericPart.substring(0, 15), 10); // Take the first 15 digits and convert to number
 }
 
+const renderNestedDetails = (val: any) => {
+    if (typeof val === 'string') {
+        return val; // If action is a string, just return it
+    }
+
+    if (typeof val === 'object') {
+        return Object.entries(val).map(([key, value]) => (
+            <div key={key}>
+                <strong>{key}:</strong> {typeof value === 'object' ? renderNestedDetails(value) : String(value || '')}
+            </div>
+        ));
+    }
+}
+
 
 
 export {
@@ -78,5 +92,6 @@ export {
     removeDecimalPlaces,
     formatDynamicNumber,
     guidToNumber,
-    formatNumber
+    formatNumber,
+    renderNestedDetails
 }

@@ -185,7 +185,7 @@ const POST = async (req: NextRequest) => {
   try {
     for (let index = 0; index < fightDetails.length; index++) {
       const element = fightDetails[index];
-      element.fightId = fightResult.fightId;
+      element.fightId = fightResult.data.gameId ;
       element.operatorId = userId;
       if (element.id) {
         element.id = parseInt(element.id);
@@ -200,7 +200,7 @@ const POST = async (req: NextRequest) => {
           },
         });
       } else {
-        element.fightId = fightResult.fightId;
+        element.fightId = fightResult.data.gameId;
         delete element.operatorId;
         delete element.id;
         delete element.imageBase64;

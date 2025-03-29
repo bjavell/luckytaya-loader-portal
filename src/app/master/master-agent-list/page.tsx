@@ -226,7 +226,7 @@ const Players = () => {
                                             </Button>
                                             <Button
                                                 onClick={() => {
-                                                    const url = `/loading-station/cash-in/masterAgent?accountNumber=${item.accountNumber}`
+                                                    const url = `/loading-station/cash-in/masterAgent?accountNumber=${item.aspnetuserId}`
                                                     router.push(url)
                                                 }}
                                                 type={"button"}

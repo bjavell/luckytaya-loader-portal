@@ -7,32 +7,33 @@ import { ACCOUNT_TYPE, DB_COLLECTIONS } from "@/classes/constants"
 import { decrypt, encrypt } from "@/util/cryptoUtil"
 
 const POST = async (req: NextRequest) => {
-    
+
     let correlationId: string | null = "";
     try {
         correlationId = req.headers.get("x-correlation-id");
         const currentSession = await getCurrentSession()
         const { amount, toAccountNumber, comFee, convFee } = await req.json()
 
-        const toAccount = await findOne(DB_COLLECTIONS.TAYA_AGENTS, { 'response.accountNumber': Number(toAccountNumber) })
+        // const toAccount = await findOne(DB_COLLECTIONS.TAYA_AGENTS, { 'response.accountNumber': Number(toAccountNumber) })
 
-        if (!toAccount) {
-            throw new Error('Account not found');
-        }
+        // if (!toAccount) {
+        //     throw new Error('Account not found');
+        // }
 
         const otsWalletResponse = await otsEngine.post(`${process.env.OTS_WALLET_URL}/wallet/transact`, {
             amount: amount,
             userId: String(currentSession.userId),
-            toUserId: String(toAccount.response.userId),
+            toUserId: String(toAccountNumber),
             type: "CREDIT",
             otherDetails: {
+                action: 'Transfer'
             }
-    
+
         }, {
             headers: {
-              'X-Correlation-ID': correlationId
+                'X-Correlation-ID': correlationId
             }
-          });
+        });
 
 
         //console.log('Agent to Player')
@@ -74,7 +75,11 @@ const POST = async (req: NextRequest) => {
         // await otherAccountTransfer(comFee, currentSession.accountNumber, config, ACCOUNT_TYPE.COMMISSION)
 
 
-        return NextResponse.json({ message: 'Successfully Cashed-In!' })
+        if (otsWalletResponse.data.success)
+            return NextResponse.json({ message: 'Successfully Cashed-In!' })
+        else {
+            throw new Error(otsWalletResponse.data.errors.message)
+        }
     } catch (e) {
         console.error(e)
         return NextResponse.json({

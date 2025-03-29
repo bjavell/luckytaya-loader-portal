@@ -6,7 +6,7 @@ import { format } from 'date-fns'
 import FormField from "@/components/formField"
 import Form from "@/components/form"
 import Button from "@/components/button"
-import { formatDynamicNumber, formatMoney } from "@/util/textUtil"
+import { formatDynamicNumber, formatMoney, renderNestedDetails } from "@/util/textUtil"
 import LoadingSpinner from "@/components/loadingSpinner"
 import { localAxios } from "@/util/localAxiosUtil"
 import { NextPage } from "next"
@@ -47,7 +47,7 @@ const TransactionHistory: NextPage<{ reportType: string, accountNumber?: number 
                 }
             })
 
-            setTransactions(response.data)
+            setTransactions(response.data.histories)
             setIndex(prevIndex => prevIndex + 1) // Update index to refresh the table
         } catch (e) {
             setTransactions([])
@@ -214,62 +214,95 @@ const TransactionHistory: NextPage<{ reportType: string, accountNumber?: number 
             <div className="flex flex-col">
                 {isLoading ? <LoadingSpinner /> :
                     <Tables
-                        primaryId="id"
+                        primaryId="historyId"
                         headers={[
                             {
-                                key: 'transactionDateTime',
+                                key: 'createdDate',
                                 label: 'date',
                                 format: (val: string) => {
                                     const formatDate = new Date(val)
                                     return format(formatDate, 'yyyy-MM-dd hh:mm:ss a')
                                 }
                             }, {
-                                key: 'transactionNumber',
+                                key: 'historyId',
                                 label: 'transaction number',
                                 format: (val: string) => {
-                                    return formatDynamicNumber(val)
+                                    return val
                                 }
                             }, {
-                                key: 'fromFullName',
+                                key: 'otherDetails.from',
                                 label: 'sender',
-                                concatKey: ['fromAccountNumber'],
                                 customValue: (item) => {
                                     return (
                                         <>
-                                            {item.fromFullName}
+                                            {item.otherDetails.from.firstName} {item.otherDetails.from.lastName}
                                             <br />
-                                            {formatDynamicNumber(item.fromAccountNumber)}
+                                            {formatDynamicNumber(item.fromUserId)}
                                         </>
                                     )
                                     // spliitedVal[0] + ' | ' + formatAccountNumber
                                 }
                             }, {
-                                key: 'toFullName',
+                                key: 'otherDetails.to',
                                 label: 'receiver',
-                                concatKey: ['toAccountNumber'],
                                 customValue: (item) => {
                                     return (
                                         <>
-                                            {item.toFullName}
+                                            {item.otherDetails.to.firstName} {item.otherDetails.to.lastName}
                                             <br />
-                                            {formatDynamicNumber(item.toAccountNumber)}
+                                            {formatDynamicNumber(item.toUserId)}
                                         </>
                                     )
                                     // spliitedVal[0] + ' | ' + formatAccountNumber
                                 }
                             }, {
-                                key: 'amount',
+                                key: 'otherDetails.amount',
                                 label: 'amount',
                                 customValueClass: 'text-semiYellow',
                                 format: (val: string) => {
                                     return formatMoney(val)
                                 }
                             }, {
-                                key: 'transactionDesc',
+                                key: 'transactionType',
+                                concatSeparator: ' - ',
+                                concatKey: ['otherDetails.action'],
                                 label: 'type'
                             }, {
-                                key: 'otherInfo',
-                                label: 'other info'
+                                key: 'otherDetails',
+                                label: 'other info',
+                                customValue: (item) => {
+                                    return <div className="text-left">
+                                        {item.otherDetails.gameId ?
+                                            <>
+                                                <strong>Game Details:</strong> <br />
+                                                &emsp;<strong>Venue:</strong> {item.game.venue.venueName} <br />
+                                                &emsp;<strong>Event:</strong> {item.game.event.eventName} <br />
+                                                &emsp;<strong>Game Number:</strong> {item.game.gameNumber}<br />
+                                                {item.bettedPlayer ?
+                                                    <>
+                                                        &emsp;<strong>Betted Player:</strong> {item.bettedPlayer.owner} <br />
+                                                    </>
+                                                    :
+                                                    ''}
+                                                {item.winPlayer ?
+                                                    <>
+                                                        &emsp;<strong>Winner:</strong> {item.winPlayer.owner} <br />
+                                                    </>
+                                                    :
+                                                    ''}
+                                            </>
+                                            : ''}
+                                        {item.otherDetails.description ?
+                                            <>
+                                                <strong>Description:</strong> {item.otherDetails.description} <br />
+                                            </>
+                                            : ''}
+                                        <strong>Before Balance:</strong> {formatMoney(item.otherDetails.beforeBalance)} <br />
+                                        <strong>After Balance:</strong> {formatMoney(item.otherDetails.afterBalance)} <br />
+
+
+                                    </div>
+                                }
                             },
                         ]}
                         items={filteredTransactions}

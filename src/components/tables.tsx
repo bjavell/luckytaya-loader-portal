@@ -93,8 +93,9 @@ const Tables = <T,>({ headers, items, primaryId, isCentered = false, onItemClick
 
         if (h.concatKey) {
             h.concatKey.forEach((concateKeyIndex: any) => {
-                if (item[concateKeyIndex] )
-                    value = `${value}${h.concatSeparator}${item[concateKeyIndex]}`
+                const concatedKey = getNestedProperty(item, concateKeyIndex)
+                if (concatedKey )
+                    value = `${value}${h.concatSeparator}${concatedKey}`
             })
         }
 

@@ -118,6 +118,8 @@ const PlayerCashin = () => {
             if (errorMessages) {
                 if (errorMessages['Bad request']) {
                     setAlertMessage(errorMessages['Bad request'][0])
+                } else if (errorMessages['Unexpected Error']) {
+                    setAlertMessage(errorMessages['Unexpected Error'][0])
                 }
             } else {
 
@@ -177,7 +179,7 @@ const PlayerCashin = () => {
                 const responseData = response.data
 
                 const filteredAgent = responseData.direct.filter((e: any) => {
-                    return Number(e.accountNumber) === Number(accountNumber.replaceAll('-', ''))
+                    return Number(e.aspnetuserId ) === Number(accountNumber.replaceAll('-', ''))
                 })
 
                 if (filteredAgent.length > 0) {

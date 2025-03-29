@@ -1,6 +1,6 @@
 import { getCurrentSession } from "@/context/auth"
 import { NextRequest, NextResponse } from "next/server"
-import { luckTayaAxios } from "@/util/axiosUtil"
+import { luckTayaAxios, otsEngine } from "@/util/axiosUtil"
 import { formatGenericErrorResponse } from "@/util/commonResponse"
 import logger from "@/lib/logger"
 import { DB_COLLECTIONS } from "@/classes/constants"
@@ -44,117 +44,163 @@ const GET = async (req: NextRequest) => {
             ...params
         }
 
-
-        const response = await luckTayaAxios.get(uri, {
-            params,
+        const otsHistoryResponse = await otsEngine.get(`${process.env.OTS_HISTORY_URL}/history`, {
             headers: {
-                'X-Correlation-ID': correlationId,
-                'Authorization': `Bearer ${currentSession.token}`,
+                'X-Correlation-ID': correlationId
             },
-        })
+            params: {
+                dateTimeFrom: req.nextUrl.searchParams.get('startDate'),
+                dateTimeTo: req.nextUrl.searchParams.get('endDate'),
+            },
+        });
 
-        const responseData = response.data
 
-        let filteredData = responseData
+        const otsHistoryResponseData = otsHistoryResponse.data.data
+        const customResponse = await {
+            histories: await Promise.all(otsHistoryResponseData.histories.map(async (otsHistory: any) => {
 
-        if (reportType === 'player') {
-            filteredData = responseData.filter((e: any) => e.fromAccountNumber === Number(accountNumber) || e.toAccountNumber === Number(accountNumber))
+                if (otsHistory.otherDetails.gameId) {
+
+                    const gameResponse = await otsEngine.get(`${process.env.OTS_GAME_URL}/game`, {
+                        headers: {
+                            'X-Correlation-ID': correlationId
+                        },
+                        params: {
+                            gameId: otsHistory.otherDetails.gameId
+                        }
+                    });
+
+                    const gameResponseData = gameResponse.data.data
+                    const bettedPlayer = gameResponseData.players.find((x: any) => x?.side === otsHistory.otherDetails.player?.side)
+                    const winPlayer = gameResponseData.players.find((x: any) => x.side === gameResponseData?.winner?.side)
+                    return {
+                        ...otsHistory,
+                        game: gameResponseData,
+                        bettedPlayer,
+                        winPlayer
+                    }
+                }
+
+
+                return otsHistory
+            }))
         }
 
-        const config = await findOne(DB_COLLECTIONS.CONFIG, { code: 'CFG0001' })
-
-        const getAllAgentPlayers = await findAll(DB_COLLECTIONS.TAYA_AGENTS, {})
-        const getAllPlayers = await findAll(DB_COLLECTIONS.TAYA_USERS, {})
-
-        const fightIds: string[] = Array.from(new Set(filteredData.map((e: any) => e.fightId).filter((id: number) => id !== 0 && id !== null && id !== undefined)))
-
-        const fightDetails = await Promise.all(fightIds.map(async (fightId: string) => {
-
-            const fightResponse = await luckTayaAxios.get(`/api/v1/SabongFight/V3/WithDetails/${fightId}`, {
-                headers: {
-                    'X-Correlation-ID': correlationId,
-                    'Authorization': `Bearer ${currentSession.token}`,
-                },
-            });
-
-            const fightResponseData = fightResponse.data
-
-            const betResponse = await luckTayaAxios.get(`/api/v1/SabongBet/GetByFightId`, {
-                params: {
-                    fightId
-                },
-                headers: {
-                    'X-Correlation-ID': correlationId,
-                    'Authorization': `Bearer ${currentSession.token}`,
-                },
-            });
-
-            const betResponseData = betResponse.data
-
-            fightResponseData.betDetails = betResponseData
-
-            if (fightResponseData.fight.fightStatusCode === 22) {
-                const fightResulst = await luckTayaAxios.get(`/api/v1/SabongFightResult/${fightId}`, {
-                    headers: {
-                        'X-Correlation-ID': correlationId,
-                        'Authorization': `Bearer ${currentSession.token}`,
-                    },
-                });
-
-                fightResponseData.fightResult = fightResulst.data
-            }
-
-            const fightDetailsDb = await findOne(DB_COLLECTIONS.GAMES, { fightId: Number(fightId) })
-
-            fightResponseData.dbDetails = fightDetailsDb
-
-            return fightResponseData;
-
-        }));
 
 
-        const customResponse = filteredData.map((e: any) => {
-
-            const fromAccount = getAccount(e.fromAccountNumber, getAllPlayers, getAllAgentPlayers, config)
-            const toAccount = getAccount(e.toAccountNumber, getAllPlayers, getAllAgentPlayers, config)
-
-            const transaction = {
-                ...e,
-                fromFullName: `${fromAccount?.response?.firstname ?? fromAccount?.firstname} ${fromAccount?.response?.lastname ?? fromAccount?.lastname}`,
-                toFullName: `${toAccount?.response?.firstname ?? toAccount?.firstname} ${toAccount?.response?.lastname ?? toAccount?.lastname}`
-            }
 
 
-            if (transaction.amount < 0) {
-                transaction.amount *= -1
-            }
+        // const response = await luckTayaAxios.get(uri, {
+        //     params,
+        //     headers: {
+        //         'X-Correlation-ID': correlationId,
+        //         'Authorization': `Bearer ${currentSession.token}`,
+        //     },
+        // })
 
-            const otherInfo = fightDetails.find((fight: any) => fight.fight.fightId === transaction.fightId)
+        // const responseData = response.data
 
-            if (otherInfo) {
-                const bet = otherInfo.betDetails.find((bet: any) => bet.transactionNumber === transaction.transactionNumber)
-                let otherInfoDesc = `Event Name: ${otherInfo.event.eventName}\nVenue Name: ${otherInfo.venue.venueName}\nGame Number: ${otherInfo.fight.fightNum}`
-                let betSide: any
+        // let filteredData = responseData
 
-                if (bet) {
-                    betSide = otherInfo.fightDetails.find((fight: any) => fight.side === bet.side)
-                    otherInfoDesc += `\nBet: ${betSide.owner}`
-                } else if (otherInfo.fightResult) {
-                    betSide = otherInfo.fightDetails.find((fight: any) => fight.side === otherInfo.fightResult.winSide)
-                    otherInfoDesc += `\nBet: ${betSide.owner}`
-                } else if (otherInfo.dbDetails) {
-                    otherInfoDesc += `\nReason: ${otherInfo.dbDetails.reason}`
-                }
-                transaction.otherInfo = otherInfoDesc
-            }
+        // if (reportType === 'player') {
+        //     filteredData = responseData.filter((e: any) => e.fromAccountNumber === Number(accountNumber) || e.toAccountNumber === Number(accountNumber))
+        // }
 
-            transaction.otherDetails = otherInfo
+        // const config = await findOne(DB_COLLECTIONS.CONFIG, { code: 'CFG0001' })
+
+        // const getAllAgentPlayers = await findAll(DB_COLLECTIONS.TAYA_AGENTS, {})
+        // const getAllPlayers = await findAll(DB_COLLECTIONS.TAYA_USERS, {})
+
+        // const fightIds: string[] = Array.from(new Set(filteredData.map((e: any) => e.fightId).filter((id: number) => id !== 0 && id !== null && id !== undefined)))
+
+        // const fightDetails = await Promise.all(fightIds.map(async (fightId: string) => {
+
+        //     const fightResponse = await luckTayaAxios.get(`/api/v1/SabongFight/V3/WithDetails/${fightId}`, {
+        //         headers: {
+        //             'X-Correlation-ID': correlationId,
+        //             'Authorization': `Bearer ${currentSession.token}`,
+        //         },
+        //     });
+
+        //     const fightResponseData = fightResponse.data
+
+        //     const betResponse = await luckTayaAxios.get(`/api/v1/SabongBet/GetByFightId`, {
+        //         params: {
+        //             fightId
+        //         },
+        //         headers: {
+        //             'X-Correlation-ID': correlationId,
+        //             'Authorization': `Bearer ${currentSession.token}`,
+        //         },
+        //     });
+
+        //     const betResponseData = betResponse.data
+
+        //     fightResponseData.betDetails = betResponseData
+
+        //     if (fightResponseData.fight.fightStatusCode === 22) {
+        //         const fightResulst = await luckTayaAxios.get(`/api/v1/SabongFightResult/${fightId}`, {
+        //             headers: {
+        //                 'X-Correlation-ID': correlationId,
+        //                 'Authorization': `Bearer ${currentSession.token}`,
+        //             },
+        //         });
+
+        //         fightResponseData.fightResult = fightResulst.data
+        //     }
+
+        //     const fightDetailsDb = await findOne(DB_COLLECTIONS.GAMES, { fightId: Number(fightId) })
+
+        //     fightResponseData.dbDetails = fightDetailsDb
+
+        //     return fightResponseData;
+
+        // }));
 
 
-            return transaction
-        }).sort((a: any, b: any) => {
-            return b.transactionNumber - a.transactionNumber
-        })
+        // const customResponse = filteredData.map((e: any) => {
+
+        //     const fromAccount = getAccount(e.fromAccountNumber, getAllPlayers, getAllAgentPlayers, config)
+        //     const toAccount = getAccount(e.toAccountNumber, getAllPlayers, getAllAgentPlayers, config)
+
+        //     const transaction = {
+        //         ...e,
+        //         fromFullName: `${fromAccount?.response?.firstname ?? fromAccount?.firstname} ${fromAccount?.response?.lastname ?? fromAccount?.lastname}`,
+        //         toFullName: `${toAccount?.response?.firstname ?? toAccount?.firstname} ${toAccount?.response?.lastname ?? toAccount?.lastname}`
+        //     }
+
+
+        //     if (transaction.amount < 0) {
+        //         transaction.amount *= -1
+        //     }
+
+        //     const otherInfo = fightDetails.find((fight: any) => fight.fight.fightId === transaction.fightId)
+
+        //     if (otherInfo) {
+        //         const bet = otherInfo.betDetails.find((bet: any) => bet.transactionNumber === transaction.transactionNumber)
+        //         let otherInfoDesc = `Event Name: ${otherInfo.event.eventName}\nVenue Name: ${otherInfo.venue.venueName}\nGame Number: ${otherInfo.fight.fightNum}`
+        //         let betSide: any
+
+        //         if (bet) {
+        //             betSide = otherInfo.fightDetails.find((fight: any) => fight.side === bet.side)
+        //             otherInfoDesc += `\nBet: ${betSide.owner}`
+        //         } else if (otherInfo.fightResult) {
+        //             betSide = otherInfo.fightDetails.find((fight: any) => fight.side === otherInfo.fightResult.winSide)
+        //             otherInfoDesc += `\nBet: ${betSide.owner}`
+        //         } else if (otherInfo.dbDetails) {
+        //             otherInfoDesc += `\nReason: ${otherInfo.dbDetails.reason}`
+        //         }
+        //         transaction.otherInfo = otherInfoDesc
+        //     }
+
+        //     transaction.otherDetails = otherInfo
+
+
+        //     return transaction
+        // }).sort((a: any, b: any) => {
+        //     return b.transactionNumber - a.transactionNumber
+        // })
+
 
         logResponse = {
             ...customResponse

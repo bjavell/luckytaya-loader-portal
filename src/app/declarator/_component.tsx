@@ -628,8 +628,8 @@ const Fight = () => {
       details: {
         gameType: selectedEventDet.gameType,
         eventId: selectedEvent.eventId,
-        winnerName: findIndexInPlayer(getPlayerName(winningSide)),
-        loserName: findIndexInPlayer(getPlayerName(winningSide == 1 ? 0 : 1)),
+        winnerName:   selectedEventDet.gameType == 4 ? findIndexInPlayer(getPlayerName(winningSide)) : getPlayerName(winningSide),
+        loserName:   selectedEventDet.gameType== 4 ? findIndexInPlayer(getPlayerName(winningSide == 1 ? 0 : 1)) : getPlayerName(winningSide == 1 ? 0 : 1),
       },
     };
 
@@ -1020,6 +1020,10 @@ const Fight = () => {
           else {
             return getNextPlayerGameType3();
           }
+        }else if (evnt?.gameType == 8){
+          var playersOrder = evnt?.players?.sort((a:any, b:any) => a.order - b.order);
+          var playerIndex = side == 1 ? 0 : 1;
+          return evnt[playersOrder[`${playerIndex}`].player]
         }
         return `${player.owner.trim()}`;
       }

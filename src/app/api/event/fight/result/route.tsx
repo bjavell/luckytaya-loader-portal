@@ -104,6 +104,31 @@ const POST = async (req: NextRequest) => {
         console.log(error, "DB RESPONSE")
       }
 
+    }else if(request.details.gameType == 8){
+      try {
+        const {details} = request;
+        const query = {eventId : {$eq : `${details.eventId}`}};
+        const event = await findOne(DB_COLLECTIONS.EVENTS,query)
+        const {winnerName,loserName} = details;
+        if(event){
+          const winnerProp = getKeyByValue(event,winnerName);
+          const loserProp = getKeyByValue(event,loserName);
+          event[`${winnerProp}Score`] = event[`${winnerProp}Score`]??0 + 1;
+          var playersOrder = event.players.sort((a:any, b:any) => a.order - b.order);
+          var loserIndex = playersOrder.findIndex((a:any)=>a.player == loserProp);
+          
+          if(loserIndex >= 0 ){
+            const loserPlayerOrder = playersOrder[loserIndex].order
+            event.players[2].order = loserPlayerOrder
+            const lastOrder = playersOrder[playersOrder.length-1].order
+            event.players[loserIndex].order = lastOrder+1;
+          }
+          const dbResponse = await update(DB_COLLECTIONS.EVENTS,query,event)
+        }
+        
+      } catch (error) {
+        console.log(error, "DB RESPONSE")
+      }
     }
 
     logResponse = { message: "Successfully Set Result!" }
@@ -135,4 +160,13 @@ const POST = async (req: NextRequest) => {
   }
 };
 
+
+function getKeyByValue(obj : any, value : any) {
+  for (const key in obj) {
+    if (obj[key] === value) {
+      return key; // returns the key when value is found
+    }
+  }
+  return null; // returns null if the value is not found
+}
 export { POST };

@@ -25,6 +25,7 @@ const POST = async (req: NextRequest) => {
     const currentSession = await getCurrentSession();
     const fights = request.fights;
     delete request.fights;
+
     // request.venueId = parseInt(request.venueId);
     let response;
     if (!request.eventId) {
@@ -33,8 +34,16 @@ const POST = async (req: NextRequest) => {
       const eventDetails = request.details
         ? Object.assign({}, request.details)
         : {};
+      const eventPlayers = [];
+      for (let index = 1; index <= 32; index++) {
+        var player = request.details[`player${index}`]
+        if(player){
+          eventPlayers.push({player : `player${index}`, order : index, score:0})
+        } 
+      }
+      request.players = eventPlayers;
+      
       delete request.details;
-        
       response = await otsEngine.post(`${process.env.OTS_GAME_URL}/game/event/add`, request, {
         headers: {
           'X-Correlation-ID': correlationId

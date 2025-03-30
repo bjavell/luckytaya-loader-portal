@@ -262,6 +262,16 @@ export default function PlayerInput({ gameType, data }: any) {
         </div>
       </React.Fragment>
     );
+  else if (gameType == 8)
+    return (
+      <React.Fragment>
+        <div className="grid grid-cols-2 grid-rows-16 gap-4">
+          {Array.from({ length: 10 }, (_, index) => index + 1).map((num) =>
+            players(num)
+          )}
+        </div>
+      </React.Fragment>
+    );
   else {
     return <></>;
   }

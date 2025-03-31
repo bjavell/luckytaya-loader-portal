@@ -4,7 +4,7 @@ module.exports = {
             name: 'luckytaya-backoffice-UAT',        // Name of your application
             script: 'npm',             // PM2 will run npm directly
             args: 'run start:agent',   // The script to run (npm run start:admin)
-            instances: 2,              // Number of clusters (can be increased dynamically)
+            instances: 1,              // Number of clusters (can be increased dynamically)
             exec_mode: 'cluster',      // Run in cluster mode
             autorestart: true,         // Automatically restart app if it crashes
             watch: false,              // Optionally enable file watching (for development)

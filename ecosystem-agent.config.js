@@ -8,7 +8,7 @@ module.exports = {
             exec_mode: 'cluster',      // Run in cluster mode
             autorestart: true,         // Automatically restart app if it crashes
             watch: false,              // Optionally enable file watching (for development)
-            max_memory_restart: '200M',  // Optionally restart app if it exceeds 1 GB of memory
+           // max_memory_restart: '200M',  // Optionally restart app if it exceeds 1 GB of memory
             env: {
                 NODE_ENV: 'development'  // Environment variables, you can add more here
             }

@@ -37,20 +37,6 @@ jobs:
           npm install --silent
           npm run build:agent --silent
           pm2 reload ecosystem-agent.config.js
-  deploy-admin:
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
-
-    - name: Set up SSH for Admin
-      uses: appleboy/ssh-action@master
-      with:
-        host: 136.158.92.61
-        username: dev
-        key: ${{ secrets.LUCKY_TAYA_DEV }}
-        port: 22
 
     - name: Deploy to Admin
       uses: appleboy/ssh-action@master
@@ -61,11 +47,11 @@ jobs:
         port: 22
         script: |
           echo "Checking SSH connection..."
-          cd /home/dev/luckytaya-admin-portal/luckytaya-loader-portal'
+          cd /home/dev/luckytaya-admin-portal/luckytaya-loader-portal
           git fetch
           git pull origin dev
           npm install --silent
           npm run build:agent --silent
           pm2 reload ecosystem-admin.config.js
-
+  
           

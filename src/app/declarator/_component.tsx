@@ -24,6 +24,7 @@ import Game from "@/assets/images/Game.png";
 import GameComponent from "./_gameComponent";
 import { debounce } from "lodash";
 import ParentGameResult from "./_parentGameResult";
+import { otsEngine } from "@/util/axiosUtil";
 
 type SabongEvent = {
   entryDateTime: string;
@@ -104,6 +105,33 @@ const Fight = () => {
     process.env.NEXT_PUBLIC_WEB_RTC_URL
   );
 
+  
+  const [allBets, setAllBets] = useState([])
+
+
+  useEffect(() => {
+    if(fight) {
+
+      const eventSource = new EventSource(`http://localhost:3001/bet/all/sse?gameId=${fight?.gameId}`);
+      eventSource.onmessage = function (event) {
+        const response = JSON.parse(event.data);
+        console.log(response)
+        setAllBets(response);
+      };
+      
+      
+      eventSource.onerror = function () {
+        console.error('EventSource failed.');
+        eventSource.close();
+      };
+      
+      return () => {
+        eventSource.close();
+      };
+    }
+  }, [fight])
+
+
   useEffect(() => {
     try {
       if (messages != null && gameData) {
@@ -138,7 +166,7 @@ const Fight = () => {
             break;
         }
       }
-    } catch (error) {}
+    } catch (error) { }
   }, [messages]);
 
   useEffect(() => {
@@ -154,7 +182,7 @@ const Fight = () => {
       setIsFightStatusModalOpen(false);
     }
 
-    return () => {};
+    return () => { };
   }, [isErrorMessageOpen]);
 
   const getEventStatus = (code: number): any => {
@@ -192,13 +220,13 @@ const Fight = () => {
         },
       })
       .then((response) => {
-        const data = fightSortV2("fightStatusCode", response.data, true);
+        const data = fightSortV2("status", response.data, true);
         const lastFight = getLastFight(response.data);
         setLastFight(lastFight);
         setFights(data);
         if (data.length > 0) {
-          setFight(getFightWithStatus(data[0].fight));
-          setFightDetails(data[0].fightDetails);
+          setFight(data[0]);
+          setFightDetails(data[0].players);
           setIsGameAvailable(true);
         } else {
           setTimeout(() => {
@@ -207,7 +235,7 @@ const Fight = () => {
           setIsGameAvailable(false);
         }
       })
-      .catch(() => {});
+      .catch(() => { });
   };
 
   useEffect(() => {
@@ -365,16 +393,27 @@ const Fight = () => {
       fight: fight,
       venue: location.data,
       totalFight: fightList.data.length,
-      trends: trends.data,
+      trends: trends.data
     };
 
-    const bet = await localAxios.get("/api/event/betDetails", {
-      params: {
-        fightId: fight.fightId,
-      },
-    });
+    // const bet = await localAxios.get("/api/event/betDetails", {
+    //   params: {
+    //     fightId: fight.fightId,
+    //   },
+    // });
 
-    setBetDetails(bet.data);
+
+    
+    // const response = await otsEngine.get(`${process.env.OTS_BET_URL}/all/sse`, {
+    
+    //   params: {
+    //     gameId: fight.fightId
+    //   }
+    // });
+
+    // const responData = response.data.data
+
+    // setBetDetails(responData.data);
     setGameData(game);
     setIsLoading(false);
   };
@@ -383,16 +422,26 @@ const Fight = () => {
     if (!gameData) return;
     setIsLoadingWithScreen(true);
     if (isRefreshFight) await getFights(selectedEvent.eventId);
+    const location = await localAxios.get("/api/event/locationById", {
+      params: {
+        venueId: selectedEvent.venueId,
+      },
+    });
 
     const bet = await localAxios
       .get("/api/event/fight/byId", {
         params: {
-          fightId: gameData.fight.fightId,
+          fightId: gameData.fight.gameId,
         },
       })
       .then((response) => {
         const data = response.data;
-        setGameData(data);
+        const game = {
+          event: selectedEvent,
+          fight: data,
+          venue: location.data,
+        }
+        setGameData(game);
         if (data.length > 0) {
           setFight(getFightWithStatus(data[0].fight));
           setFightDetails(data[0].fightDetails);
@@ -417,7 +466,7 @@ const Fight = () => {
 
   useEffect(() => {
     if (selectedEvent && fight) setupGame();
-    return () => {};
+    return () => { };
   }, [selectedEvent, fight]);
 
   const closeModal = () => {
@@ -574,13 +623,13 @@ const Fight = () => {
   const onConfirm = async () => {
     setIsLoadingWithScreen(true);
     const request = {
-      fightId: gameData.fight.fightId,
+      fightId: gameData.fight.gameId ,
       winSide: winningSide,
       details: {
         gameType: selectedEventDet.gameType,
         eventId: selectedEvent.eventId,
-        winnerName: findIndexInPlayer(getPlayerName(winningSide)),
-        loserName: findIndexInPlayer(getPlayerName(winningSide == 1 ? 0 : 1)),
+        winnerName:   selectedEventDet.gameType == 4 ? findIndexInPlayer(getPlayerName(winningSide)) : getPlayerName(winningSide),
+        loserName:   selectedEventDet.gameType== 4 ? findIndexInPlayer(getPlayerName(winningSide == 1 ? 0 : 1)) : getPlayerName(winningSide == 1 ? 0 : 1),
       },
     };
 
@@ -696,7 +745,7 @@ const Fight = () => {
       });
     }
 
-    return () => {};
+    return () => { };
   }, [selectedEventDet]);
 
   const handleEventChange = (e: any) => {
@@ -732,10 +781,10 @@ const Fight = () => {
     setIsCancelModalOpen(true);
   };
 
-  const onDirectSetFightStatus = async (status: number) => {
+  const onDirectSetFightStatus = async (status: string) => {
     setIsLoadingWithScreen(true);
     const request = {
-      fightId: gameData.fight.fightId,
+      fightId: gameData.fight.gameId,
       fightStatusCode: status,
       // parentEventId : selectedEventDet?.gameType?.parentEventId,
       // fightNum : gameData.fight.fightNum,
@@ -745,7 +794,7 @@ const Fight = () => {
       .post("/api/event/fight/setStatus", request)
       .then(() => {
         // setParentStatus(status, gameData.fight.fightNum);
-        refreshFight(status == 21);
+        refreshFight(status == 'Cancelled');
         setIsFightStatusModalOpen(false);
       })
       .catch((e) => {
@@ -838,9 +887,11 @@ const Fight = () => {
       fight: {
         fightNum: form["fightNum"].value,
         eventId: selectedEvent.eventId,
+        venueId: selectedEvent.venueId
       },
       fightDetails: [
         {
+          id: 1,
           side: 1,
           owner: form["meron-owner"].value ?? "",
           breed: form["meron-breed"]?.value ?? "",
@@ -850,6 +901,7 @@ const Fight = () => {
           operatorId: 0,
         },
         {
+          id: 0,
           side: 0,
           owner: form["wala-owner"].value ?? "",
           breed: form["wala-breed"]?.value ?? "",
@@ -894,8 +946,8 @@ const Fight = () => {
   const getLastGameNumber = () => {
     if (lastFight) {
       try {
-        return (parseInt(lastFight.fight.fightNum) + 1).toString();
-      } catch (error) {}
+        return (parseInt(lastFight.gameNumber ) + 1).toString();
+      } catch (error) { }
     }
     return "1";
   };
@@ -957,7 +1009,7 @@ const Fight = () => {
 
   const getLastGameFirstName = (side: number, lastFght: any, evnt: any) => {
     if (!isJsonObjectEmpty(lastFght)) {
-      const player = lastFght.fightDetails.find((x: any) => x.side == side);
+      const player = lastFght.players.find((x: any) => x.side == side);
       if (player) {
         if (evnt?.gameType == 4) {
           if (
@@ -968,6 +1020,10 @@ const Fight = () => {
           else {
             return getNextPlayerGameType3();
           }
+        }else if (evnt?.gameType == 8){
+          var playersOrder = evnt?.players?.sort((a:any, b:any) => a.order - b.order);
+          var playerIndex = side == 1 ? 0 : 1;
+          return evnt[playersOrder[`${playerIndex}`].player]
         }
         return `${player.owner.trim()}`;
       }
@@ -977,7 +1033,7 @@ const Fight = () => {
 
   const getLastGameLastName = (side: number, lastFght: any, evnt: any) => {
     if (!isJsonObjectEmpty(lastFght)) {
-      const player = lastFght.fightDetails.find((x: any) => x.side == side);
+      const player = lastFght.players.find((x: any) => x.side == side);
       if (player) {
         if (evnt?.gameType == 4) {
           if (
@@ -999,12 +1055,12 @@ const Fight = () => {
     const isDisabled = true;
     if (!isJsonObjectEmpty(gameData)) {
       if (
-        gameData.event.eventStatusCode == 11 &&
-        gameData.fight.fightStatusCode == 10
+        gameData.event.status == 'Open' &&
+        gameData.fight.status == 'Waiting'
       )
         return (
           <Button
-            onClick={() => onDirectSetFightStatus(11)}
+            onClick={() => onDirectSetFightStatus('Open')}
             isLoading={isLoading}
             loadingText="Loading..."
             type={"button"}
@@ -1013,8 +1069,8 @@ const Fight = () => {
           </Button>
         );
       else if (
-        gameData.event.eventStatusCode == 11 &&
-        gameData.fight.fightStatusCode == 11
+        gameData.event.status == 'Open' &&
+        gameData.fight.status  == 'Open'
       ) {
         return (
           <Button
@@ -1041,12 +1097,12 @@ const Fight = () => {
     const isDisabled = true;
     if (!isJsonObjectEmpty(gameData)) {
       if (
-        gameData.event.eventStatusCode == 11 &&
-        gameData.fight.fightStatusCode == 11
+        gameData.event.status == 'Open' &&
+        gameData.fight.status == 'Open'
       )
         return (
           <Button
-            onClick={() => onDirectSetFightStatus(12)}
+            onClick={() => onDirectSetFightStatus('Close')}
             isLoading={isLoading}
             loadingText="Loading..."
             type={"button"}
@@ -1109,7 +1165,7 @@ const Fight = () => {
             {fights.map((item: any, index: any) => {
               return (
                 <option key={`option-${index}`} value={index}>
-                  {item.fight.fightNum}
+                  {item.gameNumber}
                 </option>
               );
             })}
@@ -1241,7 +1297,7 @@ const Fight = () => {
             <br />
             <div className="justify-self-end">
               <Button
-                onClick={() => {}}
+                onClick={() => { }}
                 loadingText="Loading..."
                 type={"submit"}
               >
@@ -1280,7 +1336,7 @@ const Fight = () => {
                 type="number"
               />
               <Button
-                onClick={() => {}}
+                onClick={() => { }}
                 isLoading={isLoading}
                 loadingText="Loading..."
                 type={"submit"}
@@ -1316,7 +1372,7 @@ const Fight = () => {
               />
 
               <Button
-                onClick={() => {}}
+                onClick={() => { }}
                 isLoading={isLoading}
                 loadingText="Loading..."
                 type={"submit"}
@@ -1353,7 +1409,7 @@ const Fight = () => {
           setIsModalSendMessageOpen={setIsModalSendMessageOpen}
           webRtcStream={webRtcStream}
           selectedEventDet={selectedEventDet}
-          betDetails={betDetails}
+          betDetails={allBets}
           setIsModalOpen={setIsModalOpen}
           isLoading={isLoading}
           onDirectSetFightStatus={onDirectSetFightStatus}

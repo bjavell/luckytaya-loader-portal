@@ -83,13 +83,19 @@ const Tables = <T,>({ headers, items, primaryId, isCentered = false, onItemClick
 
     const pageNumbers = getPaginationRange()
 
+    const getNestedProperty = (obj: any, path: string) => {
+        return path.split('.').reduce((acc, part) => acc && acc[part], obj);
+    }
+
     const populateItem = ((i: number, h: any, item: any) => {
         const className = `p-3 font-semibold ${h.customValueClass ? h.customValueClass : ''} ${isCentered ? 'text-center' : ''}`
-        let value = item[h.key]
+        let value = getNestedProperty(item, h.key)
 
         if (h.concatKey) {
             h.concatKey.forEach((concateKeyIndex: any) => {
-                value = `${value}${h.concatSeparator}${item[concateKeyIndex]}`
+                const concatedKey = getNestedProperty(item, concateKeyIndex)
+                if (concatedKey )
+                    value = `${value}${h.concatSeparator}${concatedKey}`
             })
         }
 
@@ -101,7 +107,7 @@ const Tables = <T,>({ headers, items, primaryId, isCentered = false, onItemClick
             showFormatCustom = h.customValue(item)
         }
 
-        return <td key={`row-key-${h.key}-${i}`} className={className} style={{whiteSpace:'pre'}}>{showFormatCustom ?? value}</td>
+        return <td key={`row-key-${h.key}-${i}`} className={className} style={{ whiteSpace: 'pre' }}>{showFormatCustom ?? value}</td>
     })
 
     return (

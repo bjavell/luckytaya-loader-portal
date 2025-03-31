@@ -1,5 +1,5 @@
 import { DB_COLLECTIONS } from "@/classes/constants"
-import { luckTayaAxios } from "@/util/axiosUtil"
+import { luckTayaAxios, otsEngine } from "@/util/axiosUtil"
 import { decrypt, encrypt } from "@/util/cryptoUtil"
 import { findOne, update } from "@/util/dbUtil"
 
@@ -41,7 +41,21 @@ const transact = async (auth: string, transferRequest: any, correlationId: strin
             "X-Correlation-ID": correlationId,
             'Authorization': `Bearer ${auth}`,
         },
-    })
+    })    
+    const otsWalletResponse = await otsEngine.post(`${process.env.OTS_WALLET_URL}/wallet/transact`, {
+        amount: transferRequest.amount,
+        userId: "PNLACCOUNT",
+        toUserId: transferRequest.userId,
+        type: "CREDIT",
+        otherDetails: {
+            action: "COMMISSION"
+        }
+
+    }, {
+        headers: {
+          'X-Correlation-ID': correlationId
+        }
+      });
 
     return response.data
 }

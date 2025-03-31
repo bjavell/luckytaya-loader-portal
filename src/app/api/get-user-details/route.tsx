@@ -1,6 +1,6 @@
 import { getCurrentSession } from "@/context/auth"
 import { NextRequest, NextResponse } from "next/server"
-import { luckTayaAxios } from "@/util/axiosUtil"
+import { luckTayaAxios, otsEngine } from "@/util/axiosUtil"
 import { formatGenericErrorResponse } from "@/util/commonResponse"
 import logger from "@/lib/logger"
 
@@ -24,8 +24,18 @@ const GET = async (req: NextRequest) => {
                 'Authorization': `Bearer ${currentSession.token}`,
             },
         })
-
+  
+      const otsWalletResponse = await otsEngine.get(`${process.env.OTS_WALLET_URL}/wallet/balance`, {
+        headers: {
+          'X-Correlation-ID': correlationId
+        },
+        params: {
+            userId: currentSession.userId
+        }
+      });
         const responseData = response.data
+        responseData.balance = otsWalletResponse.data.data.balance
+
         responseData.roles = currentSession.roles
         logResponse = responseData
         return NextResponse.json(responseData)

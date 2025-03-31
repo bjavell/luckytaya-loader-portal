@@ -1,6 +1,6 @@
 import { getCurrentSession } from "@/context/auth"
 import { formatGenericErrorResponse } from "@/util/commonResponse"
-import { luckTayaAxios } from "@/util/axiosUtil"
+import { luckTayaAxios, otsEngine } from "@/util/axiosUtil"
 import { NextRequest, NextResponse } from "next/server"
 import { findOne, update } from "@/util/dbUtil"
 import { ACCOUNT_TYPE, DB_COLLECTIONS } from "@/classes/constants"
@@ -8,20 +8,44 @@ import { decrypt, encrypt } from "@/util/cryptoUtil"
 
 const POST = async (req: NextRequest) => {
 
+    let correlationId: string | null = "";
     try {
+        correlationId = req.headers.get("x-correlation-id");
         const currentSession = await getCurrentSession()
         const { amount, toAccountNumber, comFee, convFee } = await req.json()
 
-        //console.log('Agent to Player')
-        await luckTayaAxios.get(`/api/v1/Account/transferV2`, {
-            params: {
-                amount: amount,
-                toAccountnumber: toAccountNumber
-            },
+        // const toAccount = await findOne(DB_COLLECTIONS.TAYA_AGENTS, { 'response.accountNumber': Number(toAccountNumber) })
+
+        // if (!toAccount) {
+        //     throw new Error('Account not found');
+        // }
+
+        const otsWalletResponse = await otsEngine.post(`${process.env.OTS_WALLET_URL}/wallet/transact`, {
+            amount: amount,
+            userId: String(currentSession.userId),
+            toUserId: String(toAccountNumber),
+            type: "CREDIT",
+            otherDetails: {
+                action: 'Transfer'
+            }
+
+        }, {
             headers: {
-                'Authorization': `Bearer ${currentSession.token}`,
-            },
-        })
+                'X-Correlation-ID': correlationId
+            }
+        });
+
+
+        //console.log('Agent to Player')
+        // await luckTayaAxios.get(`/api/v1/Account/transferV2`, {
+        //     params: {
+        //         amount: amount,
+        //         toAccountnumber: toAccountNumber
+        //     },
+        //     headers: {
+        //         'Authorization': `Bearer ${currentSession.token}`,
+        //     },
+        // })
 
         // //console.log('Agent to Fee')
         // // await otherAccountTransfer(convFee * -1, toAccountNumber, config, ACCOUNT_TYPE.FEE)
@@ -51,7 +75,11 @@ const POST = async (req: NextRequest) => {
         // await otherAccountTransfer(comFee, currentSession.accountNumber, config, ACCOUNT_TYPE.COMMISSION)
 
 
-        return NextResponse.json({ message: 'Successfully Cashed-In!' })
+        if (otsWalletResponse.data.success)
+            return NextResponse.json({ message: 'Successfully Cashed-In!' })
+        else {
+            throw new Error(otsWalletResponse.data.errors.message)
+        }
     } catch (e) {
         console.error(e)
         return NextResponse.json({

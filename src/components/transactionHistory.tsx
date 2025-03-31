@@ -6,7 +6,7 @@ import { format } from 'date-fns'
 import FormField from "@/components/formField"
 import Form from "@/components/form"
 import Button from "@/components/button"
-import { formatDynamicNumber, formatMoney } from "@/util/textUtil"
+import { formatDynamicNumber, formatMoney, renderNestedDetails } from "@/util/textUtil"
 import LoadingSpinner from "@/components/loadingSpinner"
 import { localAxios } from "@/util/localAxiosUtil"
 import { NextPage } from "next"
@@ -47,7 +47,7 @@ const TransactionHistory: NextPage<{ reportType: string, accountNumber?: number 
                 }
             })
 
-            setTransactions(response.data)
+            setTransactions(response.data.histories)
             setIndex(prevIndex => prevIndex + 1) // Update index to refresh the table
         } catch (e) {
             setTransactions([])
@@ -68,7 +68,7 @@ const TransactionHistory: NextPage<{ reportType: string, accountNumber?: number 
             if (transactionType === 'ALL') {
                 return true
             }
-            return transaction.transactionType === Number(transactionType)
+            return transaction.otherDetails.action === transactionType
         })
         setFilteredTransactions(filterTransaction)
     }, [transactions, transactionType])
@@ -102,22 +102,42 @@ const TransactionHistory: NextPage<{ reportType: string, accountNumber?: number 
         const csvRows = [
             headers.join(','), // Add header row
             ...filteredTransactions.map((transaction: any) => {
-                const formattedDate = format(new Date(transaction.transactionDateTime), 'yyyy-MM-dd hh:mm:ss a');
-                const sender = transaction.fromFullName + ' | ' + transaction.fromAccountNumber;
-                const receiver = transaction.toFullName + ' | ' + transaction.toAccountNumber;
-                const amount = transaction.amount;
+                const formattedDate = format(new Date(transaction.createdDate), 'yyyy-MM-dd hh:mm:ss a');
+                const sender = transaction.otherDetails.from.firstName + ' ' + transaction.otherDetails.from.lastName + ' | ' + transaction.fromUserId;
+                const receiver = transaction.otherDetails.to.firstName + ' ' + transaction.otherDetails.to.lastName  + ' | ' + transaction.toUserId;
+                const amount = transaction.otherDetails.amount;
                 let otherInfo = ''
 
-                if (transaction.otherInfo) {
-                    otherInfo = String(transaction.otherInfo).replaceAll('\n', ' | ')
+                // if (transaction.otherInfo) {
+                //     otherInfo = String(transaction.otherInfo).replaceAll('\n', ' | ')
+                // }
+
+                if (transaction.otherDetails) {
+                    if (transaction.otherDetails.gameId) {
+                        otherInfo = `Venue: ${transaction.game.venue.venueName} | Event: ${transaction.game.event.eventName} | Game Number: ${transaction.game.gameNumber}`
+                        if(transaction.bettedPlayer) {
+                            otherInfo += ` | Betted Player: ${transaction.bettedPlayer.owner}`
+                        } 
+                        if(transaction.winPlayer) {
+                            otherInfo += ` | Winner: ${transaction.winPlayer.owner}`
+                        }
+                        if(transaction.otherDetails.description) {
+                            otherInfo += ` | Description: ${transaction.otherDetails.description}`
+                        }
+                        otherInfo += ` | Before Balance: ${transaction.otherDetails.beforeBalance}`
+                        otherInfo += ` | After Balance: ${transaction.otherDetails.afterBalance}`
+
+                    }
                 }
+
+
                 return [
                     formattedDate,
-                    transaction.transactionNumber,
+                    transaction.historyId ,
                     sender,
                     receiver,
                     amount,
-                    transaction.transactionDesc,
+                    `${transaction.transactionType} - ${transaction.otherDetails.action}`,
                     otherInfo
                 ].join(',');
             })
@@ -194,11 +214,11 @@ const TransactionHistory: NextPage<{ reportType: string, accountNumber?: number 
                             <label htmlFor="accountType" className="text-white font-sans font-light text-nowrap">Transaction Type</label>
                             <select id="accountType" className="rounded-xlg py-4 px-4 bg-semiBlack font-sans font-light text-sm tacking-[5%] text-white" value={transactionType} onChange={(e) => setTransactionType(e.target.value)}>
                                 <option value='ALL'>Select Transaction Type</option>
-                                <option value='101'>Transfer</option>
-                                <option value='201'>Bet</option>
-                                <option value='202'>Win</option>
-                                <option value='203'>Draw</option>
-                                <option value='204'>Cancelled</option>
+                                <option value='Transfer'>Transfer</option>
+                                <option value='Bet'>Bet</option>
+                                <option value='Win'>Win</option>
+                                {/* <option value='203'>Draw</option> */}
+                                <option value='Cancelled'>Cancelled</option>
                             </select>
                         </div>
                         <FormField name="startDate" label="Start Date" placeholder="Enter Load To" value={startDate} onChange={(e) => setStartDate(e.target.value)} type="datetime-local" />
@@ -214,62 +234,95 @@ const TransactionHistory: NextPage<{ reportType: string, accountNumber?: number 
             <div className="flex flex-col">
                 {isLoading ? <LoadingSpinner /> :
                     <Tables
-                        primaryId="id"
+                        primaryId="historyId"
                         headers={[
                             {
-                                key: 'transactionDateTime',
+                                key: 'createdDate',
                                 label: 'date',
                                 format: (val: string) => {
                                     const formatDate = new Date(val)
                                     return format(formatDate, 'yyyy-MM-dd hh:mm:ss a')
                                 }
                             }, {
-                                key: 'transactionNumber',
+                                key: 'historyId',
                                 label: 'transaction number',
                                 format: (val: string) => {
-                                    return formatDynamicNumber(val)
+                                    return val
                                 }
                             }, {
-                                key: 'fromFullName',
+                                key: 'otherDetails.from',
                                 label: 'sender',
-                                concatKey: ['fromAccountNumber'],
                                 customValue: (item) => {
                                     return (
                                         <>
-                                            {item.fromFullName}
+                                            {item.otherDetails.from.firstName} {item.otherDetails.from.lastName}
                                             <br />
-                                            {formatDynamicNumber(item.fromAccountNumber)}
+                                            {formatDynamicNumber(item.fromUserId)}
                                         </>
                                     )
                                     // spliitedVal[0] + ' | ' + formatAccountNumber
                                 }
                             }, {
-                                key: 'toFullName',
+                                key: 'otherDetails.to',
                                 label: 'receiver',
-                                concatKey: ['toAccountNumber'],
                                 customValue: (item) => {
                                     return (
                                         <>
-                                            {item.toFullName}
+                                            {item.otherDetails.to.firstName} {item.otherDetails.to.lastName}
                                             <br />
-                                            {formatDynamicNumber(item.toAccountNumber)}
+                                            {formatDynamicNumber(item.toUserId)}
                                         </>
                                     )
                                     // spliitedVal[0] + ' | ' + formatAccountNumber
                                 }
                             }, {
-                                key: 'amount',
+                                key: 'otherDetails.amount',
                                 label: 'amount',
                                 customValueClass: 'text-semiYellow',
                                 format: (val: string) => {
                                     return formatMoney(val)
                                 }
                             }, {
-                                key: 'transactionDesc',
+                                key: 'transactionType',
+                                concatSeparator: ' - ',
+                                concatKey: ['otherDetails.action'],
                                 label: 'type'
                             }, {
-                                key: 'otherInfo',
-                                label: 'other info'
+                                key: 'otherDetails',
+                                label: 'other info',
+                                customValue: (item) => {
+                                    return <div className="text-left">
+                                        {item.otherDetails.gameId ?
+                                            <>
+                                                <strong>Game Details:</strong> <br />
+                                                &emsp;<strong>Venue:</strong> {item.game.venue.venueName} <br />
+                                                &emsp;<strong>Event:</strong> {item.game.event.eventName} <br />
+                                                &emsp;<strong>Game Number:</strong> {item.game.gameNumber}<br />
+                                                {item.bettedPlayer ?
+                                                    <>
+                                                        &emsp;<strong>Betted Player:</strong> {item.bettedPlayer.owner} <br />
+                                                    </>
+                                                    :
+                                                    ''}
+                                                {item.winPlayer ?
+                                                    <>
+                                                        &emsp;<strong>Winner:</strong> {item.winPlayer.owner} <br />
+                                                    </>
+                                                    :
+                                                    ''}
+                                            </>
+                                            : ''}
+                                        {item.otherDetails.description ?
+                                            <>
+                                                <strong>Description:</strong> {item.otherDetails.description} <br />
+                                            </>
+                                            : ''}
+                                        <strong>Before Balance:</strong> {formatMoney(item.otherDetails.beforeBalance)} <br />
+                                        <strong>After Balance:</strong> {formatMoney(item.otherDetails.afterBalance)} <br />
+
+
+                                    </div>
+                                }
                             },
                         ]}
                         items={filteredTransactions}

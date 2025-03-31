@@ -1,8 +1,9 @@
 import { getCurrentSession } from "@/context/auth"
 import { NextRequest, NextResponse } from "next/server"
-import { luckTayaAxios } from "@/util/axiosUtil"
+import { luckTayaAxios, otsEngine } from "@/util/axiosUtil"
 import { formatGenericErrorResponse } from "@/util/commonResponse"
 import logger from "@/lib/logger"
+import { use } from "react"
 
 const GET = async (req: NextRequest) => {
     const api = "GET TRANSACTION"
@@ -15,6 +16,7 @@ const GET = async (req: NextRequest) => {
         const currentSession = await getCurrentSession()
 
         const params = {
+            userId: currentSession.userId,
             dateTimeFrom: req.nextUrl.searchParams.get('startDate'),
             dateTimeTo: req.nextUrl.searchParams.get('endDate'),
         }
@@ -24,37 +26,45 @@ const GET = async (req: NextRequest) => {
             ...params
         }
 
-        const response = await luckTayaAxios.get(`/api/v1/xAccountTransaction/GetTransByUserIdByDateV2`, {
+
+        const response = await otsEngine.get(`http://localhost:3003/history`, {
             params,
             headers: {
                 'X-Correlation-ID': correlationId,
-                'Authorization': `Bearer ${currentSession.token}`,
-            },
+            }
         })
 
-        const customResponse = response.data.map((e: any) => {
+        // const response = await luckTayaAxios.get(`/api/v1/xAccountTransaction/GetTransByUserIdByDateV2`, {
+        //     params,
+        //     headers: {
+        //         'X-Correlation-ID': correlationId,
+        //         'Authorization': `Bearer ${currentSession.token}`,
+        //     },
+        // })
 
-            const transaction = {
-                ...e,
-                fromFullName: `${e.fromFirstname} ${e.fromLastname}`,
-                toFullName: `${e.toFirstname} ${e.toLastname}`
-            }
+        // const customResponse = response.data.data.histories.map((e: any) => {
+
+        //     const transaction = {
+        //         ...e,
+        //         fromFullName: `${e.fromFirstname} ${e.fromLastname}`,
+        //         toFullName: `${e.toFirstname} ${e.toLastname}`
+        //     }
 
 
-            if (transaction.amount < 0) {
-                transaction.amount *= -1
-            }
+        //     if (transaction.amount < 0) {
+        //         transaction.amount *= -1
+        //     }
 
 
-            return transaction
-        }).sort((a: any, b: any) => {
-            return b.transactionNumber - a.transactionNumber
-        })
+        //     return transaction
+        // }).sort((a: any, b: any) => {
+        //     return b.transactionNumber - a.transactionNumber
+        // })
 
         logResponse = {
-            ...customResponse
+            ...response.data.data.histories
         }
-        return NextResponse.json(customResponse)
+        return NextResponse.json(response.data.data.histories)
     } catch (e: any) {
         logger.error(api, {
             correlationId,

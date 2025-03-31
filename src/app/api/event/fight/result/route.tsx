@@ -1,6 +1,6 @@
 "use server";
 import { NextRequest, NextResponse } from "next/server";
-import { luckTayaAxios } from "@/util/axiosUtil";
+import { luckTayaAxios, otsEngine } from "@/util/axiosUtil";
 import { formatGenericErrorResponse } from "@/util/commonResponse";
 import { getCurrentSession } from "@/context/auth";
 import logger from "@/lib/logger";
@@ -22,32 +22,48 @@ const POST = async (req: NextRequest) => {
       ...request
     }
 
-    request.winSide = parseInt(request.winSide);
-    request.fightId = parseInt(request.fightId);
+    // request.winSide = parseInt(request.winSide);
+    // request.fightId = parseInt(request.fightId);
     const sabongRequest = {
       winSide : request.winSide,
       fightId : request.fightId
     }
-    const response = await luckTayaAxios.post(
-      `/api/v1/SabongFightResultEntry`,
-      sabongRequest,
-      {
-        headers: {
-          'X-Correlation-ID': correlationId,
-          Authorization: `Bearer ${currentSession.token}`,
-        },
-      }
-    );
+    // const response = await luckTayaAxios.post(
+    //   `/api/v1/SabongFightResultEntry`,
+    //   sabongRequest,
+    //   {
+    //     headers: {
+    //       'X-Correlation-ID': correlationId,
+    //       Authorization: `Bearer ${currentSession.token}`,
+    //     },
+    //   }
+    // );
 
-    await luckTayaAxios.get(
-      `/api/v1/SabongRemit/Remit?fightId=${request.fightId}`,
-      {
-        headers: {
-          'X-Correlation-ID': correlationId,
-          Authorization: `Bearer ${currentSession.token}`,
-        },
+    // await luckTayaAxios.get(
+    //   `/api/v1/SabongRemit/Remit?fightId=${request.fightId}`,
+    //   {
+    //     headers: {
+    //       'X-Correlation-ID': correlationId,
+    //       Authorization: `Bearer ${currentSession.token}`,
+    //     },
+    //   }
+    // );
+
+
+    const response = await otsEngine.post(`${process.env.OTS_GAME_URL}/game/declare`, {
+      gameId: request.fightId,
+      winner: Number(request.winSide)
+    }, {
+      headers: {
+        'X-Correlation-ID': correlationId
       }
-    );
+    });
+
+    if(!response.data.success) {
+      throw new Error(response.data.errors.message);
+    } 
+
+
     if(request.details.gameType == 4){
       try {
         const {details} = request;
@@ -88,6 +104,31 @@ const POST = async (req: NextRequest) => {
         console.log(error, "DB RESPONSE")
       }
 
+    }else if(request.details.gameType == 8){
+      try {
+        const {details} = request;
+        const query = {eventId : {$eq : `${details.eventId}`}};
+        const event = await findOne(DB_COLLECTIONS.EVENTS,query)
+        const {winnerName,loserName} = details;
+        if(event){
+          const winnerProp = getKeyByValue(event,winnerName);
+          const loserProp = getKeyByValue(event,loserName);
+          event[`${winnerProp}Score`] = event[`${winnerProp}Score`]??0 + 1;
+          var playersOrder = event.players.sort((a:any, b:any) => a.order - b.order);
+          var loserIndex = playersOrder.findIndex((a:any)=>a.player == loserProp);
+          
+          if(loserIndex >= 0 ){
+            const loserPlayerOrder = playersOrder[loserIndex].order
+            event.players[2].order = loserPlayerOrder
+            const lastOrder = playersOrder[playersOrder.length-1].order
+            event.players[loserIndex].order = lastOrder+1;
+          }
+          const dbResponse = await update(DB_COLLECTIONS.EVENTS,query,event)
+        }
+        
+      } catch (error) {
+        console.log(error, "DB RESPONSE")
+      }
     }
 
     logResponse = { message: "Successfully Set Result!" }
@@ -119,4 +160,13 @@ const POST = async (req: NextRequest) => {
   }
 };
 
+
+function getKeyByValue(obj : any, value : any) {
+  for (const key in obj) {
+    if (obj[key] === value) {
+      return key; // returns the key when value is found
+    }
+  }
+  return null; // returns null if the value is not found
+}
 export { POST };

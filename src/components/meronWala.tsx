@@ -1,7 +1,7 @@
 import isJsonObjectEmpty from "@/util/isJsonObjectEmpty";
 import React from "react";
 
-const MeronWala = ({ player, type, data, parent ,isPulaAsul = true }: any) => {
+const MeronWala = ({dataByPlayer,  player, type, data, parent ,isPulaAsul = true }: any) => {
   const color = isPulaAsul ? (type == 1 ? "meronColor" : "walaColor") : "";
   const title = player;
   const getSafeData = (data: any, field: any) => {
@@ -25,6 +25,9 @@ const MeronWala = ({ player, type, data, parent ,isPulaAsul = true }: any) => {
     return `${((numerator / denominator) * 100).toFixed(0)} %`;
   };
 
+  
+  const getPlayer = dataByPlayer?.find((x: any) => x.playerId == type)
+
   return (
     <div className="p-2  rounded-lg bg-cursedBlack">
       <div className="p-2 ">
@@ -45,18 +48,25 @@ const MeronWala = ({ player, type, data, parent ,isPulaAsul = true }: any) => {
           <br />
           Bet
           <div className="bg-gray13  text-center rounded-xl mt-1 w-full p-1 capitalize">
-            {getSafeData(data, `s${type}a`)} <br />
+            {/* {getSafeData(data, `s${type}a`)} */}
+            {getPlayer?.totalBet ?? 0} <br />
           </div>
           <div className="bg-dark-no-border p-1 rounded-[20px] border-transparent">
             Payout
             <div className="bg-gray13 rounded-xl w-full  mt-1 p-1 text-center capitalize">
-              {parseFloat(getSafeData(data, `s${type}o`)).toFixed(2)}
+              {/* {parseFloat(getSafeData(data, `s${type}o`)).toFixed(2)} */}
+              {
+                parseFloat(getPlayer?.payout ?? 0).toFixed(2)
+              }
             </div>
           </div>
           <div className="bg-dark-no-border p-1 rounded-[20px] border-transparent">
             Odd Percentage
             <div className="bg-gray13 rounded-xl w-full  mt-1 p-1 text-center capitalize">
-              {calculateOddPercentage(data)}
+              {/* {calculateOddPercentage(data)} */}
+              {
+                `${parseFloat(getPlayer?.odds ?? 0).toFixed(2)} %`
+              }
             </div>
           </div>
         </div>

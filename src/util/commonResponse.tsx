@@ -1,6 +1,6 @@
 const formatGenericErrorResponse = (response:any) => {
 
-    return response.response?.data?.errors || { 'Unexpexted Error': ['Oops! something went wrong'] }
+    return response.response?.data?.errors || { 'Unexpected Error': ['Oops! something went wrong'] }
 }
 
 export {

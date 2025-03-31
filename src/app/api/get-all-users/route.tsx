@@ -1,6 +1,6 @@
 import { getCurrentSession } from "@/context/auth"
 import { NextRequest, NextResponse } from "next/server"
-import { luckTayaAxios } from "@/util/axiosUtil"
+import { luckTayaAxios, otsEngine } from "@/util/axiosUtil"
 import { formatGenericErrorResponse } from "@/util/commonResponse"
 import { DB_COLLECTIONS, USER_TYPE } from "@/classes/constants"
 import { findAll } from "@/util/dbUtil"
@@ -8,7 +8,7 @@ import logger from "@/lib/logger"
 
 const GET = async (req: NextRequest) => {
     const api = "GET ALL USERS"
-    let correlationId
+    let correlationId: string | null = null
     let logRequest
     let logResponse
     let status = 200
@@ -17,7 +17,7 @@ const GET = async (req: NextRequest) => {
         const currentSession = await getCurrentSession()
         const type = req.nextUrl.searchParams.get('type')
 
-        
+
         logRequest = {
             url: {
                 type
@@ -90,26 +90,42 @@ const GET = async (req: NextRequest) => {
 
 
 
-            customResponse = response.map((player: any) => {
+            const mappedResponse = await Promise.all(response.map(async (player: any) => {
 
                 const matchItem = getAllAgentPlayers.find((agentPlayer: any) => {
                     return Number(agentPlayer.accountNumber) === Number(player.accountNumber)
                 })
+
+                const otsWalletResponse = await otsEngine.get(`${process.env.OTS_WALLET_URL}/wallet/balance`, {
+                    headers: {
+                        'X-Correlation-ID': correlationId
+                    },
+                    params: {
+                        userId: player.id
+                    }
+                });
+                const responseData = otsWalletResponse.data?.data
+
                 if (matchItem) {
                     return {
                         ...player,
+                        accountBalance: responseData?.balance ?? 0,
                         image: matchItem.id,
                         status: matchItem.status
                     }
                 }
                 return {
                     ...player,
+                    accountBalance: responseData?.balance ?? 0,
                     image: '',
                     status: ''
                 }
-            }).filter((combinedUser: any) => accountType.some((acctType: any) => {
+            }));
+
+            customResponse = mappedResponse.filter((combinedUser: any) => accountType.some((acctType: any) => {
                 return acctType.accountType === combinedUser.accountType
-            }))
+            }));
+
 
         }
         logResponse = {

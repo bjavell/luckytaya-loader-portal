@@ -2,7 +2,7 @@ import { DB_COLLECTIONS, QR_TRANSACTION_STATUS } from "@/classes/constants";
 import CustomError from "@/classes/customError";
 import { getCurrentSession } from "@/context/auth";
 import logger from "@/lib/logger";
-import { luckTayaAxios } from "@/util/axiosUtil";
+import { luckTayaAxios, otsEngine } from "@/util/axiosUtil";
 import { formatGenericErrorResponse } from "@/util/commonResponse";
 import { decrypt, encrypt } from "@/util/cryptoUtil";
 import { findOne, insert } from "@/util/dbUtil";
@@ -100,7 +100,7 @@ const POST = async (req: NextRequest) => {
                 }
             )
 
-            const { accountNumber, userId } = registerResponse.data
+            const { accountNumber, userId, firstname, username, lastname } = registerResponse.data
 
             let roles = ['']
 
@@ -137,6 +137,18 @@ const POST = async (req: NextRequest) => {
             })
 
             await sendEmail(request.email, request.username, generatedPassword)
+         
+            await otsEngine.post(`${process.env.OTS_WALLET_URL}/wallet/create`, {
+                userId: String(userId),
+                firstName:firstname,
+                lastName:lastname,
+                userName:username
+            }, {
+                headers: {
+                    'X-Correlation-ID': correlationId
+                }
+            });
+    
         } else {
             throw new CustomError('Bad request', {
                 'Bad request': [`Master Agent Account '${request.masterAgentAccountNumber}' not found.`]

@@ -24,6 +24,7 @@ type SabongEvent = {
   eventDate: string;
   eventName: string;
   webRtcStream: string;
+  status?: string;
 };
 
 type SabongFight = {
@@ -108,20 +109,23 @@ const Fight = () => {
       .then((response) => {
         let data = response.data;
         data = data.map((e: any) => {
-          const stats = getEventStatus(e.fight.fightStatusCode);
+          const stats = e.status;
           return {
             ...e,
-            fightStatusName: stats ? stats.name : "",
+            fightStatusName: stats,
           };
         });
 
         let fightlst = data.map((e: any) => {
-          const meron = e.fightDetails.find((x: any) => x.side == 1);
-          const wala = e.fightDetails.find((x: any) => x.side == 0);
+          const meron = e.players.find((x: any) => x.side == 1);
+          const wala = e.players.find((x: any) => x.side == 0);
 
           return {
             ...e.fight,
-            fightDetails: e.fightDetails,
+            fightNum: e.gameNumber,
+            fightId: e.gameId,
+            entryDateTime: e.createdDate,
+            fightDetails: e.players,
             meron: meron ? `${meron.owner} ${meron.breed}` : "",
             wala: wala ? `${wala.owner} ${wala.breed}` : "",
             fightStatusName: e.fightStatusName,
@@ -240,6 +244,7 @@ const Fight = () => {
         fightId: selectedFight?.fightId,
         fightNum: form["fightNum"].value,
         eventId: selectedEvent,
+        venueId: selectedEventDet?.venueId,
       },
       fightDetails: [
         {
@@ -493,7 +498,7 @@ const Fight = () => {
               return (
                 <option key={`option-${index}`} value={item.eventId}>
                   {formatDate(item.eventDate, "MM/dd/yyyy")} - {item.eventName}{" "}
-                  - {eventStatus(item.eventStatusCode)}
+                  - {item.status}
                 </option>
               );
             })}

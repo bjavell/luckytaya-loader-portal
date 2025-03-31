@@ -11,4 +11,5 @@ export const gameTypes: GameTypes[] = [
   { id: 4, name: "3 Man Tournament" },
   { id: 6, name: "Speed Shoot (Parent)" }, 
   { id: 7, name: "Speed Shoot (Child)" }, 
+  { id: 8, name: "10 Man Game" }, 
 ];

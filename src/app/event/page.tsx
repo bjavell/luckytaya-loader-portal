@@ -25,6 +25,7 @@ type SabongEvent = {
   eventDate: string;
   eventName: string;
   webRtcStream: string;
+  status? :string;
 };
 
 type VenueType = {
@@ -71,12 +72,12 @@ const Event = () => {
       .then((response) => {
         let data = response.data;
         data = data.map((e: SabongEvent) => {
-          const stats = getEventStatus(e.eventStatusCode);
-          const location = getEventVenue(e.venueId);
+          // const stats = getEventStatus(e.eventStatusCode);
+          // const location = getEventVenue(e.venueId);
           return {
             ...e,
-            eventStatusName: stats.name,
-            venueName: location?.venueName,
+            eventStatusName: e.status,
+            // venueName: location?.venueName,
           };
         });
 

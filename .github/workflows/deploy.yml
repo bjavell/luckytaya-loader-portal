@@ -32,10 +32,11 @@ jobs:
         script: |
           echo "Checking SSH connection..."
           cd /home/dev/luckytaya-loader-portal
+          git fetch
           git pull origin dev
           npm install --silent
           npm run build:agent --silent
-          echo ${{secrets.SERVERPASS}} | sudo -S pm2 restart luckytaya-backoffice
+          pm2 reload ecosystem-agent.config.js
   deploy-admin:
     runs-on: ubuntu-latest
 
@@ -60,8 +61,11 @@ jobs:
         port: 22
         script: |
           echo "Checking SSH connection..."
-          cd /home/dev/luckytaya-admin-portal/luckytaya-loader-portal
+          cd /home/dev/luckytaya-admin-portal/luckytaya-loader-portal'
+          git fetch
           git pull origin dev
           npm install --silent
           npm run build:agent --silent
-          echo ${{secrets.SERVERPASS}} | sudo -S pm2 restart luckytaya-admin
+          pm2 reload ecosystem-admin.config.js
+
+          

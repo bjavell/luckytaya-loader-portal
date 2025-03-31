@@ -32,7 +32,6 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "backofficebuild/types/**/*.ts",
     "build/types/**/*.ts",
     "next-env.d.ts",
     "adminbuild/types/**/*.ts"

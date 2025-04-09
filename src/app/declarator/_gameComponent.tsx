@@ -24,6 +24,7 @@ import ThreeManTrend from "@/components/threeManTrend";
 import Link from "next/link";
 import Dashboard from "@/assets/images/Dashboard.svg";
 import Game from "@/assets/images/Game.png";
+import TenManTrend from "@/components/tenManTrend";
 
 interface GameComponentProps {
   gameData: any;
@@ -190,12 +191,16 @@ const GameComponent: React.FC<GameComponentProps> = ({
         <div className="flex flex-col gap-5">
           {!isJsonObjectEmpty(gameData) &&
             selectedEventDet?.gameType != 4 &&
+            selectedEventDet?.gameType != 8 &&
             selectedEventDet?.gameType != 6 &&
             selectedEventDet?.gameType != 7 && (
               <Trend  player1={getCustomPlayer(1,selectedEventDet?.gameType)} player2={getCustomPlayer(0,selectedEventDet?.gameType)} isPulaAsul={ selectedEventDet?.gameType == 1} data={gameData?.trends}></Trend>
             )}
           {!isJsonObjectEmpty(gameData) && selectedEventDet?.gameType == 4 && (
             <ThreeManTrend data={selectedEventDet}></ThreeManTrend>
+          )}
+            {!isJsonObjectEmpty(gameData) && selectedEventDet?.gameType == 8 && (
+            <TenManTrend data={selectedEventDet}></TenManTrend>
           )}
           <div className="bg-gray13 rounded-xl w-full p-5 capitalize">
             <MeronWala

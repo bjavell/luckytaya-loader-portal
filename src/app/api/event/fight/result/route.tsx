@@ -113,7 +113,7 @@ const POST = async (req: NextRequest) => {
         if(event){
           const winnerProp = getKeyByValue(event,winnerName);
           const loserProp = getKeyByValue(event,loserName);
-          event[`${winnerProp}Score`] = event[`${winnerProp}Score`]??0 + 1;
+          event[`${winnerProp}Score`] = event[`${winnerProp}Score`] == undefined ? 1 : event[`${winnerProp}Score`] + 1;
           var playersOrder = event.players.sort((a:any, b:any) => a.order - b.order);
           var loserIndex = playersOrder.findIndex((a:any)=>a.player == loserProp);
           

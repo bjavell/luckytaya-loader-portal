@@ -55,103 +55,123 @@ const POST = async (req: NextRequest) => {
         }
         const currentSession = await getCurrentSession()
 
-        const generatedPassword = getToken(8)
+        // const generatedPassword = getToken(8)
 
 
-        const mgmtUsersResponse = await luckTayaAxios.get(`/api/v1/User/MgmtRole`, {
-            headers: {
-                'X-Correlation-ID': correlationId,
-                'Authorization': `Bearer ${currentSession.token}`,
-            },
-        })
+        // const mgmtUsersResponse = await luckTayaAxios.get(`/api/v1/User/MgmtRole`, {
+        //     headers: {
+        //         'X-Correlation-ID': correlationId,
+        //         'Authorization': `Bearer ${currentSession.token}`,
+        //     },
+        // })
 
-        const mgmtUsersResponseData = mgmtUsersResponse.data
-        let hasMasterAccount
+        // const mgmtUsersResponseData = mgmtUsersResponse.data
+        // let hasMasterAccount
 
-        if (Number(request.accountType) === Number(6)) {
-            hasMasterAccount = mgmtUsersResponseData.filter((e: any) => {
-                return Number(e.accountNumber) === Number(request.masterAgentAccountNumber) && e.accountType === 3
-            })
+        // if (Number(request.accountType) === Number(6)) {
+        //     hasMasterAccount = mgmtUsersResponseData.filter((e: any) => {
+        //         return Number(e.accountNumber) === Number(request.masterAgentAccountNumber) && e.accountType === 3
+        //     })
 
-        }
+        // }
 
-        if ((hasMasterAccount?.length > 0 && Number(request.accountType) === Number(6)) || Number(request.accountType) !== Number(6)) {
+        // if ((hasMasterAccount?.length > 0 && Number(request.accountType) === Number(6)) || Number(request.accountType) !== Number(6)) {
 
-            const accountExists = await findOne(DB_COLLECTIONS.TAYA_AGENTS, {
-                $or: [
-                    { 'response.email': request.email },
-                    { 'response.phoneNumber': request.phoneNumber },
-                    { 'response.username': request.username }
-                ]
-            })
+        //     const accountExists = await findOne(DB_COLLECTIONS.TAYA_AGENTS, {
+        //         $or: [
+        //             { 'response.email': request.email },
+        //             { 'response.phoneNumber': request.phoneNumber },
+        //             { 'response.username': request.username }
+        //         ]
+        //     })
 
-            if (accountExists) {
-                throw new CustomError('Bad request', {
-                    'Bad request': [`Account already exists`]
-                })
-            }
+        //     if (accountExists) {
+        //         throw new CustomError('Bad request', {
+        //             'Bad request': [`Account already exists`]
+        //         })
+        //     }
 
-            const registerResponse = await luckTayaAxios.post('/api/v1/User/Register',
-                { ...request, password: generatedPassword },
-                {
-                    headers: {
-                        'X-Correlation-ID': correlationId
-                    },
-                }
-            )
+        //     const registerResponse = await luckTayaAxios.post('/api/v1/User/Register',
+        //         { ...request, password: generatedPassword },
+        //         {
+        //             headers: {
+        //                 'X-Correlation-ID': correlationId
+        //             },
+        //         }
+        //     )
 
-            const { accountNumber, userId, firstname, username, lastname } = registerResponse.data
+        //     const { accountNumber, userId, firstname, username, lastname } = registerResponse.data
 
-            let roles = ['']
+        //     let roles = ['']
 
-            if (request.accountType === '3' || request.accountType === '6') {
-                roles = ['acctmgr']
-            } else if (request.accountType === '4' || request.accountType === '5') {
-                roles = ['eventmgr']
-            } else if (request.accountType === '1') {
-                roles = ['finance']
-            } else if (request.accountType === '9') {
-                roles = ['admin']
-            }
+        //     if (request.accountType === '3' || request.accountType === '6') {
+        //         roles = ['acctmgr']
+        //     } else if (request.accountType === '4' || request.accountType === '5') {
+        //         roles = ['eventmgr']
+        //     } else if (request.accountType === '1') {
+        //         roles = ['finance']
+        //     } else if (request.accountType === '9') {
+        //         roles = ['admin']
+        //     }
 
-            const updateAccount = {
-                roles: roles,
-                accountNumber,
-                userId,
-                suspended: 0,
-                accountType: request.accountType
-            }
+        //     const updateAccount = {
+        //         roles: roles,
+        //         accountNumber,
+        //         userId,
+        //         suspended: 0,
+        //         accountType: request.accountType
+        //     }
 
 
 
-            await luckTayaAxios.put('/api/v1/User/UserRoleAccountTypeUpdate', updateAccount, {
+        //     await luckTayaAxios.put('/api/v1/User/UserRoleAccountTypeUpdate', updateAccount, {
+        //         headers: {
+        //             'X-Correlation-ID': correlationId,
+        //             'Authorization': `Bearer ${currentSession.token}`,
+        //         },
+        //     })
+
+        //     await insert(DB_COLLECTIONS.TAYA_AGENTS, {
+        //         request,
+        //         response: registerResponse.data
+        //     })
+
+        //     await sendEmail(request.email, request.username, generatedPassword)
+
+        //     await otsEngine.post(`${process.env.OTS_WALLET_URL}/wallet/create`, {
+        //         userId: String(userId),
+        //         firstName:firstname,
+        //         lastName:lastname,
+        //         userName:username
+        //     }, {
+        //         headers: {
+        //             'X-Correlation-ID': correlationId
+        //         }
+        //     });
+
+        // } else {
+        //     throw new CustomError('Bad request', {
+        //         'Bad request': [`Master Agent Account '${request.masterAgentAccountNumber}' not found.`]
+        //     })
+        // }
+
+
+        const registerResponse = await otsEngine.post(`${process.env.OTS_USER_URL}/user/createUser`, {
+            ...request
+        },
+            {
                 headers: {
                     'X-Correlation-ID': correlationId,
-                    'Authorization': `Bearer ${currentSession.token}`,
+                    Authorization: `Bearer ${currentSession.accessToken}`,
                 },
-            })
+            }
+        )
 
-            await insert(DB_COLLECTIONS.TAYA_AGENTS, {
-                request,
-                response: registerResponse.data
-            })
+        const registerResponseData = registerResponse.data
 
-            await sendEmail(request.email, request.username, generatedPassword)
-         
-            await otsEngine.post(`${process.env.OTS_WALLET_URL}/wallet/create`, {
-                userId: String(userId),
-                firstName:firstname,
-                lastName:lastname,
-                userName:username
-            }, {
-                headers: {
-                    'X-Correlation-ID': correlationId
-                }
-            });
-    
-        } else {
+        if(!registerResponseData.success ) {
             throw new CustomError('Bad request', {
-                'Bad request': [`Master Agent Account '${request.masterAgentAccountNumber}' not found.`]
+                'Bad request': [`Error Occurred`]
             })
         }
 

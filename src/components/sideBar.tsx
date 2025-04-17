@@ -80,26 +80,26 @@ const SideBar: React.FC<{ isOpen: boolean, toggleSideBar: () => void }> = (props
 
     useEffect(() => {
         if (data) {
-            setName(`${data?.fistname} ${data?.lastname}`)
-            if (data.accountType == 9 && data.roles?.includes('admin')) {
+            setName(`${data?.firstName} ${data?.lastName}`)
+            if (data.role?.includes('admin')) {
                 setSideBarSlug('Admin Portal')
                 setRoutes(sideBarAdminRoutes)
-            } else if ((data.accountType == 4 || data.accountType == 9) && data.roles?.includes('eventmgr')) {
+            } else if (data.role?.includes('eventmgr')) {
                 setSideBarSlug('Event Manager')
                 setRoutes(sideBarEventRoutes)
-            } else if (data.accountType === 2 && data.roles?.includes('master')) {
+            } else if (data.role?.includes('master')) {
                 setSideBarSlug('Main Master Agent Portal')
                 setRoutes(sideBarMainMasterRoutes)
-            } else if (data.accountType === 3 && data.roles?.includes('acctmgr')) {
+            } else if (data.role?.includes('acctmgr')) {
                 setSideBarSlug('Master Agent Portal')
                 setRoutes(sideBarMasterRoutes)
-            } else if (data.accountType === 1 && data.roles?.includes('finance')) {
+            } else if (data.role?.includes('finance')) {
                 setSideBarSlug('Finance Portal')
                 setRoutes(sideBarFinanceRoutes)
-            } else if ((data.accountType === 6 || data.accountType === 7) && data.roles?.includes('acctmgr')) {
+            } else if (data.role?.includes('acctmgr')) {
                 setSideBarSlug('Agent Portal')
                 setRoutes(sideBarAgentRoutes)
-            } else if ((data.accountType === 5) && data.roles?.includes('eventmgr')) {
+            } else if (data.role?.includes('eventmgr')) {
                 setSideBarSlug('Declarator Portal')
                 setRoutes(sideBarDeclaratorRoutes)
             }

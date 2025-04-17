@@ -36,15 +36,16 @@ const Players = () => {
         "accountType": 0,
         "accountStatus": 0,
         "accountBalance": 0,
-        "username": "",
-        "firstname": "",
-        "lastname": "",
-        "phoneNumber": "",
+        "userName": "",
+        "firstName": "",
+        "lastName": "",
+        "mobile": "",
         "email": "",
         "facebookAccount": "",
         "referralCode": 0,
-        "id": 0,
+        "userId": 0,
         "suspended": 0,
+        walletId: 0,
         image: ''
         // "roles": []
     })
@@ -164,13 +165,18 @@ const Players = () => {
             getUserRole()
         }
 
+    }, [])
+
+    useEffect(() => {
+
+
         if (accountStatusPending) {
             onUserSearch(search, status, searchAccountType, accountStatusPending)
         } else {
             onUserSearch(search, status, searchAccountType, accountStatus)
         }
 
-    }, [])
+    }, [players])
 
     const openModal = (data: any) => {
         setModalData(data)
@@ -190,15 +196,16 @@ const Players = () => {
                 "accountType": 0,
                 "accountStatus": 0,
                 "accountBalance": 0,
-                "username": "",
-                "firstname": "",
-                "lastname": "",
-                "phoneNumber": "",
+                "userName": "",
+                "firstName": "",
+                "lastName": "",
+                "mobile": "",
                 "email": "",
                 "facebookAccount": "",
                 "referralCode": 0,
-                "id": 0,
+                "userId": 0,
                 "suspended": 0,
+                walletId: 0,
                 // "roles": []
             })
             setIsShowModal(false)
@@ -213,15 +220,16 @@ const Players = () => {
                 "accountType": 0,
                 "accountStatus": 0,
                 "accountBalance": 0,
-                "username": "",
-                "firstname": "",
-                "lastname": "",
-                "phoneNumber": "",
+                "userName": "",
+                "firstName": "",
+                "lastName": "",
+                "mobile": "",
                 "email": "",
                 "facebookAccount": "",
                 "referralCode": 0,
-                "id": 0,
+                "userId": 0,
                 "suspended": 0,
+                walletId: 0,
                 // "roles": []
             })
             setIsShowTransactionHistoryModal(false)
@@ -230,11 +238,11 @@ const Players = () => {
 
     const onUserSearch = (value: string, status: string, srchAcctType: string, accountStatus: string) => {
         const filter = players.filter((player: any) => {
-            return (`${player?.firstname} ${player?.lastname}`.toUpperCase().includes(value) || String(player?.id)?.includes(value)
-                || player?.phoneNumber?.toUpperCase().includes(value) ||
+            return (`${player?.firstName} ${player?.lastName}`.toUpperCase().includes(value) || String(player?.walletId)?.includes(value)
+                || player?.mobile?.toUpperCase().includes(value) ||
                 player?.email?.toUpperCase().includes(value) ||
-                player?.username?.toUpperCase().includes(value)) &&
-                (status === 'ALL' ? true : Number(status) === player.suspended) &&
+                player?.userName?.toUpperCase().includes(value)) &&
+                (status === 'ALL' ? true : Number(status) === player.isActive) &&
                 (srchAcctType === 'ALL' ? true : Number(srchAcctType) === Number(player.accountType)) &&
                 (accountStatus === 'ALL' ? true : accountStatus === player.status)
         })
@@ -287,15 +295,16 @@ const Players = () => {
                 "accountType": 0,
                 "accountStatus": 0,
                 "accountBalance": 0,
-                "username": "",
-                "firstname": "",
-                "lastname": "",
-                "phoneNumber": "",
+                "userName": "",
+                "firstName": "",
+                "lastName": "",
+                "mobile": "",
                 "email": "",
                 "facebookAccount": "",
                 "referralCode": 0,
-                "id": 0,
+                "userId": 0,
                 "suspended": 0,
+                walletId: 0,	
                 status: ''
                 // "roles": []
             })
@@ -351,23 +360,23 @@ const Players = () => {
                                 </div>
                                 : null}
                             <div className="flex">
-                                <FormField name={"username"} value={modalData.firstname} label="Username" customLabelClass="text-xs" readonly />
+                                <FormField name={"userName"} value={modalData.firstName} label="userName" customLabelClass="text-xs" readonly />
                             </div>
                             <div className="flex">
-                                <FormField name={"accountNumber"} value={formatDynamicNumber(modalData.id)} label="Account Number" customLabelClass="text-xs" readonly />
+                                <FormField name={"accountNumber"} value={formatDynamicNumber(modalData.walletId)} label="Account Number" customLabelClass="text-xs" readonly />
                                 <FormField name={"accountBalance"} value={formatMoney(`${modalData.accountBalance}`)} label="Account Balance" customLabelClass="text-xs" readonly />
                             </div>
                             <div className="flex">
-                                <FormField name={"firstName"} value={modalData.firstname} label="First Name" customLabelClass="text-xs" readonly />
-                                <FormField name={"lastName"} value={modalData.lastname} label="Last Name" customLabelClass="text-xs" readonly />
+                                <FormField name={"firstName"} value={modalData.firstName} label="First Name" customLabelClass="text-xs" readonly />
+                                <FormField name={"lastName"} value={modalData.lastName} label="Last Name" customLabelClass="text-xs" readonly />
                             </div>
                             <div className="flex">
-                                <FormField name={"phoneNumber"} value={modalData.phoneNumber} label="Mobile Number" customLabelClass="text-xs" readonly />
+                                <FormField name={"mobile"} value={modalData.mobile} label="Mobile Number" customLabelClass="text-xs" readonly />
                                 <FormField name={"email"} value={modalData.email} label="Email" customLabelClass="text-xs" readonly />
                             </div>
                             <div className="flex">
                                 <FormField name={"facebookAccount"} value={modalData.facebookAccount} label="Facebook Account" customLabelClass="text-xs" readonly />
-                                <FormField name={"referralCode"} value={formatDynamicNumber(modalData.referralCode)} label="Referral Code" customLabelClass="text-xs" readonly />
+                                <FormField name={"referralCode"} value={formatDynamicNumber(modalData.referralCode ?? 0)} label="Referral Code" customLabelClass="text-xs" readonly />
                             </div>
                             <div className="flex gap-4">
                                 {/* <div className="flex flex-col flex-1 gap-4">
@@ -450,7 +459,7 @@ const Players = () => {
             <Modal isOpen={isShowTransactionHistoryModal} onClose={closeTransactionHistoryModal} size="large">
                 <div className="flex flex-col items-end gap-4">
                     <div className="flex w-full gap-4">
-                        <TransactionHistory reportType="player" accountNumber={modalData.id} />
+                        <TransactionHistory reportType="player" accountNumber={modalData.userId} />
                     </div>
                     <div className="flex gap-4">
                         <Button
@@ -484,10 +493,10 @@ const Players = () => {
                             <label htmlFor="searchAccountType" className="flex items-center">Account Type</label>
                             <select id="searchAccountType" className="rounded-xlg py-4 px-4 bg-semiBlack font-sans font-light text-sm tacking-[5%] text-white" value={searchAccountType} onChange={(e) => onUserSearch(search, status, e.target.value, accountStatus)}>
                                 <option value="ALL">ALL</option>
-                                <option value="9">Admin</option>
-                                <option value="5">Declarator</option>
-                                <option value="4">Event Manager</option>
-                                <option value="1">Finance</option>
+                                <option value="admin">Admin</option>
+                                <option value="declarator">Declarator</option>
+                                <option value="event-manager">Event Manager</option>
+                                <option value="finance">Finance</option>
                             </select>
                         </div>
                     </div>
@@ -506,23 +515,23 @@ const Players = () => {
             </div>
             <div className="flex flex-col">
                 <Tables
-                    primaryId="accountNumber"
+                    primaryId="userId"
                     headers={[
                         {
-                            key: 'id',
+                            key: 'walletId',
                             label: 'account number',
                             format: (val: string) => {
                                 return formatDynamicNumber(val)
                             }
                         },
                         {
-                            key: 'username',
-                            label: 'username',
+                            key: 'userName',
+                            label: 'userName',
                         },
                         {
-                            key: 'firstname',
+                            key: 'firstName',
                             label: 'complete name',
-                            concatKey: ['lastname'],
+                            concatKey: ['lastName'],
                             concatSeparator: ' '
                         },
                         {
@@ -530,25 +539,14 @@ const Players = () => {
                             label: 'email'
                         },
                         {
-                            key: 'phoneNumber',
+                            key: 'mobile',
                             label: 'mobile number'
                         },
                         {
-                            key: 'accountType',
+                            key: 'role',
                             label: 'type',
-                            format: (val: string) => {
-
-                                const accountTp = accountType.find((item: any) => {
-                                    return Number(item.accountType) === Number(val)
-                                })
-
-                                if (accountTp) {
-                                    return accountTp ? accountTp?.description : ''
-                                } else if (val.toString() === '8') {
-                                    return 'Player'
-                                } else {
-                                    return val
-                                }
+                            format: (val: any) => {
+                                return val[0]
                             }
                         },
                         {

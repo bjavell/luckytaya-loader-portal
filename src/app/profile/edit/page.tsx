@@ -23,10 +23,10 @@ const EditProfile = () => {
     const [editProfile, setEditProfile] = useState({
         accountNumber: '',
         accountType: 0,
-        firstname: '',
-        lastname: '',
+        firstName: '',
+        lastName: '',
         email: '',
-        phoneNumber: '',
+        mobile: '',
         currentPassword: '',
         newPassword: '',
         confirmPassword: ''
@@ -45,10 +45,10 @@ const EditProfile = () => {
             setEditProfile({
                 accountType: data.accountType,
                 accountNumber: data.accountNumber,
-                firstname: data.fistname,
-                lastname: data.lastname,
+                firstName: data.firstName,
+                lastName: data.lastName,
                 email: data.email,
-                phoneNumber: data.phoneNumber,
+                mobile: data.mobile,
                 currentPassword: '',
                 newPassword: '',
                 confirmPassword: ''
@@ -152,10 +152,10 @@ const EditProfile = () => {
                 {isLoading ? <LoadingSpinner /> :
                     <div className="flex flex-col gap-4 p-4 w-full bg-gray13 rounded-xl w-full gap-4">
                         {(editProfile.accountType === 2 || editProfile.accountType === 6 || editProfile.accountType === 3) && <FormField name={"accountNumber"} label="Account Number" customLabelClass="text-xs" value={formatDynamicNumber(editProfile.accountNumber)} readonly />}
-                        <FormField name={"firstname"} label="First Name" customLabelClass="text-xs" onBlur={handleChange} value={editProfile.firstname} required />
-                        <FormField name={"lastname"} label="Last Name" customLabelClass="text-xs" onBlur={handleChange} value={editProfile.lastname} required />
+                        <FormField name={"firstName"} label="First Name" customLabelClass="text-xs" onBlur={handleChange} value={editProfile.firstName} required />
+                        <FormField name={"lastName"} label="Last Name" customLabelClass="text-xs" onBlur={handleChange} value={editProfile.lastName} required />
                         <FormField name={"email"} label="Email" customLabelClass="text-xs" onBlur={handleChange} value={editProfile.email} required />
-                        <FormField name={"phoneNumber"} label="Mobile Number" customLabelClass="text-xs" onBlur={handleChange} value={editProfile.phoneNumber} required />
+                        <FormField name={"mobile"} label="Mobile Number" customLabelClass="text-xs" onBlur={handleChange} value={editProfile.mobile} required />
                         <FormField name={"newPassword"} label="New Password" customLabelClass="text-xs" onBlur={handleChange} value={editProfile.newPassword} type="password" required={editProfile.confirmPassword !== ''} />
                         <FormField name={"confirmPassword"} label="Confirm Password" customLabelClass="text-xs" onBlur={handleChange} value={editProfile.confirmPassword} errorMessage="New password does not match" pattern={editProfile.newPassword} type="password" required={editProfile.newPassword !== ''} />
 

@@ -17,29 +17,102 @@ const GET = async (req: NextRequest) => {
         const currentSession = await getCurrentSession()
         const type = req.nextUrl.searchParams.get('type')
 
+        let users
+        if (type === USER_TYPE.MANAGEMENT) {
+            const response = await otsEngine.get(`${process.env.OTS_USER_URL}/user`, {
+                params: {
+                    type: 'backoffice',
+                },
+                headers: {
+                    "x-correlation-id": correlationId,
+                    Authorization: `Bearer ${currentSession.accessToken}`,
+                }
+            })
 
-        logRequest = {
-            url: {
-                type
+            if (!response.data.success) {
+                throw new Error(response.data.errors.message)
             }
+
+            const responseData = response.data.data
+
+            const tmpUsers = responseData.users
+
+            users = await Promise.all(tmpUsers.map(async (user: any) => {
+
+                const otsWalletResponse = await otsEngine.get(`${process.env.OTS_WALLET_URL}/wallet/balance`, {
+                    headers: {
+                        'X-Correlation-ID': correlationId,
+                        Authorization: `Bearer ${currentSession.accessToken}`,
+                    },
+                    params: {
+                        userId: user.userId
+                    }
+                });
+                const responseData = otsWalletResponse.data?.data
+
+
+                console.log(responseData)
+            }))
+
+
+        } else {
+            const response = await otsEngine.get(`${process.env.OTS_USER_URL}/user`, {
+                params: {
+                    type: 'player',
+                },
+                headers: {
+                    "x-correlation-id": correlationId,
+                    Authorization: `Bearer ${currentSession.accessToken}`,
+                }
+            })
+
+            if (!response.data.success) {
+                throw new Error(response.data.errors.message)
+            }
+
+            const responseData = response.data.data
+            const tmpUsers = responseData.users
+
+            users = await Promise.all(tmpUsers.map(async (user: any) => {
+
+                const otsWalletResponse = await otsEngine.get(`${process.env.OTS_WALLET_URL}/wallet/balance/${user.userId}`, {
+                    headers: {
+                        'X-Correlation-ID': correlationId,
+                        Authorization: `Bearer ${currentSession.accessToken}`,
+                    }
+                });
+                const otsWalletResponseData = otsWalletResponse.data.data
+
+                return {
+                    ...user,
+                    walletId: otsWalletResponseData.walletId,
+                    accountBalance: otsWalletResponseData.balance ?? 0,
+                }
+            }))
         }
 
-        const mgmtRole = await luckTayaAxios.get(`/api/v1/User/MgmtRole`, {
-            headers: {
-                'X-Correlation-ID': correlationId,
-                'Authorization': `Bearer ${currentSession.token}`,
-            },
-        })
+        // logRequest = {
+        //     url: {
+        //         type
+        //     }
+        // }
 
-        const playerRole = await luckTayaAxios.get(`/api/v1/User/PlayerRole`, {
-            headers: {
-                'X-Correlation-ID': correlationId,
-                'Authorization': `Bearer ${currentSession.token}`,
-            },
-        })
+        // const mgmtRole = await luckTayaAxios.get(`/api/v1/User/MgmtRole`, {
+        //     headers: {
+        //         'X-Correlation-ID': correlationId,
+        //         'Authorization': `Bearer ${currentSession.token}`,
+        //     },
+        // })
 
-        const response = mgmtRole.data.concat(playerRole.data)
-        let customResponse = []
+        // const playerRole = await luckTayaAxios.get(`/api/v1/User/PlayerRole`, {
+        //     headers: {
+        //         'X-Correlation-ID': correlationId,
+        //         'Authorization': `Bearer ${currentSession.token}`,
+        //     },
+        // })
+
+        // const response = mgmtRole.data.concat(playerRole.data)
+        // let customResponse = []
         if (type === USER_TYPE.MANAGEMENT) {
             const accountType = [
                 {
@@ -62,77 +135,80 @@ const GET = async (req: NextRequest) => {
 
 
 
-            customResponse = response.filter((combinedUser: any) => accountType.some((acctType: any) => {
-                return acctType.accountType === combinedUser.accountType
-            }))
+            // customResponse = response.filter((combinedUser: any) => accountType.some((acctType: any) => {
+            //     return acctType.accountType === combinedUser.accountType
+            // }))
         } else {
 
-            const accountType = [
-                {
-                    "accountType": 3,
-                    "description": "Master Agent"
-                },
-                {
-                    "accountType": 6,
-                    "description": "Agent"
-                },
-                {
-                    "accountType": 7,
-                    "description": "Agent Player"
-                },
-                {
-                    "accountType": 8,
-                    "description": "Player"
-                },
-            ]
+            //     const accountType = [
+            //         {
+            //             "accountType": 3,
+            //             "description": "Master Agent"
+            //         },
+            //         {
+            //             "accountType": 6,
+            //             "description": "Agent"
+            //         },
+            //         {
+            //             "accountType": 7,
+            //             "description": "Agent Player"
+            //         },
+            //         {
+            //             "accountType": 8,
+            //             "description": "Player"
+            //         },
+            //     ]
 
-            const getAllAgentPlayers = await findAll(DB_COLLECTIONS.TAYA_USERS, {})
+            //     const getAllAgentPlayers = await findAll(DB_COLLECTIONS.TAYA_USERS, {})
 
 
 
-            const mappedResponse = await Promise.all(response.map(async (player: any) => {
+            //     const mappedResponse = await Promise.all(response.map(async (player: any) => {
 
-                const matchItem = getAllAgentPlayers.find((agentPlayer: any) => {
-                    return Number(agentPlayer.accountNumber) === Number(player.accountNumber)
-                })
+            //         const matchItem = getAllAgentPlayers.find((agentPlayer: any) => {
+            //             return Number(agentPlayer.accountNumber) === Number(player.accountNumber)
+            //         })
 
-                const otsWalletResponse = await otsEngine.get(`${process.env.OTS_WALLET_URL}/wallet/balance`, {
-                    headers: {
-                        'X-Correlation-ID': correlationId
-                    },
-                    params: {
-                        userId: player.id
-                    }
-                });
-                const responseData = otsWalletResponse.data?.data
+            //         const otsWalletResponse = await otsEngine.get(`${process.env.OTS_WALLET_URL}/wallet/balance`, {
+            //             headers: {
+            //                 'X-Correlation-ID': correlationId
+            //             },
+            //             params: {
+            //                 userId: player.id
+            //             }
+            //         });
+            //         const responseData = otsWalletResponse.data?.data
 
-                if (matchItem) {
-                    return {
-                        ...player,
-                        accountBalance: responseData?.balance ?? 0,
-                        image: matchItem.id,
-                        status: matchItem.status
-                    }
-                }
-                return {
-                    ...player,
-                    accountBalance: responseData?.balance ?? 0,
-                    image: '',
-                    status: ''
-                }
-            }));
+            //         if (matchItem) {
+            //             return {
+            //                 ...player,
+            //                 accountBalance: responseData?.balance ?? 0,
+            //                 image: matchItem.id,
+            //                 status: matchItem.status
+            //             }
+            //         }
+            //         return {
+            //             ...player,
+            //             accountBalance: responseData?.balance ?? 0,
+            //             image: '',
+            //             status: ''
+            //         }
+            //     }));
 
-            customResponse = mappedResponse.filter((combinedUser: any) => accountType.some((acctType: any) => {
-                return acctType.accountType === combinedUser.accountType
-            }));
+            //     customResponse = mappedResponse.filter((combinedUser: any) => accountType.some((acctType: any) => {
+            //         return acctType.accountType === combinedUser.accountType
+            //     }));
 
+
+            // }
+            // logResponse = {
+            //     ...customResponse
+            // }
+
+            // return NextResponse.json(customResponse)
 
         }
-        logResponse = {
-            ...customResponse
-        }
-
-        return NextResponse.json(customResponse)
+        return NextResponse.json(users)
     } catch (e: any) {
         logger.error(api, {
             correlationId,

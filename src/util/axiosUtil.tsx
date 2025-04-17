@@ -16,7 +16,8 @@ const luckTayaAxios: AxiosInstance = axios.create({
 const otsEngine: AxiosInstance = axios.create({
     headers: {
         'Content-Type': 'application/json'
-    }
+    },
+    withCredentials: true,
 })
 
 
@@ -143,7 +144,7 @@ otsEngine.interceptors.response.use(
 
         return config;
     },
-    (error) => {
+    async (error) => {
         const correlationId = error.config.headers.get('x-correlation-id')
         let logRequest
 
@@ -166,6 +167,22 @@ otsEngine.interceptors.response.use(
             request: logRequest,
             response: error.response?.data
         })
+
+        if (error.response.status === 401 && error.response.data?.errors?.message === "Invalid or expired token") {
+            try {
+                // Call the refresh endpoint to get a new access token
+                const refreshResponse = await otsEngine.post(`${process.env.OTS_AUTH_URL}/auth/refresh`);
+                const newAccessToken = refreshResponse.data.data.accessToken;
+
+                // Retry the original request with the new access token
+                error.config.headers["Authorization"] = `Bearer ${newAccessToken}`;
+                return otsEngine(error.config);
+            } catch (refreshError) {
+                // Handle refresh token failure (e.g., redirect to login)
+                console.error("Refresh token failed:", refreshError);
+                window.location.href = "/login";
+            }
+        }
         return Promise.reject(error);
     }
 );

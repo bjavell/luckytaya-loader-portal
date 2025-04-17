@@ -4,16 +4,17 @@ interface UserData {
     accountStatus: number,
     accountBalance: number,
     username: string
-    firstname: string
-    lastname: string
-    phoneNumber: string
+    firstName: string
+    lastName: string
+    mobile: string
     email: string
     facebookAccount: string
     referralCode: number,
-    id: number,
+    userId: number,
     suspended: number,
     image?: string,
-    status?: string
+    status?: string,
+    walletId: number
     // roles: string[]
 }
 

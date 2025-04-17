@@ -3,7 +3,7 @@ import { decrypt } from "@/util/cryptoUtil"
 import CustomError from "@/classes/customError"
 import { setSession } from "@/context/auth"
 import { NextRequest, NextResponse } from "next/server"
-import { luckTayaAxios } from "@/util/axiosUtil"
+import { luckTayaAxios, otsEngine } from "@/util/axiosUtil"
 import { formatGenericErrorResponse } from "@/util/commonResponse"
 import logger from "@/lib/logger"
 import { AxiosError } from "axios"
@@ -31,30 +31,46 @@ const POST = async (req: NextRequest) => {
             password: 'XXXXXX'
         }
 
+
+        const loginResponse = await otsEngine.post(`${process.env.OTS_USER_URL}/user/login`, {
+            userName: request.username,
+            password: request.password,
+        }, {
+            headers: {
+                'X-Correlation-ID': correlationId,
+            },
+        })
+
+
+        const loginResponseData = loginResponse.data
+
+
+
+
         //console.log(request, '-------')
-        const response = await luckTayaAxios.post(`/api/v1/User/Login`, request,
-            {
-                headers: {
-                    'X-Correlation-ID': correlationId,
-                },
-            }
-        )
-        const responseData = response.data
+        // const response = await luckTayaAxios.post(`/api/v1/User/Login`, request,
+        //     {
+        //         headers: {
+        //             'X-Correlation-ID': correlationId,
+        //         },
+        //     }
+        // )
+        // const responseData = response.data
 
         if (portalType === 'ADMIN') {
-            if (!responseData.roles.includes('admin')) {
+            if (!loginResponseData.data.user.role.includes('admin')) {
                 throw new CustomError('Invalid Account Type', {
                     'Not found': [`User '${request.username}' not found.`]
                 })
             }
         } else {
-            if (responseData.roles.includes('admin')) {
+            if (loginResponseData.data.user.role.includes('admin')) {
                 throw new CustomError('Invalid Account Type', {
                     'Not found': [`User '${request.username}' not found.`]
                 })
             }
 
-            if (!responseData.roles.includes('acctmgr') && !responseData.roles.includes('eventmgr') && !responseData.roles.includes('master') && !responseData.roles.includes('finance')) {
+            if (!loginResponseData.data.user.role.includes('acctmgr') && !loginResponseData.data.user.role.includes('eventmgr') && !loginResponseData.data.user.role.includes('master') && !loginResponseData.data.user.role.includes('finance')) {
                 throw new CustomError('Invalid Account Type', {
                     'Not found': [`User '${request.username}' not found.`]
                 })
@@ -62,11 +78,11 @@ const POST = async (req: NextRequest) => {
         }
 
         logResponse = {
-            ...responseData,
+            ...loginResponseData.data,
             token: 'XXXXXX'
         }
 
-        await setSession(responseData)
+        await setSession(loginResponseData.data)
         return NextResponse.json({ 'message': 'Successfully Logged In!' })
 
     } catch (e: any) {

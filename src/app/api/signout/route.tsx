@@ -1,6 +1,6 @@
 import { clearSession, getCurrentSession } from "@/context/auth"
 import logger from "@/lib/logger"
-import { luckTayaAxios } from "@/util/axiosUtil"
+import { luckTayaAxios, otsEngine } from "@/util/axiosUtil"
 import { NextRequest, NextResponse } from "next/server"
 
 const POST = async (req: NextRequest) => {
@@ -15,11 +15,19 @@ const POST = async (req: NextRequest) => {
         correlationId = req.headers.get('x-correlation-id');
 
         const currentSession = await getCurrentSession()
-        await luckTayaAxios.get(`/api/v1/User/Logout`, {
+        // await luckTayaAxios.get(`/api/v1/User/Logout`, {
+        //     headers: {
+        //         'X-Correlation-ID': correlationId,
+        //         'Authorization': `Bearer ${currentSession.token}`,
+        //     },
+        // })
+
+
+        await otsEngine.post(`${process.env.OTS_USER_URL}/user/logout`, {}, {
             headers: {
+                "Authorization": `Bearer ${currentSession.accessToken}`,
                 'X-Correlation-ID': correlationId,
-                'Authorization': `Bearer ${currentSession.token}`,
-            },
+            }
         })
     } catch (e: any) {
         status = 500

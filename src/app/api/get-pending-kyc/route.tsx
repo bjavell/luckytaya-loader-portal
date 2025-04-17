@@ -1,5 +1,7 @@
 import { DB_COLLECTIONS } from "@/classes/constants"
+import { getCurrentSession } from "@/context/auth"
 import logger from "@/lib/logger"
+import { otsEngine } from "@/util/axiosUtil"
 import { formatGenericErrorResponse } from "@/util/commonResponse"
 import { findAll } from "@/util/dbUtil"
 import { NextRequest, NextResponse } from "next/server"
@@ -12,14 +14,32 @@ const GET = async (req: NextRequest) => {
     let status = 200
     try {
         correlationId = req.headers.get('x-correlation-id');
+        const currentSession = await getCurrentSession()
 
-        const pendingReKyc = await findAll(DB_COLLECTIONS.TAYA_USERS, { status: 'PENDING' })
+        const response = await otsEngine.get(`${process.env.OTS_USER_URL}/user`, {
+            params: {
+                type: 'player',
+                status: 'PENDING',
+            },
+            headers: {
+                "x-correlation-id": correlationId,
+                Authorization: `Bearer ${currentSession.accessToken}`,
+            }
+        })
 
-        if (pendingReKyc) {
-            logResponse = { count: pendingReKyc.length }
-
-            return NextResponse.json(logResponse)
+        if (response.data.success) {
+            logResponse = { count: response.data.data.users.length }
+            return NextResponse.json({ count: response.data.data.users.length })
         }
+
+
+        // const pendingReKyc = await findAll(DB_COLLECTIONS.TAYA_USERS, { status: 'PENDING' })
+
+        // if (pendingReKyc) {
+        //     logResponse = { count: pendingReKyc.length }
+
+        //     return NextResponse.json(logResponse)
+        // }
 
         logResponse = { count: 0 }
         return NextResponse.json({ count: 0 })

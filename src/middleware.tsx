@@ -51,7 +51,7 @@ const middleware = async (request: NextRequest) => {
   }
 
   // Check if user has access to the requested route based on their role
-  const userRoles = currentSession.roles;
+  const userRoles = currentSession.user.role;
   let hasAccess = false;
 
   if (userRoles.includes("acctmgr") && (currentSession.accountType === 2 || currentSession.accountType === 3)) {

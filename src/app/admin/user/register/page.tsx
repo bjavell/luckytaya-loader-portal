@@ -12,15 +12,15 @@ import { localAxios } from "@/util/localAxiosUtil"
 
 
 interface UserRegistrationProps {
-    username: string;
-    firstname: string;
-    lastname: string;
-    phoneNumber: string;
+    userName: string;
+    firstName: string;
+    lastName: string;
+    mobile: string;
     email: string;
     facebookAccount: string;
     referralCode: number;
-    accountType: number;
-    // roles: string[];
+    // accountType: number;
+    role: string[];
     masterAgentAccountNumber: number;
 }
 
@@ -29,18 +29,36 @@ const Register = () => {
 
     const router = useRouter()
     const [isLoading, setIsLoading] = useState(false)
-    const [userType, setUserType] = useState([])
+    const [userType, setUserType] = useState([{
+        value: 'admin',
+        description: "Admin"
+    }, {
+        value: 'agent',
+        description: "Agent"
+    }, {
+        value: 'declarator',
+        description: "Declarator"
+    }, {
+        value: 'event-manager',
+        description: "Event Manager"
+    }, {
+        value: 'finance',
+        description: "Finance"
+    }, {
+        value: 'master-agent',
+        description: "Master Agent"
+    }])
     const [userRole, setUserRole] = useState([])
     const [userRegistration, setUserRegistration] = useState<UserRegistrationProps>({
-        username: '',
-        firstname: '',
-        lastname: '',
-        phoneNumber: '',
+        userName: '',
+        firstName: '',
+        lastName: '',
+        mobile: '',
         email: '',
         facebookAccount: '',
         referralCode: guidToNumber(),
-        accountType: 0,
-        // roles: [],
+        // accountType: 0,
+        role: [],
         masterAgentAccountNumber: 0
     })
     const [index, setIndex] = useState(0)
@@ -50,54 +68,54 @@ const Register = () => {
     const [alertMessage, setAlertMessage] = useState('');
     const [isShowMasterAgenctAccountField, setIsShowMasterAgenctAccountField] = useState(false)
 
-    const getUserType = async () => {
-        await localAxios.get('/api/get-account-type')
-            .then(response => {
-                setUserType(response.data)
-            })
-            .catch((e) => {
-                const errorMessages = e.response.data.error
-                if (errorMessages) {
-                    if (errorMessages['Unauthorized']) {
-                        router.push('/login')
-                    }
-                }
-                // const errorMessages = e.response.data.error
-                setUserType([])
-            })
-            .finally(() => {
-                // setIsLoading(false)
-            })
-    }
+    // const getUserType = async () => {
+    //     await localAxios.get('/api/get-account-type')
+    //         .then(response => {
+    //             setUserType(response.data)
+    //         })
+    //         .catch((e) => {
+    //             const errorMessages = e.response.data.error
+    //             if (errorMessages) {
+    //                 if (errorMessages['Unauthorized']) {
+    //                     router.push('/login')
+    //                 }
+    //             }
+    //             // const errorMessages = e.response.data.error
+    //             setUserType([])
+    //         })
+    //         .finally(() => {
+    //             // setIsLoading(false)
+    //         })
+    // }
 
-    const getUserRole = async () => {
-        await localAxios.get('/api/get-account-roles')
-            .then(response => {
-                setUserRole(response.data)
-            })
-            .catch((e) => {
-                const errorMessages = e.response.data.error
-                if (errorMessages) {
-                    if (errorMessages['Unauthorized']) {
-                        router.push('/login')
-                    }
-                }
-                // const errorMessages = e.response.data.error
-                setUserRole([])
-            })
-            .finally(() => {
-                // setIsLoading(false)
-            })
-    }
+    // const getUserRole = async () => {
+    //     await localAxios.get('/api/get-account-roles')
+    //         .then(response => {
+    //             setUserRole(response.data)
+    //         })
+    //         .catch((e) => {
+    //             const errorMessages = e.response.data.error
+    //             if (errorMessages) {
+    //                 if (errorMessages['Unauthorized']) {
+    //                     router.push('/login')
+    //                 }
+    //             }
+    //             // const errorMessages = e.response.data.error
+    //             setUserRole([])
+    //         })
+    //         .finally(() => {
+    //             // setIsLoading(false)
+    //         })
+    // }
 
     useEffect(() => {
-        if (userType.length === 0) {
-            getUserType()
-        }
+        // if (userType.length === 0) {
+        //     getUserType()
+        // }
 
-        if (userRole.length === 0) {
-            getUserRole()
-        }
+        // if (userRole.length === 0) {
+        //     getUserRole()
+        // }
 
         setUserRegistration(prevState => ({
             ...prevState,
@@ -124,10 +142,10 @@ const Register = () => {
         const { name, value } = e.target
         setUserRegistration(prevState => ({
             ...prevState,
-            [name]: value
+            [name]: [value]
         }))
-        if (name === 'accountType') {
-            if (value === '6') {
+        if (name === 'role') {
+            if (value === 'agent') {
                 setIsShowMasterAgenctAccountField(true)
             } else {
                 setIsShowMasterAgenctAccountField(false)
@@ -152,14 +170,15 @@ const Register = () => {
             setIsLoading(true)
             const response = await localAxios.post('/api/register', userRegistration)
             setUserRegistration({
-                username: '',
-                firstname: '',
-                lastname: '',
-                phoneNumber: '',
+                userName: '',
+                firstName: '',
+                lastName: '',
+                mobile: '',
                 email: '',
                 facebookAccount: '',
                 referralCode: guidToNumber(),
-                accountType: 0,
+                // accountType: 0,
+                role: [],
                 // roles: [],
                 masterAgentAccountNumber: 0
             })
@@ -209,11 +228,11 @@ const Register = () => {
             <Form className="flex flex-col w-full" key={`form-${index}`}>
                 <div className="flex flex-col gap-4 p-4 w-full bg-gray13 rounded-xl w-full gap-4">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 w-full">
-                        <FormField name={"username"} label="Username" customLabelClass="text-xs" onBlur={handleChange} value={userRegistration.username} required />
+                        <FormField name={"userName"} label="Username" customLabelClass="text-xs" onBlur={handleChange} value={userRegistration.userName} required />
                         <FormField name={"facebookAccount"} label="Facebook Account" customLabelClass="text-xs" onBlur={handleChange} value={userRegistration.facebookAccount} required />
-                        <FormField name={"firstname"} label="First Name" customLabelClass="text-xs" onBlur={handleChange} value={userRegistration.firstname} required />
-                        <FormField name={"lastname"} label="Last Name" customLabelClass="text-xs" onBlur={handleChange} value={userRegistration.lastname} required />
-                        <FormField name={"phoneNumber"} label="Phone Number" customLabelClass="text-xs" onBlur={handleChange} value={userRegistration.phoneNumber} required />
+                        <FormField name={"firstName"} label="First Name" customLabelClass="text-xs" onBlur={handleChange} value={userRegistration.firstName} required />
+                        <FormField name={"lastName"} label="Last Name" customLabelClass="text-xs" onBlur={handleChange} value={userRegistration.lastName} required />
+                        <FormField name={"mobile"} label="Phone Number" customLabelClass="text-xs" onBlur={handleChange} value={userRegistration.mobile} required />
                         <FormField name={"email"} label="Email" customLabelClass="text-xs" type="email" pattern={PATTERNS.EMAIL} errorMessage="Invalid Email Address" onBlur={handleChange} value={userRegistration.email} required />
 
                         <div className="flex flex-col flex-1 gap-4 col-end-3">
@@ -234,13 +253,13 @@ const Register = () => {
 
                             <div className="flex flex-col flex-1 gap-4">
                                 <label htmlFor="accountType" className="text-white font-sans font-light text-nowrap text-xs">Account Type</label>
-                                <select id="accountType" name='accountType' className="rounded-xlg py-4 px-4 bg-semiBlack font-sans font-light tacking-[5%] text-white" value={userRegistration.accountType} onChange={onDropDownChange} required>
+                                <select id="accountType" name='role' className="rounded-xlg py-4 px-4 bg-semiBlack font-sans font-light tacking-[5%] text-white" value={userRegistration.role[0]} onChange={onDropDownChange} required>
 
                                     <option value=''>Select Account Type</option>
                                     {
                                         userType ?
                                             userType.map((e: any) => {
-                                                return <option key={e.description} value={e.accountType}>{e.description}</option>
+                                                return <option key={e.value} value={e.value}>{e.description}</option>
                                             }) :
                                             <option></option>
                                     }
